@@ -18,8 +18,9 @@
 ---
 
 <p align="center">
-  <img src="docs/screenshot-processes.png" width="49%" alt="Processes tab: grouped, searchable, sortable process list" />
-  <img src="docs/screenshot-performance.png" width="49%" alt="Performance tab: live CPU/Memory/Disk/Network charts" />
+  <img src="docs/screenshot-processes.png" width="80%" alt="Processes tab: grouped, searchable, sortable process list" />
+  <br />
+  <img src="docs/screenshot-performance.png" width="80%" alt="Performance tab: live CPU/Memory/Disk/Network charts" />
 </p>
 
 ## What it is

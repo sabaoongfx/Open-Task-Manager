@@ -50,11 +50,32 @@ no background service.
 - Real hardware info: CPU brand/frequency/core counts, per-disk capacity and type,
   network interface throughput.
 
-### Coming soon
+### Details & Users
 
-The sidebar already has tabs for **App history**, **Startup apps**, **Users**, **Details**,
-and **Services** — the navigation and layout are in place, but they're not wired up to
-real data yet.
+- **Details** — a flat, sortable process list with each process's real status and
+  owning user, resolved via `sysinfo`. Right-click to end a task.
+- **Users** — processes grouped by owning account, with live CPU/memory/disk totals
+  per user; expand a user to see their individual processes.
+
+### Startup apps & Services
+
+- **Startup apps** — real autostart entries parsed from `/etc/xdg/autostart` and
+  `~/.config/autostart`, with Enable/Disable (updates the app's own view only, not
+  your real autostart config).
+- **Services** — the real systemd service list (name, description, status), with
+  Start/Stop (also UI-only for now — see [Roadmap](#roadmap)).
+
+### App history
+
+Real cumulative CPU time per app, tracked since the app was launched (not persisted
+across restarts), with a working "Delete usage history" action.
+
+## Roadmap
+
+- Make Start/Stop (Services) and Enable/Disable (Startup apps) act on the real system
+  instead of just the app's own view.
+- Persist App history across restarts.
+- Signed installers for Windows and macOS.
 
 ## Tech stack
 
@@ -159,4 +180,4 @@ alone.
 
 ## License
 
-Not yet specified.
+[MIT](LICENSE)

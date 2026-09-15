@@ -9,6 +9,12 @@
   rebuilt with <a href="https://tauri.app">Tauri</a> and Rust instead of Electron.
 </p>
 
+<p align="center">
+  <a href="https://github.com/sabaoongfx/Open-Task-Manager/releases/latest">
+    <img src="https://img.shields.io/github/v/release/sabaoongfx/Open-Task-Manager?label=Download&style=for-the-badge&color=E93233" alt="Download latest release" />
+  </a>
+</p>
+
 ---
 
 <p align="center">

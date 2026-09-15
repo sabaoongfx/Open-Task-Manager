@@ -1,0 +1,322 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Open Task Manager</title>
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;900&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@300;400;500;600&display=swap">
+<style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style>
+</head><body>
+<style>
+  :root{
+    --red:#E93233; --orange:#FBA806; --yellow:#FFDB56; --heat:0,120,212;
+    --bg:#F6F4EF; --surface:#FFFFFF; --surface-2:#EDEAE1; --surface-3:#E4DFD3;
+    --ink:#1C1A17; --ink-muted:#716A5E; --ink-faint:#9C9385;
+    --border:#E2DDD1; --shadow:0 1px 2px rgba(28,26,23,.05), 0 8px 24px -12px rgba(28,26,23,.12);
+    color-scheme: light dark;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#16130F; --surface:#201B15; --surface-2:#29231B; --surface-3:#332B20;
+      --ink:#F3EFE7; --ink-muted:#A89D8C; --ink-faint:#766C5C;
+      --border:#382F24; --shadow:0 1px 2px rgba(0,0,0,.3), 0 8px 24px -12px rgba(0,0,0,.5);
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#16130F; --surface:#201B15; --surface-2:#29231B; --surface-3:#332B20;
+    --ink:#F3EFE7; --ink-muted:#A89D8C; --ink-faint:#766C5C;
+    --border:#382F24; --shadow:0 1px 2px rgba(0,0,0,.3), 0 8px 24px -12px rgba(0,0,0,.5);
+  }
+
+  *{ box-sizing:border-box; }
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:"IBM Plex Sans", system-ui, sans-serif;
+    padding-inline: 24px;
+  }
+  ::selection{ background: var(--yellow); color:#1C1A17; }
+  a{ color:inherit; }
+  h1,h2,h3{ font-family:"Unbounded", "IBM Plex Sans", sans-serif; text-wrap:balance; margin:0; }
+  p{ margin:0; }
+  .mono{ font-family:"IBM Plex Mono", ui-monospace, monospace; }
+  .wrap{ max-width: 1120px; margin-inline:auto; }
+  .eyebrow{
+    font-family:"IBM Plex Mono", monospace; font-size:12px; letter-spacing:.09em;
+    text-transform:uppercase; color: var(--ink-muted);
+    display:flex; align-items:center; gap:8px;
+  }
+  .eyebrow::before{ content:""; width:7px; height:7px; border-radius:2px; background:var(--red); flex-shrink:0; }
+
+  /* ---------- top bar ---------- */
+  .topbar{
+    max-width:1120px; margin-inline:auto;
+    display:flex; align-items:center; justify-content:space-between;
+    padding-block:20px; gap:16px; flex-wrap:wrap;
+  }
+  .brand{ display:flex; align-items:center; gap:10px; font-weight:600; font-size:15px; }
+  .brand svg{ width:26px; height:20px; flex-shrink:0; }
+  .topnav{ display:flex; gap:28px; font-size:14px; color:var(--ink-muted); flex-wrap:wrap; align-items:center; }
+  .topnav a{ text-decoration:none; }
+  .topnav a:hover{ color:var(--ink); }
+  .topnav a.gh{
+    display:flex; align-items:center; gap:6px; color:var(--ink); font-weight:600;
+    border:1px solid var(--border); border-radius:7px; padding:7px 12px; background:var(--surface);
+  }
+  .topnav a.gh:hover{ background:var(--surface-2); }
+  .topnav a.gh svg{ width:15px; height:15px; }
+
+  /* ---------- hero ---------- */
+  .hero{
+    max-width:720px; margin-inline:auto;
+    padding-block: 48px 64px; text-align:center;
+  }
+  .hero .cta-row{ justify-content:center; }
+  .hero p.lede{ margin-inline:auto; }
+  .hero .eyebrow{ justify-content:center; }
+  .hero h1{ font-size:clamp(34px,4.6vw,54px); line-height:1.06; font-weight:700; margin-block:16px 18px; }
+  .hero h1 em{ font-style:normal; color:var(--red); }
+  .hero p.lede{ font-size:17px; line-height:1.6; color:var(--ink-muted); max-width:46ch; }
+  .cta-row{ display:flex; gap:12px; margin-top:28px; flex-wrap:wrap; }
+  .btn{
+    font:inherit; font-weight:600; font-size:14px; border-radius:7px; padding:12px 18px;
+    border:1px solid transparent; cursor:pointer; display:inline-flex; align-items:center; gap:8px;
+    text-decoration:none;
+  }
+  .btn-primary{ background:var(--red); color:#fff; }
+  .btn-primary:hover{ background:#d4262a; }
+  .btn-ghost{ background:var(--surface); border-color:var(--border); color:var(--ink); }
+  .btn-ghost:hover{ background:var(--surface-2); }
+  .btn-disabled{ background:var(--surface-2); border-color:var(--border); color:var(--ink-faint); cursor:not-allowed; }
+  .btn svg{ width:16px; height:16px; flex-shrink:0; }
+
+  /* ---------- device window: a real, live embed of the app ---------- */
+  .full-demo-wrap{ max-width:1120px; margin-inline:auto; padding-block:56px 0; }
+  .full-demo-wrap .section-head{ margin-bottom:20px; }
+  .device{
+    background:var(--surface); border:1px solid var(--border); border-radius:12px;
+    box-shadow:var(--shadow); overflow:hidden;
+  }
+  .device-bar{
+    display:flex; align-items:center; gap:6px; padding:10px 14px;
+    border-bottom:1px solid var(--border); background:var(--surface-2);
+  }
+  .device-dot{ width:9px; height:9px; border-radius:50%; background:var(--border); }
+  .device-title{ margin-inline:auto; font-size:12px; color:var(--ink-muted); font-family:"IBM Plex Mono",monospace; }
+  .device-frame{
+    display:block; width:100%; height:640px; border:none; background:#f3f3f3;
+  }
+  @media (max-width:720px){ .device-frame{ height:520px; } }
+
+  /* ---------- section shell ---------- */
+  section{ max-width:1120px; margin-inline:auto; padding-block:64px; border-top:1px solid var(--border); }
+  .section-head{ display:flex; justify-content:space-between; align-items:end; gap:24px; margin-bottom:32px; flex-wrap:wrap; }
+  .section-head h2{ font-size:clamp(24px,3vw,32px); font-weight:700; margin-top:8px; }
+  .section-head p{ color:var(--ink-muted); max-width:42ch; font-size:14.5px; }
+
+  /* ---------- features as a process list ---------- */
+  .flist{ border:1px solid var(--border); border-radius:10px; overflow:hidden; background:var(--surface); }
+  .frow{
+    display:grid; grid-template-columns: 40px 1fr 2.1fr auto; gap:18px; align-items:center;
+    padding:16px 18px; border-top:1px solid var(--border);
+  }
+  .frow:first-child{ border-top:none; }
+  .ficon{
+    width:36px; height:36px; border-radius:8px; display:flex; align-items:center; justify-content:center;
+    background:var(--surface-2); color:var(--red); flex-shrink:0;
+  }
+  .ficon svg{ width:18px; height:18px; }
+  .ftitle{ font-weight:600; font-size:14.5px; }
+  .fdesc{ color:var(--ink-muted); font-size:13.5px; line-height:1.5; }
+  .ftag{
+    font-family:"IBM Plex Mono",monospace; font-size:10.5px; letter-spacing:.04em; text-transform:uppercase;
+    color:var(--ink-faint); border:1px solid var(--border); border-radius:20px; padding:4px 10px; white-space:nowrap;
+  }
+  @media (max-width:720px){
+    .frow{ grid-template-columns: 32px 1fr; grid-template-areas:"icon title" "icon desc" "icon tag"; }
+    .frow .ficon{ grid-area:icon; width:28px; height:28px; }
+    .frow .ftitle{ grid-area:title; }
+    .frow .fdesc{ grid-area:desc; }
+    .frow .ftag{ grid-area:tag; justify-self:start; margin-top:6px; }
+  }
+
+  /* ---------- specs (stat grid) ---------- */
+  .specs{ display:grid; grid-template-columns:repeat(4,1fr); gap:1px; background:var(--border); border:1px solid var(--border); border-radius:10px; overflow:hidden; }
+  .spec{ background:var(--surface); padding:20px 18px; display:flex; flex-direction:column; gap:6px; }
+  .spec .l{ font-size:11px; color:var(--ink-faint); text-transform:uppercase; letter-spacing:.05em; }
+  .spec .v{ font-family:"IBM Plex Mono",monospace; font-size:19px; font-weight:500; }
+  @media (max-width:720px){ .specs{ grid-template-columns:repeat(2,1fr); } }
+
+  /* ---------- roadmap (grayed placeholder tabs) ---------- */
+  .roadmap{ border:1px solid var(--border); border-radius:10px; overflow:hidden; }
+  .rm-head{ display:flex; align-items:center; gap:10px; padding:12px 16px; background:var(--surface-2); border-bottom:1px solid var(--border); font-size:12.5px; color:var(--ink-muted); }
+  .rm-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:1px; background:var(--border); }
+  .rm-item{
+    padding:22px 18px;
+    color:var(--ink-faint); background:var(--surface);
+  }
+  .rm-item .name{ font-weight:600; font-size:14px; color:var(--ink-muted); margin-bottom:4px; }
+  .rm-item .status{ font-family:"IBM Plex Mono",monospace; font-size:11px; }
+
+  footer{ max-width:1120px; margin-inline:auto; padding-block:32px 48px; display:flex; justify-content:space-between; align-items:center; gap:16px; flex-wrap:wrap; color:var(--ink-faint); font-size:12.5px; font-family:"IBM Plex Mono",monospace; }
+  footer a{ text-decoration:underline; text-underline-offset:2px; }
+  footer a:hover{ color:var(--ink); }
+</style>
+
+<div class="topbar">
+  <div class="brand">
+    <svg viewBox="0 0 513 398" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <rect width="512" height="398" rx="70" fill="#E93233"/>
+      <path d="M492.818 397.869C503.914 397.941 512.948 388.966 512.948 377.87V187.414C512.948 176.368 503.994 167.414 492.948 167.414H454.616C446.258 167.414 438.781 162.216 435.869 154.382L407.167 77.1576C401.073 60.7631 378.355 59.5366 370.532 75.1798L351.027 114.182C344.098 128.036 324.73 129.095 316.333 116.079L314.235 112.827C306.08 100.186 287.412 100.735 280.014 113.835L224.686 211.807C216.254 226.738 194.173 224.83 188.427 208.673L144.755 85.8569C138.495 68.2542 113.662 68.0829 107.161 85.5975L2.38706 367.842C-2.44362 380.855 7.12634 394.711 21.0068 394.802L492.818 397.869Z" fill="#FBA806"/>
+      <path d="M492.948 398C503.994 398 512.948 389.046 512.948 378V244.321C512.948 233.275 503.994 224.321 492.948 224.321H453.201C445.586 224.321 438.632 219.996 435.264 213.166L406.591 155.02C399.769 141.185 380.516 139.954 371.988 152.808L350.108 185.783C342.768 196.847 326.882 197.818 318.249 187.731L312.676 181.221C304.35 171.493 289.154 171.986 281.476 182.234L223.26 259.935C214.222 271.997 195.596 270.107 189.166 256.476L144.021 160.784C136.922 145.738 115.627 145.431 108.098 160.267L2.19154 368.949C-4.56059 382.254 5.10628 398 20.0262 398H492.948Z" fill="#FFDB56"/>
+    </svg>
+    Open Task Manager
+  </div>
+  <nav class="topnav">
+    <a href="#demo">Live demo</a>
+    <a href="#features">Features</a>
+    <a href="#specs">Specs</a>
+    <a href="#roadmap">Roadmap</a>
+    <a class="gh" href="https://github.com/sabaoongfx/Open-Task-Manager" target="_blank" rel="noopener">
+      <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+      GitHub
+    </a>
+  </nav>
+</div>
+
+<div class="hero">
+  <p class="eyebrow">pid 1 &middot; system monitor</p>
+  <h1>See what your&nbsp;computer<br>is <em>actually</em> doing.</h1>
+  <p class="lede">Your favorite Windows 11 Task Manager is now open source. It's a free process &amp; performance monitor &mdash; the layout you already know, rebuilt with Tauri and Rust instead of Electron. No telemetry, no background service, one native binary. <a href="https://github.com/sabaoongfx/Open-Task-Manager" target="_blank" rel="noopener" style="text-decoration:underline;text-underline-offset:2px;">View the code on GitHub &rarr;</a></p>
+  <div class="cta-row">
+    <a class="btn btn-primary" href="https://github.com/sabaoongfx/Open-Task-Manager" target="_blank" rel="noopener">
+      <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+      Star on GitHub
+    </a>
+    <button class="btn btn-ghost" onclick="window.revealFullDemo && window.revealFullDemo()">See it in action</button>
+    <a class="btn btn-ghost" href="https://github.com/sabaoongfx/Open-Task-Manager/releases" target="_blank" rel="noopener">Download</a>
+  </div>
+</div>
+
+<div class="full-demo-wrap" id="full-demo">
+  <div class="section-head">
+    <div>
+      <p class="eyebrow">full interface</p>
+      <h2>This is the actual app.</h2>
+    </div>
+    <p>Not a mockup &mdash; the real build, running client-side with simulated data. Click through Processes, Performance, App history, Startup apps, Users, Details and Services.</p>
+  </div>
+
+  <div class="device device-full">
+    <div class="device-bar">
+      <div class="device-dot"></div><div class="device-dot"></div><div class="device-dot"></div>
+      <span class="device-title">open-task-manager.exe</span>
+    </div>
+    <iframe class="device-frame" src="app/index.html" title="Open Task Manager &mdash; live app" loading="lazy"></iframe>
+  </div>
+</div>
+
+<section id="features">
+  <div class="section-head">
+    <div>
+      <p class="eyebrow">features</p>
+      <h2>Everything Task Manager should have shipped with.</h2>
+    </div>
+    <p>Six things it does well, in the order you'd actually reach for them.</p>
+  </div>
+  <div class="flist">
+    <div class="frow">
+      <div class="ficon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></div>
+      <div class="ftitle">Grouped, searchable, sortable</div>
+      <div class="fdesc">Multi-instance apps collapse into one row &mdash; expand "Google Chrome (5)" to see every tab process. Filter by name, sort any column.</div>
+      <div class="ftag">core</div>
+    </div>
+    <div class="frow">
+      <div class="ficon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M9 9l6 6M15 9l-6 6"/></svg></div>
+      <div class="ftitle">Right-click to end a task</div>
+      <div class="fdesc">A real context menu on every row and sub-row &mdash; no more hunting for the toolbar button.</div>
+      <div class="ftag">core</div>
+    </div>
+    <div class="frow">
+      <div class="ficon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12h16M4 6h10M4 18h7"/></svg></div>
+      <div class="ftitle">Efficiency mode</div>
+      <div class="fdesc">Collapse row height when you just need to scan a long process list, not read it.</div>
+      <div class="ftag">ui</div>
+    </div>
+    <div class="frow">
+      <div class="ficon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3,17 9,9 13,13 21,5"/></svg></div>
+      <div class="ftitle">Live CPU, memory, disk &amp; network charts</div>
+      <div class="fdesc">A 60-second rolling history per metric, sampled straight from the OS every 1.5 seconds.</div>
+      <div class="ftag">performance</div>
+    </div>
+    <div class="frow">
+      <div class="ficon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18"/></svg></div>
+      <div class="ftitle">One native window, three OSes</div>
+      <div class="fdesc">Built on Tauri: the UI is a system webview, not a bundled Chromium &mdash; no 150&nbsp;MB install for a process list.</div>
+      <div class="ftag">tauri</div>
+    </div>
+    <div class="frow">
+      <div class="ficon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3 6 6 1-4.5 4 1 6-5.5-3-5.5 3 1-6L3 9l6-1z"/></svg></div>
+      <div class="ftitle">Rust reads the numbers</div>
+      <div class="fdesc"><code class="mono">sysinfo</code> polls the kernel directly for CPU, memory, disk and network &mdash; the frontend only renders what it's told.</div>
+      <div class="ftag">rust</div>
+    </div>
+  </div>
+</section>
+
+<section id="specs">
+  <div class="section-head">
+    <div>
+      <p class="eyebrow">specs</p>
+      <h2>What's actually running under the hood.</h2>
+    </div>
+  </div>
+  <div class="specs">
+    <div class="spec"><div class="l">Frontend</div><div class="v">React 19 + TS</div></div>
+    <div class="spec"><div class="l">Shell</div><div class="v">Tauri 2</div></div>
+    <div class="spec"><div class="l">System data</div><div class="v">Rust &middot; sysinfo</div></div>
+    <div class="spec"><div class="l">Poll interval</div><div class="v">1.5s</div></div>
+  </div>
+</section>
+
+<section id="roadmap">
+  <div class="section-head">
+    <div>
+      <p class="eyebrow">roadmap</p>
+      <h2>What's still ahead.</h2>
+    </div>
+    <p>All seven tabs are wired up and running &mdash; here's what's left to make it production-grade.</p>
+  </div>
+  <div class="roadmap">
+    <div class="rm-head"><span class="mono">▾</span> Not started (4)</div>
+    <div class="rm-grid">
+      <div class="rm-item"><div class="name">Real service control</div><div class="status">Start/Stop is UI-only today</div></div>
+      <div class="rm-item"><div class="name">Real startup toggles</div><div class="status">Enable/Disable is UI-only today</div></div>
+      <div class="rm-item"><div class="name">Persistent app history</div><div class="status">Resets when the app restarts</div></div>
+      <div class="rm-item"><div class="name">Signed installers</div><div class="status">Windows/macOS builds are unsigned</div></div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <span>Open Task Manager &middot; open source on <a href="https://github.com/sabaoongfx/Open-Task-Manager" target="_blank" rel="noopener">GitHub</a> &middot; built by <a href="https://sabaoon.dev" target="_blank" rel="noopener">sabaoon.dev</a></span>
+  <span id="uptime">uptime 00:00:00</span>
+</footer>
+
+<script>
+(function(){
+  window.revealFullDemo = function(){
+    var el = document.getElementById('full-demo');
+    if(!el) return;
+    requestAnimationFrame(function(){ el.scrollIntoView({behavior:'smooth', block:'start'}); });
+  };
+
+  var start = Date.now();
+  setInterval(function(){
+    var s = Math.floor((Date.now()-start)/1000);
+    var hh = String(Math.floor(s/3600)).padStart(2,'0');
+    var mm = String(Math.floor((s%3600)/60)).padStart(2,'0');
+    var ss = String(s%60).padStart(2,'0');
+    document.getElementById('uptime').textContent = 'uptime ' + hh + ':' + mm + ':' + ss;
+  }, 1000);
+})();
+</script>
+
+</body></html>

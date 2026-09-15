@@ -352,6 +352,7 @@ body {
   flex-direction: column;
   min-height: 0;
   overflow-y: hidden;
+  overflow-x: hidden;
 }
 
 .table-head {
@@ -376,6 +377,7 @@ body {
 
 .table-body {
   overflow-y: auto;
+  overflow-x: hidden;
   flex: 1;
 }
 
@@ -427,6 +429,75 @@ body {
   flex-shrink: 0;
   justify-content: flex-end;
   text-align: right;
+}
+
+.col-status {
+  width: 100px;
+  flex-shrink: 0;
+}
+
+.col-user {
+  width: 150px;
+  flex-shrink: 0;
+}
+
+.col-publisher {
+  width: 220px;
+  flex-shrink: 0;
+}
+
+.col-impact {
+  width: 120px;
+  flex-shrink: 0;
+}
+
+.col-desc {
+  flex: 1 1 0%;
+  min-width: 180px;
+}
+
+.col-cputime,
+.col-network {
+  width: 120px;
+  flex-shrink: 0;
+  justify-content: flex-end;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.row.dim .col {
+  opacity: 0.55;
+}
+
+.empty-hint {
+  padding: 24px 8px;
+  color: var(--text-muted);
+  font-size: 13px;
+  text-align: center;
+}
+
+.history-meta {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+
+.link-btn {
+  background: none;
+  border: none;
+  color: var(--accent);
+  font-size: 13px;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+}
+
+.link-btn:hover {
+  opacity: 0.8;
 }
 
 .sort-arrow {

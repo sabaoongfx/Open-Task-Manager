@@ -4,6 +4,8 @@ export interface ProcessInfo {
   cpu_usage: number;
   memory: number;
   disk_bytes_per_sec: number;
+  status: string;
+  user_name: string | null;
 }
 
 export interface CpuInfo {
@@ -45,7 +47,25 @@ export interface SystemStats {
   network_interfaces: NetworkInterface[];
 }
 
+export interface AppHistoryEntry {
+  name: string;
+  cpu_seconds: number;
+}
+
 export interface Snapshot {
   processes: ProcessInfo[];
   stats: SystemStats;
+  app_history: AppHistoryEntry[];
+}
+
+export interface ServiceInfo {
+  name: string;
+  description: string;
+  status: string;
+}
+
+export interface StartupAppInfo {
+  name: string;
+  publisher: string;
+  enabled: boolean;
 }

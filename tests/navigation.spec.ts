@@ -26,9 +26,8 @@ for (const label of TABS) {
   });
 }
 
-test("unimplemented tabs show the placeholder", async ({ page }) => {
-  await page.getByRole("button", { name: "Services", exact: true }).click();
-  await expect(page.locator(".placeholder-pane")).toContainText("Services");
+test("Settings shows the placeholder", async ({ page }) => {
+  await page.getByRole("button", { name: "Settings", exact: true }).click();
   await expect(page.locator(".placeholder-pane")).toContainText("Not implemented yet");
 });
 

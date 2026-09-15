@@ -1,11 +1,16 @@
 import { useEffect, useMemo, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import "./App.css";
-import type { ProcessInfo, Snapshot, SystemStats } from "./types";
-import { isTauri, mockKill, mockSnapshot } from "./mockData";
+import type { AppHistoryEntry, ProcessInfo, Snapshot, SystemStats } from "./types";
+import { isTauri, mockKill, mockResetAppHistory, mockSnapshot } from "./mockData";
 import { ProcIcon } from "./appIcons";
 import { formatBytes, formatRate } from "./format";
 import PerformancePane, { type PerfHistory, HISTORY_LEN } from "./Performance";
+import DetailsPane from "./Details";
+import UsersPane from "./Users";
+import StartupAppsPane from "./StartupApps";
+import ServicesPane from "./Services";
+import AppHistoryPane from "./AppHistory";
 import {
   IconChevronDown,
   IconDetails,
@@ -115,6 +120,7 @@ function App() {
   const [compact, setCompact] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [history, setHistory] = useState<PerfHistory>({ cpu: [], memory: [], disk: [], network: [] });
+  const [appHistory, setAppHistory] = useState<AppHistoryEntry[]>([]);
   const [scrollbarWidth, setScrollbarWidth] = useState(0);
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number; selection: Selection } | null>(null);
 
@@ -137,6 +143,7 @@ function App() {
       if (!cancelled) {
         setProcesses(snapshot.processes);
         setStats(snapshot.stats);
+        setAppHistory(snapshot.app_history);
         setHistory((prev) => ({
           cpu: [...prev.cpu, snapshot.stats.cpu_usage].slice(-HISTORY_LEN),
           memory: [
@@ -219,12 +226,25 @@ function App() {
     }
   }
 
+  async function endPids(pids: number[]) {
+    await Promise.all(pids.map(killPid));
+    setProcesses((prev) => prev.filter((p) => !pids.includes(p.pid)));
+  }
+
   async function endTask() {
     if (!selection) return;
     const pids = selection.kind === "pid" ? [selection.pid] : selection.pids;
-    await Promise.all(pids.map(killPid));
-    setProcesses((prev) => prev.filter((p) => !pids.includes(p.pid)));
+    await endPids(pids);
     setSelection(null);
+  }
+
+  async function resetAppHistory() {
+    if (isTauri()) {
+      await invoke("reset_app_history");
+    } else {
+      mockResetAppHistory();
+    }
+    setAppHistory((prev) => prev.map((e) => ({ ...e, cpu_seconds: 0 })));
   }
 
   function handleContextMenu(e: React.MouseEvent, sel: Selection) {
@@ -269,7 +289,7 @@ function App() {
             <IconMenu />
           </button>
           <span className="brand-title">
-            <img className="brand-logo" src="/open%20task%20manager.svg" alt="" />
+            <img className="brand-logo" src="open%20task%20manager.svg" alt="" />
             <span className="brand-text">Open Task Manager</span>
           </span>
         </div>
@@ -300,6 +320,16 @@ function App() {
         <div className="content-card">
         {activeTab === "performance" ? (
           <PerformancePane stats={stats} history={history} />
+        ) : activeTab === "details" ? (
+          <DetailsPane processes={processes} onEndTask={endPids} />
+        ) : activeTab === "users" ? (
+          <UsersPane processes={processes} stats={stats} onEndTask={endPids} />
+        ) : activeTab === "startup" ? (
+          <StartupAppsPane processes={processes} />
+        ) : activeTab === "services" ? (
+          <ServicesPane />
+        ) : activeTab === "history" ? (
+          <AppHistoryPane entries={appHistory} onDeleteHistory={resetAppHistory} />
         ) : activeTab !== "processes" ? (
           <div className="placeholder-pane">
             <p>{NAV_ITEMS.find((n) => n.key === activeTab)?.label ?? "Settings"}</p>

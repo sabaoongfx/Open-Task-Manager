@@ -87,10 +87,14 @@ AUR packages are prepared and will be published once AUR account registration re
 
 From the [latest release](https://github.com/sabaoongfx/Open-Task-Manager/releases/latest):
 
-- `.rpm` for Fedora and openSUSE: `sudo dnf install ./open-task-manager-*.rpm`
-- `.AppImage` for anything else (desktop app only). This link always points to the newest
-  version:
-  [Open-Task-Manager-x86_64.AppImage](https://github.com/sabaoongfx/Open-Task-Manager/releases/latest/download/Open-Task-Manager-x86_64.AppImage)
+These links always download the newest version (x86_64):
+
+- [`.rpm`](https://github.com/sabaoongfx/Open-Task-Manager/releases/latest/download/Open-Task-Manager-x86_64.rpm) for Fedora and openSUSE, which includes `otm`:
+  `sudo dnf install ./Open-Task-Manager-x86_64.rpm`
+- [`.deb`](https://github.com/sabaoongfx/Open-Task-Manager/releases/latest/download/Open-Task-Manager-amd64.deb), which includes `otm` (on Debian/Ubuntu, prefer
+  the apt repository above so you get updates)
+- [`.AppImage`](https://github.com/sabaoongfx/Open-Task-Manager/releases/latest/download/Open-Task-Manager-x86_64.AppImage) for any other distribution (desktop
+  app only):
 
   ```bash
   chmod +x Open-Task-Manager-x86_64.AppImage
@@ -99,23 +103,33 @@ From the [latest release](https://github.com/sabaoongfx/Open-Task-Manager/releas
 
 ### Windows
 
-Download the `.msi` or `-setup.exe` installer from the
-[latest release](https://github.com/sabaoongfx/Open-Task-Manager/releases/latest). It isn't
+Download the [installer (`.exe`)](https://github.com/sabaoongfx/Open-Task-Manager/releases/latest/download/Open-Task-Manager-x64-setup.exe) or the
+[`.msi`](https://github.com/sabaoongfx/Open-Task-Manager/releases/latest/download/Open-Task-Manager-x64.msi); both links always give the newest version. It isn't
 code-signed yet, so SmartScreen may warn you: choose *More info → Run anyway*.
 
 ### macOS
 
-Download the `.dmg` from the
-[latest release](https://github.com/sabaoongfx/Open-Task-Manager/releases/latest): `aarch64`
-for Apple Silicon (M1 and newer), `x64` for Intel. It isn't notarized yet, so the first time
-you open it, right-click the app and choose *Open*.
+Download the `.dmg` for [Apple Silicon (M1 and newer)](https://github.com/sabaoongfx/Open-Task-Manager/releases/latest/download/Open-Task-Manager-aarch64.dmg) or
+[Intel](https://github.com/sabaoongfx/Open-Task-Manager/releases/latest/download/Open-Task-Manager-x64.dmg), open it and drag the app to Applications. It isn't
+notarized yet, so the first time you open it, right-click the app and choose *Open*.
 
 ### Just `otm` (terminal only)
 
-For servers and minimal installs, with no desktop app and no webview: download the `otm`
-archive for Linux, macOS or Windows from the
-[latest release](https://github.com/sabaoongfx/Open-Task-Manager/releases/latest), or build
-it with Rust:
+For servers and minimal installs, with no desktop app and no webview. Each archive holds a
+single `otm` binary, always the newest version:
+[Linux x86_64](https://github.com/sabaoongfx/Open-Task-Manager/releases/latest/download/otm-x86_64-unknown-linux-gnu.tar.gz) ·
+[macOS Apple Silicon](https://github.com/sabaoongfx/Open-Task-Manager/releases/latest/download/otm-aarch64-apple-darwin.tar.gz) ·
+[macOS Intel](https://github.com/sabaoongfx/Open-Task-Manager/releases/latest/download/otm-x86_64-apple-darwin.tar.gz) ·
+[Windows](https://github.com/sabaoongfx/Open-Task-Manager/releases/latest/download/otm-x86_64-pc-windows-msvc.zip)
+
+On Linux, straight from the terminal:
+
+```bash
+curl -fsSL https://github.com/sabaoongfx/Open-Task-Manager/releases/latest/download/otm-x86_64-unknown-linux-gnu.tar.gz | tar xz
+sudo install otm-*/otm /usr/local/bin/
+```
+
+Or build it with Rust:
 
 ```bash
 cargo install --locked --git https://github.com/sabaoongfx/Open-Task-Manager otm
@@ -282,8 +296,9 @@ backend and render every `otm` tab through ratatui's test backend.
 1. Bump the version in `package.json`, the root `Cargo.toml` and `src-tauri/tauri.conf.json`,
    and add a `<release>` entry to `packaging/linux/io.github.sabaoongfx.OpenTaskManager.appdata.xml`.
 2. Push a `v*` tag. `release.yml` builds every installer plus the `otm` archives into a
-   draft GitHub release, including the AppImage under a versionless name so
-   `releases/latest/download/Open-Task-Manager-x86_64.AppImage` always gets the newest one.
+   draft GitHub release. Each file is also uploaded under a versionless name (for example
+   `Open-Task-Manager-x64-setup.exe`), so the `releases/latest/download/…` links in this
+   README and on the website always give the newest version.
 3. Publish the draft. `publish-linux.yml` then rebuilds the signed apt and pacman
    repositories on GitHub Pages, so Linux users get the update through their package
    manager.

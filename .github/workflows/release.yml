@@ -62,19 +62,42 @@ jobs:
           prerelease: false
           args: ${{ matrix.args }}
 
-      # Extra copies of the AppImage: a standard-named one the AppImage catalog
-      # (appimage.github.io) can find, and a versionless one so this link never changes:
-      # https://github.com/sabaoongfx/Open-Task-Manager/releases/latest/download/Open-Task-Manager-x86_64.AppImage
-      - name: Upload AppImage under catalog and versionless names
-        if: matrix.platform == 'ubuntu-22.04' && startsWith(github.ref, 'refs/tags/')
+      # Versionless copies of every installer, so these links never change and always give
+      # the newest release (the website and README use them):
+      #   https://github.com/sabaoongfx/Open-Task-Manager/releases/latest/download/<name>
+      # Plus Open-Task-Manager-<version>-x86_64.AppImage, the naming the AppImage catalog
+      # (appimage.github.io) looks for.
+      - name: Upload versionless copies
+        if: startsWith(github.ref, 'refs/tags/')
         shell: bash
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ARGS: ${{ matrix.args }}
         run: |
-          src=$(ls target/release/bundle/appimage/*.AppImage)
-          cp "$src" "Open-Task-Manager-${GITHUB_REF_NAME#v}-x86_64.AppImage"
-          cp "$src" "Open-Task-Manager-x86_64.AppImage"
-          gh release upload "$GITHUB_REF_NAME" Open-Task-Manager-*.AppImage --clobber
+          set -euo pipefail
+          mkdir stable
+          # copy <glob> <name>: the single bundle file matching glob, as stable/<name>
+          copy() { cp "$(ls $1 | head -n 1)" "stable/$2"; }
+          case "$RUNNER_OS" in
+            Linux)
+              b=target/release/bundle
+              copy "$b/appimage/*.AppImage" Open-Task-Manager-x86_64.AppImage
+              copy "$b/appimage/*.AppImage" "Open-Task-Manager-${GITHUB_REF_NAME#v}-x86_64.AppImage"
+              copy "$b/deb/*.deb" Open-Task-Manager-amd64.deb
+              copy "$b/rpm/*.rpm" Open-Task-Manager-x86_64.rpm
+              ;;
+            Windows)
+              b=target/release/bundle
+              copy "$b/nsis/*-setup.exe" Open-Task-Manager-x64-setup.exe
+              copy "$b/msi/*.msi" Open-Task-Manager-x64.msi
+              ;;
+            macOS)
+              triple="${ARGS#--target }"   # e.g. aarch64-apple-darwin
+              arch=$([ "$triple" = aarch64-apple-darwin ] && echo aarch64 || echo x64)
+              copy "target/$triple/release/bundle/dmg/*.dmg" "Open-Task-Manager-$arch.dmg"
+              ;;
+          esac
+          gh release upload "$GITHUB_REF_NAME" stable/* --clobber
 
   # Standalone terminal UI (`otm`) archives, attached to the draft release created above.
   publish-tui:
@@ -119,7 +142,9 @@ jobs:
           mkdir "$name"
           cp "target/${{ matrix.target }}/release/otm" LICENSE "$name/"
           tar czf "$name.tar.gz" "$name"
+          cp "$name.tar.gz" "otm-${{ matrix.target }}.tar.gz"   # versionless: stable download link
           echo "ASSET=$name.tar.gz" >> "$GITHUB_ENV"
+          echo "STABLE_ASSET=otm-${{ matrix.target }}.tar.gz" >> "$GITHUB_ENV"
 
       - name: Package (Windows)
         if: runner.os == 'Windows'
@@ -129,7 +154,9 @@ jobs:
           New-Item -ItemType Directory $name | Out-Null
           Copy-Item "target/${{ matrix.target }}/release/otm.exe", LICENSE $name
           Compress-Archive -Path $name -DestinationPath "$name.zip"
+          Copy-Item "$name.zip" "otm-${{ matrix.target }}.zip"   # versionless: stable download link
           "ASSET=$name.zip" | Out-File -FilePath $env:GITHUB_ENV -Append
+          "STABLE_ASSET=otm-${{ matrix.target }}.zip" | Out-File -FilePath $env:GITHUB_ENV -Append
 
       - uses: actions/upload-artifact@v4
         with:
@@ -141,4 +168,4 @@ jobs:
         shell: bash
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh release upload "${{ github.ref_name }}" "$ASSET" --clobber
+        run: gh release upload "${{ github.ref_name }}" "$ASSET" "$STABLE_ASSET" --clobber

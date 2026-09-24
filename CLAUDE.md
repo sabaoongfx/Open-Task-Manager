@@ -171,8 +171,10 @@ Also add a `<release>` entry to `packaging/linux/io.github.sabaoongfx.OpenTaskMa
 (AppStream metadata shipped in every Linux package; validate with `appstreamcli validate --no-net`).
 `.github/workflows/release.yml` builds cross-platform installers and creates a draft GitHub
 Release whenever a `v*` tag is pushed; a second job then attaches standalone `otm` TUI
-archives for each platform to that same draft. The Linux job also uploads the AppImage as
-`Open-Task-Manager-<version>-x86_64.AppImage` (the AppImage catalog's naming) and
-`Open-Task-Manager-x86_64.AppImage` (versionless, so the website's `releases/latest/download/…`
-link never changes). Local AppImage builds fail on Arch (linuxdeploy's old `strip` and its GTK
+archives for each platform to that same draft. Every installer and `otm` archive is also
+uploaded under a **versionless** name (`Open-Task-Manager-x64-setup.exe`, `-x64.msi`,
+`-aarch64.dmg`, `-x64.dmg`, `-amd64.deb`, `-x86_64.rpm`, `-x86_64.AppImage`,
+`otm-<target>.tar.gz|.zip`), which the website's and README's `releases/latest/download/<name>`
+buttons rely on; renaming any of them breaks those links. The AppImage is additionally uploaded
+as `Open-Task-Manager-<version>-x86_64.AppImage`, the AppImage catalog's naming. Local AppImage builds fail on Arch (linuxdeploy's old `strip` and its GTK
 plugin's Ubuntu paths); CI builds them on Ubuntu 22.04.

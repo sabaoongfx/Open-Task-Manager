@@ -252,6 +252,7 @@
   .panel p + p, .panel p + .code, .panel .code + p, .panel ul + p{ margin-top:14px; }
   .panel ul{ margin:12px 0 0; padding-left:20px; color:var(--ink-muted); font-size:14px; line-height:1.8; }
   .panel a{ text-decoration:underline; text-underline-offset:2px; }
+  .panel a.btn{ text-decoration:none; }
   .code{ position:relative; }
   .code pre{
     margin:0; padding:14px 16px; padding-right:72px; overflow-x:auto; border-radius:8px;
@@ -265,6 +266,8 @@
   .copy:hover{ background:#3A3228; }
   @media (max-width:720px){ .code pre{ padding-top:44px; padding-right:16px; } }
   .note{ font-size:12.5px !important; color:var(--ink-faint) !important; }
+  .dl-row{ display:flex; gap:10px; flex-wrap:wrap; margin-top:16px; }
+  .dl-row + p, .dl-row + .code{ margin-top:14px; }
 </style>
 
 <div class="topbar">
@@ -505,35 +508,52 @@ sudo pacman -Sy open-task-manager</pre></div>
 
   <div class="panel" id="i-win" role="tabpanel" hidden>
     <h3 class="ftitle">Windows 10 and 11</h3>
-    <p>Download the <code class="mono">.msi</code> or <code class="mono">-setup.exe</code> installer from the <a href="https://github.com/sabaoongfx/Open-Task-Manager/releases/latest" target="_blank" rel="noopener">latest release</a> and run it.</p>
+    <p>Download the installer and run it. Both links always give the newest version.</p>
+    <div class="dl-row">
+      <a class="btn btn-primary" href="https://github.com/sabaoongfx/Open-Task-Manager/releases/latest/download/Open-Task-Manager-x64-setup.exe"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>Download for Windows (.exe)</a>
+      <a class="btn btn-ghost" href="https://github.com/sabaoongfx/Open-Task-Manager/releases/latest/download/Open-Task-Manager-x64.msi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>.msi installer</a>
+    </div>
     <p class="note">The installer isn't code-signed yet, so Windows SmartScreen may warn you: choose <em>More info &rarr; Run anyway</em>.</p>
   </div>
 
   <div class="panel" id="i-mac" role="tabpanel" hidden>
     <h3 class="ftitle">macOS</h3>
-    <p>Download the <code class="mono">.dmg</code> from the <a href="https://github.com/sabaoongfx/Open-Task-Manager/releases/latest" target="_blank" rel="noopener">latest release</a>: <code class="mono">aarch64</code> for Apple Silicon (M1 and newer), <code class="mono">x64</code> for Intel Macs. Drag the app to Applications.</p>
+    <p>Pick your Mac's chip (Apple menu &rarr; About This Mac), open the <code class="mono">.dmg</code> and drag the app to Applications.</p>
+    <div class="dl-row">
+      <a class="btn btn-primary" href="https://github.com/sabaoongfx/Open-Task-Manager/releases/latest/download/Open-Task-Manager-aarch64.dmg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>Apple Silicon (M1 and newer)</a>
+      <a class="btn btn-ghost" href="https://github.com/sabaoongfx/Open-Task-Manager/releases/latest/download/Open-Task-Manager-x64.dmg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>Intel Mac</a>
+    </div>
     <p class="note">The app isn't notarized yet, so the first time you open it, right-click it and choose <em>Open</em>.</p>
   </div>
 
   <div class="panel" id="i-other" role="tabpanel" hidden>
     <h3 class="ftitle">Fedora, openSUSE and other distributions</h3>
-    <p>From the <a href="https://github.com/sabaoongfx/Open-Task-Manager/releases/latest" target="_blank" rel="noopener">latest release</a>:</p>
-    <ul>
-      <li><code class="mono">.rpm</code> for Fedora and openSUSE: <code class="mono">sudo dnf install ./open-task-manager-*.rpm</code></li>
-      <li><code class="mono">.AppImage</code> for any other distribution (desktop app only), below</li>
-    </ul>
-    <p><a class="btn btn-primary" href="https://github.com/sabaoongfx/Open-Task-Manager/releases/latest/download/Open-Task-Manager-x86_64.AppImage" style="text-decoration:none">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>
-      Download AppImage (x86_64)
-    </a></p>
-    <p>This link always points to the newest version. Then make it executable and run it:</p>
+    <p>All links always give the newest version, x86_64. The <code class="mono">.rpm</code> and <code class="mono">.deb</code> include <code class="mono">otm</code>; the AppImage is the desktop app only.</p>
+    <div class="dl-row">
+      <a class="btn btn-primary" href="https://github.com/sabaoongfx/Open-Task-Manager/releases/latest/download/Open-Task-Manager-x86_64.AppImage"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>AppImage (any distro)</a>
+      <a class="btn btn-ghost" href="https://github.com/sabaoongfx/Open-Task-Manager/releases/latest/download/Open-Task-Manager-x86_64.rpm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>.rpm (Fedora, openSUSE)</a>
+      <a class="btn btn-ghost" href="https://github.com/sabaoongfx/Open-Task-Manager/releases/latest/download/Open-Task-Manager-amd64.deb"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>.deb</a>
+    </div>
+    <p>For the AppImage, make it executable and run it:</p>
     <div class="code"><button class="copy" type="button">Copy</button><pre>chmod +x Open-Task-Manager-x86_64.AppImage
 ./Open-Task-Manager-x86_64.AppImage</pre></div>
+    <p>For the <code class="mono">.rpm</code>: <code class="mono">sudo dnf install ./Open-Task-Manager-x86_64.rpm</code> (or <code class="mono">zypper install</code> on openSUSE).</p>
   </div>
 
   <div class="panel" id="i-cli" role="tabpanel" hidden>
     <h3 class="ftitle">Just <code class="mono">otm</code>, the terminal UI</h3>
-    <p>For servers and minimal installs: no desktop app, no webview. Download the <code class="mono">otm</code> archive for Linux, macOS or Windows from the <a href="https://github.com/sabaoongfx/Open-Task-Manager/releases/latest" target="_blank" rel="noopener">latest release</a>, or build it with Rust:</p>
+    <p>For servers and minimal installs: no desktop app, no webview. Each download is a single <code class="mono">otm</code> binary in an archive, always the newest version.</p>
+    <div class="dl-row">
+      <a class="btn btn-primary" href="https://github.com/sabaoongfx/Open-Task-Manager/releases/latest/download/otm-x86_64-unknown-linux-gnu.tar.gz"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>Linux x86_64</a>
+      <a class="btn btn-ghost" href="https://github.com/sabaoongfx/Open-Task-Manager/releases/latest/download/otm-aarch64-apple-darwin.tar.gz"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>macOS Apple Silicon</a>
+      <a class="btn btn-ghost" href="https://github.com/sabaoongfx/Open-Task-Manager/releases/latest/download/otm-x86_64-apple-darwin.tar.gz"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>macOS Intel</a>
+      <a class="btn btn-ghost" href="https://github.com/sabaoongfx/Open-Task-Manager/releases/latest/download/otm-x86_64-pc-windows-msvc.zip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>Windows</a>
+    </div>
+    <p>On Linux, straight from the terminal:</p>
+    <div class="code"><button class="copy" type="button">Copy</button><pre>curl -fsSL https://github.com/sabaoongfx/Open-Task-Manager/releases/latest/download/otm-x86_64-unknown-linux-gnu.tar.gz | tar xz
+sudo install otm-*/otm /usr/local/bin/
+otm</pre></div>
+    <p>Or build it with Rust:</p>
     <div class="code"><button class="copy" type="button">Copy</button><pre>cargo install --locked --git https://github.com/sabaoongfx/Open-Task-Manager otm
 otm</pre></div>
   </div>

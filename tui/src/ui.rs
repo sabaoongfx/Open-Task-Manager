@@ -17,6 +17,20 @@ const MEMORY_COLOR: Color = Color::Magenta;
 const DISK_COLOR: Color = Color::Green;
 const NETWORK_COLOR: Color = Color::Yellow;
 
+// Column layout for the main tables. Mouse clicks on the header map back to columns by
+// re-running this same layout (see `column_rects`), so the table and the click mapping must
+// never be configured separately.
+const COLUMN_FLEX: Flex = Flex::Start;
+const COLUMN_SPACING: u16 = 1;
+
+fn data_table<'a>(rows: Vec<Row<'a>>, widths: &[Constraint], header: Row<'a>) -> Table<'a> {
+    Table::new(rows, widths.to_vec()).header(header).flex(COLUMN_FLEX).column_spacing(COLUMN_SPACING)
+}
+
+fn column_rects(widths: &[Constraint], area: Rect) -> Vec<Rect> {
+    Layout::horizontal(widths.to_vec()).flex(COLUMN_FLEX).spacing(COLUMN_SPACING).split(area).to_vec()
+}
+
 pub fn draw(frame: &mut Frame, app: &mut App) {
     let [top, main, footer] =
         Layout::vertical([Constraint::Length(1), Constraint::Fill(1), Constraint::Length(1)]).areas(frame.area());
@@ -27,7 +41,7 @@ pub fn draw(frame: &mut Frame, app: &mut App) {
         app.areas.table_body = Rect::default();
         draw_performance(frame, app, main);
     } else {
-        let view = app.current_view();
+        let view = app.synced_view();
         draw_table(frame, app, &view, main);
     }
     draw_footer(frame, app, footer);
@@ -106,27 +120,19 @@ fn draw_table(frame: &mut Frame, app: &mut App, view: &View, area: Rect) {
     let [header_area, body_area] = Layout::vertical([Constraint::Length(1), Constraint::Fill(1)]).areas(inner);
     app.areas.table_header = header_area;
     app.areas.table_body = body_area;
-    app.areas.header_columns =
-        Layout::horizontal(widths.clone()).flex(Flex::Start).spacing(1).split(header_area).to_vec();
+    app.areas.header_columns = column_rects(&widths, header_area);
 
     if view.rows.is_empty() {
         let msg = if filter.is_empty() { "Nothing to show" } else { "No matches" };
-        frame.render_widget(header_only_table(header, &widths), inner);
+        frame.render_widget(data_table(Vec::new(), &widths, header), inner);
         frame.render_widget(Paragraph::new(msg).fg(Color::DarkGray).centered(), body_area);
         return;
     }
 
-    let rows = view.rows.iter().map(|r| Row::new(r.cells.clone()).style(r.style));
-    let table = Table::new(rows, widths)
-        .header(header)
-        .flex(Flex::Start)
-        .column_spacing(1)
+    let rows = view.rows.iter().map(|r| Row::new(r.cells.clone()).style(r.style)).collect();
+    let table = data_table(rows, &widths, header)
         .row_highlight_style(Style::new().bg(Color::Blue).fg(Color::White).add_modifier(Modifier::BOLD));
     frame.render_stateful_widget(table, inner, &mut app.tab_state_mut(tab).table);
-}
-
-fn header_only_table<'a>(header: Row<'a>, widths: &[Constraint]) -> Table<'a> {
-    Table::new(Vec::<Row>::new(), widths.to_vec()).header(header).flex(Flex::Start).column_spacing(1)
 }
 
 fn draw_performance(frame: &mut Frame, app: &App, area: Rect) {

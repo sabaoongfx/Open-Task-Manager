@@ -20,7 +20,8 @@ pub struct Column {
 
 #[derive(Clone, Copy, PartialEq, Eq)]
 pub enum Toggle {
-    None,
+    /// A plain row with nothing to expand.
+    Leaf,
     /// A group row that expands to show its members (collapsed by default).
     Expand,
     /// A section header that collapses its contents (expanded by default).
@@ -37,6 +38,13 @@ pub struct ViewRow {
     pub toggle: Toggle,
     pub cells: Vec<Cell<'static>>,
     pub style: Style,
+}
+
+impl ViewRow {
+    /// A non-killable, non-expandable row labelled by its key.
+    fn plain(key: String, cells: Vec<Cell<'static>>) -> Self {
+        ViewRow { label: key.clone(), key, pids: Vec::new(), toggle: Toggle::Leaf, cells, style: Style::new() }
+    }
 }
 
 pub struct View {
@@ -78,6 +86,9 @@ fn num(s: impl Into<String>, style: Style) -> Cell<'static> {
     Cell::from(Line::from(s.into()).alignment(Alignment::Right)).style(style)
 }
 
+// Heat colouring. The GUI shades cells relative to the busiest visible row; a terminal only has
+// a few distinct colours, so these use absolute thresholds instead: yellow = "noticeable",
+// red = "this is what's making the machine busy".
 fn heat(value: f64, warn: f64, hot: f64) -> Style {
     if value >= hot {
         Style::new().fg(Color::LightRed).add_modifier(Modifier::BOLD)
@@ -88,15 +99,18 @@ fn heat(value: f64, warn: f64, hot: f64) -> Style {
     }
 }
 
+/// Percent of one core: 10% = noticeable, 50% = hot.
 fn cpu_heat(cpu: f64) -> Style {
     heat(cpu, 10.0, 50.0)
 }
 
+/// Share of total RAM: 2% = noticeable, 10% = hot.
 fn mem_heat(app: &App, memory: u64) -> Style {
     let pct = memory as f64 / app.snapshot.stats.total_memory.max(1) as f64 * 100.0;
     heat(pct, 2.0, 10.0)
 }
 
+/// Read + write rate: 1 MB/s = noticeable, 10 MB/s = hot.
 fn disk_heat(rate: f64) -> Style {
     heat(rate / 1024.0 / 1024.0, 1.0, 10.0)
 }
@@ -120,9 +134,25 @@ fn cmp_f64(a: f64, b: f64) -> Ordering {
     a.partial_cmp(&b).unwrap_or(Ordering::Equal)
 }
 
+fn cmp_name(a: &str, b: &str) -> Ordering {
+    a.to_lowercase().cmp(&b.to_lowercase())
+}
+
+/// The items whose text (per `haystack`) contains the tab's filter, case-insensitively.
+fn filtered<'a, T>(app: &App, tab: Tab, items: &'a [T], haystack: impl Fn(&T) -> String) -> Vec<&'a T> {
+    let filter = app.tab_state(tab).filter.to_lowercase();
+    items.iter().filter(|item| haystack(item).to_lowercase().contains(&filter)).collect()
+}
+
+/// Sorts by the tab's current sort column and direction.
+fn sort_by_tab<T>(app: &App, tab: Tab, items: &mut [&T], cmp: impl Fn(&T, &T, SortKey) -> Ordering) {
+    let (sort, desc) = app.sort_for(tab);
+    items.sort_by(|a, b| apply_dir(cmp(a, b, sort), desc));
+}
+
 fn cmp_process(a: &ProcessInfo, b: &ProcessInfo, key: SortKey) -> Ordering {
     match key {
-        SortKey::Name => a.name.to_lowercase().cmp(&b.name.to_lowercase()),
+        SortKey::Name => cmp_name(&a.name, &b.name),
         SortKey::Pid => a.pid.cmp(&b.pid),
         SortKey::Status => a.status.cmp(&b.status),
         SortKey::User => a.user_name.cmp(&b.user_name),
@@ -174,7 +204,7 @@ fn sort_groups(groups: &mut [Group], key: SortKey, desc: bool) {
             SortKey::Cpu => cmp_f64(a.cpu, b.cpu),
             SortKey::Memory => a.memory.cmp(&b.memory),
             SortKey::Disk => cmp_f64(a.disk, b.disk),
-            _ => a.name.to_lowercase().cmp(&b.name.to_lowercase()),
+            _ => cmp_name(&a.name, &b.name),
         };
         apply_dir(ord, desc)
     });
@@ -192,17 +222,8 @@ pub fn build(app: &App, tab: Tab) -> View {
     }
 }
 
-fn filtered_processes(app: &App, tab: Tab) -> Vec<&ProcessInfo> {
-    let filter = app.tab_state(tab).filter.to_lowercase();
-    app.snapshot
-        .processes
-        .iter()
-        .filter(|p| p.name.to_lowercase().contains(&filter))
-        .collect()
-}
-
 fn processes(app: &App) -> View {
-    let procs = filtered_processes(app, Tab::Processes);
+    let procs = filtered(app, Tab::Processes, &app.snapshot.processes, |p| p.name.clone());
     let (sort, desc) = app.sort_for(Tab::Processes);
     let (background, foreground): (Vec<&ProcessInfo>, Vec<&ProcessInfo>) =
         procs.iter().partition(|p| is_background_process(&p.name));
@@ -243,7 +264,7 @@ fn processes(app: &App) -> View {
             rows.push(ViewRow {
                 label: g.name.clone(),
                 pids: g.pids(),
-                toggle: if multi { Toggle::Expand } else { Toggle::None },
+                toggle: if multi { Toggle::Expand } else { Toggle::Leaf },
                 cells: vec![
                     text(name),
                     num(if multi { String::new() } else { g.min_pid.to_string() }, Style::new().fg(Color::DarkGray)),
@@ -256,7 +277,7 @@ fn processes(app: &App) -> View {
             });
             if expanded {
                 for p in &g.instances {
-                    rows.push(process_child_row(app, p));
+                    rows.push(process_child_row(app, p, true));
                 }
             }
         }
@@ -275,28 +296,35 @@ fn processes(app: &App) -> View {
     }
 }
 
-fn process_child_row(app: &App, p: &ProcessInfo) -> ViewRow {
+/// One process nested under a group row. `pid_column`: whether the table has a PID column
+/// (Processes) or the PID goes after the name instead (Users).
+fn process_child_row(app: &App, p: &ProcessInfo, pid_column: bool) -> ViewRow {
     let cpu = p.cpu_usage as f64;
+    let mut cells = Vec::with_capacity(5);
+    if pid_column {
+        cells.push(text(format!("      └ {}", p.name)));
+        cells.push(num(p.pid.to_string(), Style::new().fg(Color::DarkGray)));
+    } else {
+        cells.push(text(format!("    └ {} ({})", p.name, p.pid)));
+    }
+    cells.extend([
+        num(format!("{cpu:.1}%"), cpu_heat(cpu)),
+        num(format::bytes(p.memory), mem_heat(app, p.memory)),
+        num(format::rate(p.disk_bytes_per_sec), disk_heat(p.disk_bytes_per_sec)),
+    ]);
     ViewRow {
         key: format!("pid:{}", p.pid),
         label: format!("{} (PID {})", p.name, p.pid),
         pids: vec![p.pid],
-        toggle: Toggle::None,
-        cells: vec![
-            text(format!("      └ {}", p.name)),
-            num(p.pid.to_string(), Style::new().fg(Color::DarkGray)),
-            num(format!("{cpu:.1}%"), cpu_heat(cpu)),
-            num(format::bytes(p.memory), mem_heat(app, p.memory)),
-            num(format::rate(p.disk_bytes_per_sec), disk_heat(p.disk_bytes_per_sec)),
-        ],
+        toggle: Toggle::Leaf,
+        cells,
         style: Style::new().fg(Color::Gray),
     }
 }
 
 fn details(app: &App) -> View {
-    let mut procs = filtered_processes(app, Tab::Details);
-    let (sort, desc) = app.sort_for(Tab::Details);
-    procs.sort_by(|a, b| apply_dir(cmp_process(a, b, sort), desc));
+    let mut procs = filtered(app, Tab::Details, &app.snapshot.processes, |p| p.name.clone());
+    sort_by_tab(app, Tab::Details, &mut procs, cmp_process);
 
     let rows = procs
         .iter()
@@ -306,7 +334,7 @@ fn details(app: &App) -> View {
                 key: format!("pid:{}", p.pid),
                 label: format!("{} (PID {})", p.name, p.pid),
                 pids: vec![p.pid],
-                toggle: Toggle::None,
+                toggle: Toggle::Leaf,
                 cells: vec![
                     text(p.name.clone()),
                     num(p.pid.to_string(), Style::new().fg(Color::DarkGray)),
@@ -335,7 +363,7 @@ fn details(app: &App) -> View {
 }
 
 fn users(app: &App) -> View {
-    let procs = filtered_processes(app, Tab::Users);
+    let procs = filtered(app, Tab::Users, &app.snapshot.processes, |p| p.name.clone());
     let (sort, desc) = app.sort_for(Tab::Users);
     let mut groups = group_by(&procs, |p| p.user_name.clone().unwrap_or_else(|| "Unknown".to_string()));
     sort_groups(&mut groups, sort, desc);
@@ -359,13 +387,8 @@ fn users(app: &App) -> View {
         });
         if expanded {
             let mut children = g.instances.clone();
-            children.sort_by(|a, b| apply_dir(cmp_process(a, b, sort), desc));
-            for p in children {
-                let mut row = process_child_row(app, p);
-                row.cells.remove(1); // no PID column on this tab
-                row.cells[0] = text(format!("    └ {} ({})", p.name, p.pid));
-                rows.push(row);
-            }
+            sort_by_tab(app, Tab::Users, &mut children, cmp_process);
+            rows.extend(children.into_iter().map(|p| process_child_row(app, p, false)));
         }
     }
 
@@ -382,33 +405,11 @@ fn users(app: &App) -> View {
 }
 
 fn app_history(app: &App) -> View {
-    let filter = app.tab_state(Tab::AppHistory).filter.to_lowercase();
-    let (sort, desc) = app.sort_for(Tab::AppHistory);
-    let mut entries: Vec<_> = app
-        .snapshot
-        .app_history
-        .iter()
-        .filter(|e| e.name.to_lowercase().contains(&filter))
-        .collect();
-    entries.sort_by(|a, b| {
-        let ord = match sort {
-            SortKey::Name => a.name.to_lowercase().cmp(&b.name.to_lowercase()),
-            _ => cmp_f64(a.cpu_seconds, b.cpu_seconds),
-        };
-        apply_dir(ord, desc)
+    let mut entries = filtered(app, Tab::AppHistory, &app.snapshot.app_history, |e| e.name.clone());
+    sort_by_tab(app, Tab::AppHistory, &mut entries, |a, b, key| match key {
+        SortKey::Name => cmp_name(&a.name, &b.name),
+        _ => cmp_f64(a.cpu_seconds, b.cpu_seconds),
     });
-
-    let rows = entries
-        .iter()
-        .map(|e| ViewRow {
-            key: e.name.clone(),
-            label: e.name.clone(),
-            pids: Vec::new(),
-            toggle: Toggle::None,
-            cells: vec![text(e.name.clone()), num(format::uptime(e.cpu_seconds), Style::new())],
-            style: Style::new(),
-        })
-        .collect();
 
     View {
         title: format!("App history · CPU time since launch · {}", entries.len()),
@@ -416,44 +417,21 @@ fn app_history(app: &App) -> View {
             col("Name", Constraint::Min(24), Some(SortKey::Name), false),
             col("CPU time", Constraint::Length(12), Some(SortKey::Cpu), true),
         ],
-        rows,
+        rows: entries
+            .iter()
+            .map(|e| {
+                ViewRow::plain(e.name.clone(), vec![text(e.name.clone()), num(format::uptime(e.cpu_seconds), Style::new())])
+            })
+            .collect(),
     }
 }
 
 fn startup(app: &App) -> View {
-    let filter = app.tab_state(Tab::Startup).filter.to_lowercase();
-    let (sort, desc) = app.sort_for(Tab::Startup);
-    let mut apps: Vec<_> = app
-        .startup_apps
-        .iter()
-        .filter(|a| a.name.to_lowercase().contains(&filter))
-        .collect();
-    apps.sort_by(|a, b| {
-        let ord = match sort {
-            SortKey::Status => a.enabled.cmp(&b.enabled),
-            _ => a.name.to_lowercase().cmp(&b.name.to_lowercase()),
-        };
-        apply_dir(ord, desc)
+    let mut apps = filtered(app, Tab::Startup, &app.startup_apps, |a| a.name.clone());
+    sort_by_tab(app, Tab::Startup, &mut apps, |a, b, key| match key {
+        SortKey::Status => a.enabled.cmp(&b.enabled),
+        _ => cmp_name(&a.name, &b.name),
     });
-
-    let rows = apps
-        .iter()
-        .map(|a| {
-            let status = if a.enabled { "Enabled" } else { "Disabled" };
-            ViewRow {
-                key: a.name.clone(),
-                label: a.name.clone(),
-                pids: Vec::new(),
-                toggle: Toggle::None,
-                cells: vec![
-                    text(a.name.clone()),
-                    Cell::from(a.publisher.clone()).style(Style::new().fg(Color::Gray)),
-                    Cell::from(status).style(status_style(status)),
-                ],
-                style: Style::new(),
-            }
-        })
-        .collect();
 
     View {
         title: format!("Startup apps · {}", apps.len()),
@@ -462,43 +440,29 @@ fn startup(app: &App) -> View {
             col("Publisher", Constraint::Fill(2), None, false),
             col("Status", Constraint::Length(10), Some(SortKey::Status), false),
         ],
-        rows,
+        rows: apps
+            .iter()
+            .map(|a| {
+                let status = if a.enabled { "Enabled" } else { "Disabled" };
+                ViewRow::plain(
+                    a.name.clone(),
+                    vec![
+                        text(a.name.clone()),
+                        Cell::from(a.publisher.clone()).style(Style::new().fg(Color::Gray)),
+                        Cell::from(status).style(status_style(status)),
+                    ],
+                )
+            })
+            .collect(),
     }
 }
 
 fn services(app: &App) -> View {
-    let filter = app.tab_state(Tab::Services).filter.to_lowercase();
-    let (sort, desc) = app.sort_for(Tab::Services);
-    let mut services: Vec<_> = app
-        .services
-        .iter()
-        .filter(|s| {
-            s.name.to_lowercase().contains(&filter) || s.description.to_lowercase().contains(&filter)
-        })
-        .collect();
-    services.sort_by(|a, b| {
-        let ord = match sort {
-            SortKey::Status => a.status.cmp(&b.status),
-            _ => a.name.to_lowercase().cmp(&b.name.to_lowercase()),
-        };
-        apply_dir(ord, desc)
+    let mut services = filtered(app, Tab::Services, &app.services, |s| format!("{} {}", s.name, s.description));
+    sort_by_tab(app, Tab::Services, &mut services, |a, b, key| match key {
+        SortKey::Status => a.status.cmp(&b.status),
+        _ => cmp_name(&a.name, &b.name),
     });
-
-    let rows = services
-        .iter()
-        .map(|s| ViewRow {
-            key: s.name.clone(),
-            label: s.name.clone(),
-            pids: Vec::new(),
-            toggle: Toggle::None,
-            cells: vec![
-                text(s.name.clone()),
-                Cell::from(s.description.clone()).style(Style::new().fg(Color::Gray)),
-                Cell::from(s.status.clone()).style(status_style(&s.status)),
-            ],
-            style: Style::new(),
-        })
-        .collect();
 
     View {
         title: format!("Services · {}", services.len()),
@@ -507,6 +471,18 @@ fn services(app: &App) -> View {
             col("Description", Constraint::Fill(3), None, false),
             col("Status", Constraint::Length(9), Some(SortKey::Status), false),
         ],
-        rows,
+        rows: services
+            .iter()
+            .map(|s| {
+                ViewRow::plain(
+                    s.name.clone(),
+                    vec![
+                        text(s.name.clone()),
+                        Cell::from(s.description.clone()).style(Style::new().fg(Color::Gray)),
+                        Cell::from(s.status.clone()).style(status_style(&s.status)),
+                    ],
+                )
+            })
+            .collect(),
     }
 }

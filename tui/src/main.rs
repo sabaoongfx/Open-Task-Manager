@@ -77,6 +77,14 @@ fn main() -> io::Result<()> {
     let mut app = App::new(interval);
 
     let mut terminal = ratatui::init();
+    // ratatui::init's panic hook restores raw mode and the alternate screen but doesn't know
+    // about mouse capture; without this, a panic leaves the shell printing escape codes on
+    // every mouse move until the user runs `reset`.
+    let restore_terminal = std::panic::take_hook();
+    std::panic::set_hook(Box::new(move |info| {
+        let _ = execute!(io::stdout(), DisableMouseCapture);
+        restore_terminal(info);
+    }));
     execute!(io::stdout(), EnableMouseCapture)?;
     let result = run(&mut terminal, &mut app);
     let _ = execute!(io::stdout(), DisableMouseCapture);
@@ -135,23 +143,49 @@ mod tests {
     #[test]
     fn filter_sort_and_kill_prompt() {
         let mut app = App::new(Duration::from_millis(1500));
+        // Filter on this test process's own name, whatever the OS reports it as, so there is
+        // always at least one row to act on.
+        let me = std::process::id();
+        let own_name = app.snapshot.processes.iter().find(|p| p.pid == me).expect("own process listed").name.clone();
+
         press(&mut app, KeyCode::Char('6')); // Details: one row per process
         press(&mut app, KeyCode::Char('/'));
-        for c in "otm".chars() {
+        for c in own_name.chars() {
             press(&mut app, KeyCode::Char(c));
         }
         press(&mut app, KeyCode::Enter);
-        let screen = render(&mut app);
-        assert!(screen.contains("filter: otm"), "{screen}");
+        assert!(render(&mut app).contains(&format!("filter: {own_name}")));
 
-        // The test binary itself matches "otm" by name, so there is a row to act on.
         press(&mut app, KeyCode::Char('x'));
-        assert!(matches!(app.popup, Some(app::Popup::ConfirmKill { .. })));
+        let Some(app::Popup::ConfirmKill { label, .. }) = &app.popup else { panic!("no end-task prompt") };
+        assert!(label.contains(&own_name), "{label}");
         assert!(render(&mut app).contains("End task"));
         press(&mut app, KeyCode::Char('n')); // cancel — never actually kill anything in tests
         assert!(app.popup.is_none());
 
         press(&mut app, KeyCode::Char('s'));
-        assert!(render(&mut app).contains('▲') || render(&mut app).contains('▼'));
+        let screen = render(&mut app);
+        assert!(screen.contains('▲') || screen.contains('▼'), "{screen}");
+    }
+
+    #[test]
+    fn home_end_and_no_hidden_kill_key() {
+        let mut app = App::new(Duration::from_millis(1500));
+        press(&mut app, KeyCode::Char('6'));
+        let rows = app.synced_view().rows.len();
+        let selected = |app: &App| app.tab_state(app.tab).table.selected();
+
+        press(&mut app, KeyCode::Char('G'));
+        assert_eq!(selected(&app), Some(rows - 1));
+        press(&mut app, KeyCode::Char('j')); // already at the bottom: stays put
+        assert_eq!(selected(&app), Some(rows - 1));
+        press(&mut app, KeyCode::Char('g'));
+        assert_eq!(selected(&app), Some(0));
+        press(&mut app, KeyCode::Char('k')); // already at the top: stays put
+        assert_eq!(selected(&app), Some(0));
+
+        // Only the documented keys (x / Delete) may start ending a task.
+        press(&mut app, KeyCode::Char('e'));
+        assert!(app.popup.is_none());
     }
 }

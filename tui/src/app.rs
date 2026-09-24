@@ -1,4 +1,4 @@
-use crate::views::{self, Toggle, View};
+use crate::views::{self, Toggle, View, ViewRow};
 use otm_core::{Monitor, ServiceInfo, Snapshot, StartupAppInfo};
 use ratatui::crossterm::event::{Event, KeyCode, KeyEvent, KeyEventKind, KeyModifiers, MouseButton, MouseEvent, MouseEventKind};
 use ratatui::layout::{Position, Rect};
@@ -8,6 +8,9 @@ use std::time::{Duration, Instant};
 
 /// Same length as the GUI's Performance graphs (`HISTORY_LEN` in Performance.tsx).
 pub const HISTORY_LEN: usize = 60;
+
+/// How long a status message ("Ended Firefox", "Reloaded", ...) stays in the footer.
+const STATUS_TIMEOUT: Duration = Duration::from_secs(4);
 
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
 pub enum Tab {
@@ -191,7 +194,7 @@ impl App {
     pub fn status(&self) -> Option<&str> {
         self.status
             .as_ref()
-            .filter(|(_, at)| at.elapsed() < Duration::from_secs(4))
+            .filter(|(_, at)| at.elapsed() < STATUS_TIMEOUT)
             .map(|(msg, _)| msg.as_str())
     }
 
@@ -199,9 +202,10 @@ impl App {
         self.status = Some((msg.into(), Instant::now()));
     }
 
-    /// Builds the current tab's table and re-resolves the selection against it, so the
-    /// highlighted row follows the same process/item as the list re-sorts every refresh.
-    pub fn current_view(&mut self) -> View {
+    /// Builds the current tab's table **and** re-resolves the selection against it (a side
+    /// effect), so the highlighted row follows the same process/item as the list re-sorts
+    /// every refresh. Build it once per event and pass it down rather than calling it again.
+    pub fn synced_view(&mut self) -> View {
         let view = views::build(self, self.tab);
         let state = self.tab_state_mut(self.tab);
         if view.rows.is_empty() {
@@ -218,6 +222,11 @@ impl App {
         view
     }
 
+    fn selected_index(&self) -> Option<usize> {
+        self.tab_state(self.tab).table.selected()
+    }
+
+    /// Selects row `idx`, clamped to the last row.
     fn select_index(&mut self, view: &View, idx: usize) {
         if view.rows.is_empty() {
             return;
@@ -229,9 +238,19 @@ impl App {
     }
 
     fn move_selection(&mut self, delta: isize) {
-        let view = self.current_view();
-        let current = self.tab_state(self.tab).table.selected().unwrap_or(0) as isize;
-        self.select_index(&view, (current + delta).max(0) as usize);
+        let view = self.synced_view();
+        let current = self.selected_index().unwrap_or(0);
+        self.select_index(&view, current.saturating_add_signed(delta));
+    }
+
+    fn select_first(&mut self) {
+        let view = self.synced_view();
+        self.select_index(&view, 0);
+    }
+
+    fn select_last(&mut self) {
+        let view = self.synced_view();
+        self.select_index(&view, usize::MAX);
     }
 
     fn page_size(&self) -> isize {
@@ -260,7 +279,7 @@ impl App {
     }
 
     fn cycle_sort(&mut self) {
-        let view = self.current_view();
+        let view = views::build(self, self.tab);
         let keys: Vec<SortKey> = view.columns.iter().filter_map(|c| c.sort).collect();
         if keys.is_empty() {
             return;
@@ -276,9 +295,13 @@ impl App {
 
     /// Expand/collapse the selected row. `want`: Some(true) = open, Some(false) = close, None = flip.
     fn toggle_selected(&mut self, want: Option<bool>) {
-        let view = self.current_view();
-        let Some(idx) = self.tab_state(self.tab).table.selected() else { return };
-        let row = &view.rows[idx];
+        let view = self.synced_view();
+        if let Some(row) = self.selected_index().map(|idx| &view.rows[idx]) {
+            self.toggle_row(row, want);
+        }
+    }
+
+    fn toggle_row(&mut self, row: &ViewRow, want: Option<bool>) {
         match row.toggle {
             Toggle::Expand => {
                 let open = self.expanded.contains(&row.key);
@@ -296,14 +319,13 @@ impl App {
                     self.collapsed.insert(row.key.clone());
                 }
             }
-            Toggle::None => {}
+            Toggle::Leaf => {}
         }
     }
 
     fn request_kill(&mut self) {
-        let view = self.current_view();
-        let Some(idx) = self.tab_state(self.tab).table.selected() else { return };
-        let row = &view.rows[idx];
+        let view = self.synced_view();
+        let Some(row) = self.selected_index().map(|idx| &view.rows[idx]) else { return };
         if row.pids.is_empty() {
             self.set_status("Nothing to end here — select a process");
             return;
@@ -312,16 +334,25 @@ impl App {
     }
 
     fn confirm_kill(&mut self, label: &str, pids: &[u32]) {
-        let killed = pids.iter().filter(|&&pid| self.monitor.kill_process(pid)).count();
-        if killed == pids.len() {
+        let killed: HashSet<u32> = pids.iter().copied().filter(|&pid| self.monitor.kill_process(pid)).collect();
+        if killed.len() == pids.len() {
             self.set_status(format!("Ended {label}"));
         } else {
             self.set_status(format!(
-                "Ended {killed} of {} process(es) for {label} (others may need higher privileges)",
+                "Ended {} of {} process(es) for {label} (others may need higher privileges)",
+                killed.len(),
                 pids.len()
             ));
         }
-        self.tick();
+        // Hide them right away instead of refreshing early: an off-schedule snapshot would add an
+        // unevenly spaced sample to the graphs and shorten the next CPU measuring window.
+        self.snapshot.processes.retain(|p| !killed.contains(&p.pid));
+    }
+
+    fn reset_app_history(&mut self) {
+        self.monitor.reset_app_history();
+        self.snapshot.app_history.clear(); // same reason as confirm_kill: no early refresh
+        self.set_status("App history reset");
     }
 
     fn reload_lists(&mut self) {
@@ -338,6 +369,17 @@ impl App {
         }
     }
 
+    fn handle_popup_key(&mut self, popup: Popup, key: KeyEvent) {
+        match popup {
+            Popup::ConfirmKill { label, pids } => match key.code {
+                KeyCode::Char('y' | 'Y') | KeyCode::Enter => self.confirm_kill(&label, &pids),
+                KeyCode::Char('n' | 'N' | 'q') | KeyCode::Esc => {}
+                _ => self.popup = Some(Popup::ConfirmKill { label, pids }),
+            },
+            Popup::Help => {} // any key closes it
+        }
+    }
+
     fn handle_key(&mut self, key: KeyEvent) {
         if key.modifiers.contains(KeyModifiers::CONTROL) && key.code == KeyCode::Char('c') {
             self.should_quit = true;
@@ -345,14 +387,7 @@ impl App {
         }
 
         if let Some(popup) = self.popup.take() {
-            if let Popup::ConfirmKill { label, pids } = &popup {
-                match key.code {
-                    KeyCode::Char('y') | KeyCode::Char('Y') | KeyCode::Enter => self.confirm_kill(label, pids),
-                    KeyCode::Char('n') | KeyCode::Char('N') | KeyCode::Esc | KeyCode::Char('q') => {}
-                    _ => self.popup = Some(popup),
-                }
-            }
-            // Any key closes the help popup.
+            self.handle_popup_key(popup, key);
             return;
         }
 
@@ -379,13 +414,13 @@ impl App {
             KeyCode::Tab => self.cycle_tab(1),
             KeyCode::BackTab => self.cycle_tab(-1),
             KeyCode::Char(c @ '1'..='7') => self.set_tab(Tab::ALL[c as usize - '1' as usize]),
-            KeyCode::Char('/') | KeyCode::Char('f') if self.tab != Tab::Performance => self.editing_filter = true,
+            KeyCode::Char('/' | 'f') if self.tab != Tab::Performance => self.editing_filter = true,
             KeyCode::Down | KeyCode::Char('j') => self.move_selection(1),
             KeyCode::Up | KeyCode::Char('k') => self.move_selection(-1),
             KeyCode::PageDown => self.move_selection(self.page_size()),
             KeyCode::PageUp => self.move_selection(-self.page_size()),
-            KeyCode::Home | KeyCode::Char('g') => self.move_selection(isize::MIN / 2),
-            KeyCode::End | KeyCode::Char('G') => self.move_selection(isize::MAX / 2),
+            KeyCode::Home | KeyCode::Char('g') => self.select_first(),
+            KeyCode::End | KeyCode::Char('G') => self.select_last(),
             KeyCode::Enter | KeyCode::Char(' ') => self.toggle_selected(None),
             KeyCode::Right | KeyCode::Char('l') => self.toggle_selected(Some(true)),
             KeyCode::Left | KeyCode::Char('h') => self.toggle_selected(Some(false)),
@@ -394,12 +429,8 @@ impl App {
                 let state = self.tab_state_mut(self.tab);
                 state.desc = !state.desc;
             }
-            KeyCode::Delete | KeyCode::Char('x') | KeyCode::Char('e') => self.request_kill(),
-            KeyCode::Char('r') if self.tab == Tab::AppHistory => {
-                self.monitor.reset_app_history();
-                self.tick();
-                self.set_status("App history reset");
-            }
+            KeyCode::Delete | KeyCode::Char('x') => self.request_kill(),
+            KeyCode::Char('r') if self.tab == Tab::AppHistory => self.reset_app_history(),
             KeyCode::Char('r') if matches!(self.tab, Tab::Services | Tab::Startup) => self.reload_lists(),
             _ => {}
         }
@@ -417,7 +448,7 @@ impl App {
                 if let Some(&(_, tab)) = self.areas.tabs.iter().find(|(r, _)| r.contains(pos)) {
                     self.set_tab(tab);
                 } else if self.areas.table_header.contains(pos) {
-                    let view = self.current_view();
+                    let view = views::build(self, self.tab);
                     let clicked = self.areas.header_columns.iter().position(|r| {
                         mouse.column >= r.x && mouse.column < r.x + r.width
                     });
@@ -425,16 +456,14 @@ impl App {
                         self.sort_by(key);
                     }
                 } else if self.areas.table_body.contains(pos) {
-                    let view = self.current_view();
-                    let state = self.tab_state(self.tab);
-                    let idx = state.table.offset() + (mouse.row - self.areas.table_body.y) as usize;
-                    if idx < view.rows.len() {
-                        // Clicking the already-selected row toggles it, like a double click.
-                        if state.table.selected() == Some(idx) {
-                            self.toggle_selected(None);
-                        } else {
-                            self.select_index(&view, idx);
-                        }
+                    let view = self.synced_view();
+                    let idx = self.tab_state(self.tab).table.offset() + (mouse.row - self.areas.table_body.y) as usize;
+                    let Some(row) = view.rows.get(idx) else { return };
+                    // Clicking the already-selected row toggles it, like a double click.
+                    if self.selected_index() == Some(idx) {
+                        self.toggle_row(row, None);
+                    } else {
+                        self.select_index(&view, idx);
                     }
                 }
             }

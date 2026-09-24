@@ -115,7 +115,7 @@ pub fn prettify_process_name(raw: &str) -> String {
     if raw.is_empty() || raw.chars().any(|c| c.is_uppercase()) {
         return raw.to_string();
     }
-    raw.split(|c: char| c == '-' || c == '_')
+    raw.split(['-', '_'])
         .filter(|s| !s.is_empty())
         .map(|word| {
             let mut chars = word.chars();

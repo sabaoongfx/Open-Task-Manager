@@ -249,7 +249,7 @@
   .tabs button[aria-selected="true"]{ color:#fff; background:var(--red); border-color:var(--red); }
   .panel{ background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:22px; }
   .panel p{ color:var(--ink-muted); font-size:14px; line-height:1.6; }
-  .panel p + p, .panel p + .code, .panel .code + p{ margin-top:14px; }
+  .panel p + p, .panel p + .code, .panel .code + p, .panel ul + p{ margin-top:14px; }
   .panel ul{ margin:12px 0 0; padding-left:20px; color:var(--ink-muted); font-size:14px; line-height:1.8; }
   .panel a{ text-decoration:underline; text-underline-offset:2px; }
   .code{ position:relative; }
@@ -520,8 +520,15 @@ sudo pacman -Sy open-task-manager</pre></div>
     <p>From the <a href="https://github.com/sabaoongfx/Open-Task-Manager/releases/latest" target="_blank" rel="noopener">latest release</a>:</p>
     <ul>
       <li><code class="mono">.rpm</code> for Fedora and openSUSE: <code class="mono">sudo dnf install ./open-task-manager-*.rpm</code></li>
-      <li><code class="mono">.AppImage</code> for anything else: make it executable and run it (desktop app only)</li>
+      <li><code class="mono">.AppImage</code> for any other distribution (desktop app only), below</li>
     </ul>
+    <p><a class="btn btn-primary" href="https://github.com/sabaoongfx/Open-Task-Manager/releases/latest/download/Open-Task-Manager-x86_64.AppImage" style="text-decoration:none">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>
+      Download AppImage (x86_64)
+    </a></p>
+    <p>This link always points to the newest version. Then make it executable and run it:</p>
+    <div class="code"><button class="copy" type="button">Copy</button><pre>chmod +x Open-Task-Manager-x86_64.AppImage
+./Open-Task-Manager-x86_64.AppImage</pre></div>
   </div>
 
   <div class="panel" id="i-cli" role="tabpanel" hidden>

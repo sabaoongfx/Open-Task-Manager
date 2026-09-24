@@ -62,6 +62,20 @@ jobs:
           prerelease: false
           args: ${{ matrix.args }}
 
+      # Extra copies of the AppImage: a standard-named one the AppImage catalog
+      # (appimage.github.io) can find, and a versionless one so this link never changes:
+      # https://github.com/sabaoongfx/Open-Task-Manager/releases/latest/download/Open-Task-Manager-x86_64.AppImage
+      - name: Upload AppImage under catalog and versionless names
+        if: matrix.platform == 'ubuntu-22.04' && startsWith(github.ref, 'refs/tags/')
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          src=$(ls target/release/bundle/appimage/*.AppImage)
+          cp "$src" "Open-Task-Manager-${GITHUB_REF_NAME#v}-x86_64.AppImage"
+          cp "$src" "Open-Task-Manager-x86_64.AppImage"
+          gh release upload "$GITHUB_REF_NAME" Open-Task-Manager-*.AppImage --clobber
+
   # Standalone terminal UI (`otm`) archives, attached to the draft release created above.
   publish-tui:
     needs: publish-tauri

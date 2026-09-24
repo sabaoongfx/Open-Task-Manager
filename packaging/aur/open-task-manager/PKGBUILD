@@ -42,6 +42,8 @@ package() {
   install -Dm755 target/release/otm "$pkgdir/usr/bin/otm"
   install -Dm644 packaging/linux/open-task-manager.desktop \
     "$pkgdir/usr/share/applications/open-task-manager.desktop"
+  install -Dm644 packaging/linux/io.github.sabaoongfx.OpenTaskManager.appdata.xml \
+    "$pkgdir/usr/share/metainfo/io.github.sabaoongfx.OpenTaskManager.appdata.xml"
   local size
   for size in 32 128; do
     install -Dm644 "src-tauri/icons/${size}x${size}.png" \

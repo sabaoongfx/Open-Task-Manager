@@ -167,6 +167,12 @@ generate theirs from `src-tauri/assets/open-task-manager.desktop.hbs` — keep t
 
 Kept in sync manually across three files: `package.json`, the root `Cargo.toml`
 (`[workspace.package] version`, inherited by all three crates), and `src-tauri/tauri.conf.json`.
+Also add a `<release>` entry to `packaging/linux/io.github.sabaoongfx.OpenTaskManager.appdata.xml`
+(AppStream metadata shipped in every Linux package; validate with `appstreamcli validate --no-net`).
 `.github/workflows/release.yml` builds cross-platform installers and creates a draft GitHub
 Release whenever a `v*` tag is pushed; a second job then attaches standalone `otm` TUI
-archives for each platform to that same draft.
+archives for each platform to that same draft. The Linux job also uploads the AppImage as
+`Open-Task-Manager-<version>-x86_64.AppImage` (the AppImage catalog's naming) and
+`Open-Task-Manager-x86_64.AppImage` (versionless, so the website's `releases/latest/download/…`
+link never changes). Local AppImage builds fail on Arch (linuxdeploy's old `strip` and its GTK
+plugin's Ubuntu paths); CI builds them on Ubuntu 22.04.

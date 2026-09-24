@@ -40,7 +40,8 @@
         "desktopTemplate": "assets/open-task-manager.desktop.hbs",
         "section": "utils",
         "files": {
-          "/usr/bin/otm": "../target/release/otm"
+          "/usr/bin/otm": "../target/release/otm",
+          "/usr/share/metainfo/io.github.sabaoongfx.OpenTaskManager.appdata.xml": "../packaging/linux/io.github.sabaoongfx.OpenTaskManager.appdata.xml"
         },
         "conflicts": [
           "task-manager"
@@ -52,7 +53,8 @@
       "rpm": {
         "desktopTemplate": "assets/open-task-manager.desktop.hbs",
         "files": {
-          "/usr/bin/otm": "../target/release/otm"
+          "/usr/bin/otm": "../target/release/otm",
+          "/usr/share/metainfo/io.github.sabaoongfx.OpenTaskManager.appdata.xml": "../packaging/linux/io.github.sabaoongfx.OpenTaskManager.appdata.xml"
         },
         "conflicts": [
           "task-manager"
@@ -60,6 +62,11 @@
         "obsoletes": [
           "task-manager"
         ]
+      },
+      "appimage": {
+        "files": {
+          "/usr/share/metainfo/io.github.sabaoongfx.OpenTaskManager.appdata.xml": "../packaging/linux/io.github.sabaoongfx.OpenTaskManager.appdata.xml"
+        }
       }
     },
     "category": "Utility"

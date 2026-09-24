@@ -88,7 +88,14 @@ AUR packages are prepared and will be published once AUR account registration re
 From the [latest release](https://github.com/sabaoongfx/Open-Task-Manager/releases/latest):
 
 - `.rpm` for Fedora and openSUSE: `sudo dnf install ./open-task-manager-*.rpm`
-- `.AppImage` for anything else: make it executable and run it (desktop app only)
+- `.AppImage` for anything else (desktop app only). This link always points to the newest
+  version:
+  [Open-Task-Manager-x86_64.AppImage](https://github.com/sabaoongfx/Open-Task-Manager/releases/latest/download/Open-Task-Manager-x86_64.AppImage)
+
+  ```bash
+  chmod +x Open-Task-Manager-x86_64.AppImage
+  ./Open-Task-Manager-x86_64.AppImage
+  ```
 
 ### Windows
 
@@ -272,9 +279,11 @@ backend and render every `otm` tab through ratatui's test backend.
 
 ### Releasing
 
-1. Bump the version in `package.json`, the root `Cargo.toml` and `src-tauri/tauri.conf.json`.
+1. Bump the version in `package.json`, the root `Cargo.toml` and `src-tauri/tauri.conf.json`,
+   and add a `<release>` entry to `packaging/linux/io.github.sabaoongfx.OpenTaskManager.appdata.xml`.
 2. Push a `v*` tag. `release.yml` builds every installer plus the `otm` archives into a
-   draft GitHub release.
+   draft GitHub release, including the AppImage under a versionless name so
+   `releases/latest/download/Open-Task-Manager-x86_64.AppImage` always gets the newest one.
 3. Publish the draft. `publish-linux.yml` then rebuilds the signed apt and pacman
    repositories on GitHub Pages, so Linux users get the update through their package
    manager.

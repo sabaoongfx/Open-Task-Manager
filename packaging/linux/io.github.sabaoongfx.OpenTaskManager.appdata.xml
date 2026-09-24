@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  AppStream metadata: what software centers (GNOME Software, KDE Discover) and the AppImage
+  catalog show for the app. Installed to /usr/share/metainfo/ by every Linux package.
+  Named *.appdata.xml (the older suffix) because the AppImage catalog's appdir-lint.sh only
+  detects that name.
+  On each release, add a <release> entry at the top of <releases>.
+  Check it with appstreamcli validate (offline mode: the no-net flag).
+-->
+<component type="desktop-application">
+  <id>io.github.sabaoongfx.OpenTaskManager</id>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>MIT</project_license>
+
+  <name>Open Task Manager</name>
+  <summary>See what your computer is actually doing</summary>
+  <developer id="io.github.sabaoongfx">
+    <name>sabaoongfx</name>
+  </developer>
+
+  <description>
+    <p>
+      Open Task Manager is a free, open-source process and performance monitor with the
+      Windows 11 Task Manager layout, rebuilt with Tauri and Rust instead of Electron.
+    </p>
+    <ul>
+      <li>Processes grouped by app, searchable and sortable, with heat-mapped CPU and disk usage</li>
+      <li>End any task from a right-click menu</li>
+      <li>Live CPU, memory, disk and network graphs with a 60-second history</li>
+      <li>App history, startup apps, users, per-process details and systemd services</li>
+      <li>A terminal version, otm, with the same seven tabs for SSH sessions and servers</li>
+    </ul>
+    <p>No telemetry and no background service: it only reads your system while it is open.</p>
+  </description>
+
+  <launchable type="desktop-id">open-task-manager.desktop</launchable>
+  <provides>
+    <binary>open-task-manager</binary>
+    <binary>otm</binary>
+  </provides>
+
+  <categories>
+    <category>System</category>
+    <category>Monitor</category>
+  </categories>
+  <keywords>
+    <keyword>task manager</keyword>
+    <keyword>process</keyword>
+    <keyword>system monitor</keyword>
+    <keyword>cpu</keyword>
+    <keyword>memory</keyword>
+  </keywords>
+
+  <url type="homepage">https://opentaskmanager.vercel.app/</url>
+  <url type="bugtracker">https://github.com/sabaoongfx/Open-Task-Manager/issues</url>
+  <url type="vcs-browser">https://github.com/sabaoongfx/Open-Task-Manager</url>
+
+  <screenshots>
+    <screenshot type="default">
+      <caption>Processes grouped by app, sorted by CPU</caption>
+      <image>https://raw.githubusercontent.com/sabaoongfx/Open-Task-Manager/main/docs/screenshot-processes.png</image>
+    </screenshot>
+    <screenshot>
+      <caption>Live CPU, memory, disk and network graphs</caption>
+      <image>https://raw.githubusercontent.com/sabaoongfx/Open-Task-Manager/main/docs/screenshot-performance.png</image>
+    </screenshot>
+    <screenshot>
+      <caption>otm, the terminal version</caption>
+      <image>https://raw.githubusercontent.com/sabaoongfx/Open-Task-Manager/main/docs/screenshot-terminal.png</image>
+    </screenshot>
+  </screenshots>
+
+  <branding>
+    <color type="primary" scheme_preference="light">#FFDB56</color>
+    <color type="primary" scheme_preference="dark">#E93233</color>
+  </branding>
+
+  <supports>
+    <control>keyboard</control>
+    <control>pointing</control>
+  </supports>
+  <requires>
+    <display_length compare="ge">768</display_length>
+  </requires>
+
+  <content_rating type="oars-1.1" />
+
+  <releases>
+    <release version="0.3.0" date="2026-09-24">
+      <description>
+        <p>Adds otm, a terminal version of the app, and Linux packages.</p>
+        <ul>
+          <li>New terminal UI (otm) with the same seven tabs</li>
+          <li>Signed apt and pacman repositories; every Linux package installs both apps</li>
+          <li>The package is now named open-task-manager</li>
+        </ul>
+      </description>
+    </release>
+    <release version="0.2.0" date="2026-09-15" />
+  </releases>
+</component>

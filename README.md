@@ -100,6 +100,33 @@ generated mock snapshot (see `src/mockData.ts`), so you can work on the UI witho
 Rust toolchain — the app only calls into the real Tauri backend when it detects it's
 actually running inside the native shell.
 
+## Install on Linux
+
+Every package installs both apps: the desktop app (**Open Task Manager** in your app
+menu, or `open-task-manager`) and the terminal UI (`otm`).
+
+**Debian / Ubuntu (apt)** — Ubuntu 22.04+ or Debian 12+, x86_64:
+
+```bash
+curl -fsSL https://sabaoongfx.github.io/Open-Task-Manager/KEY.gpg \
+  | sudo gpg --dearmor -o /usr/share/keyrings/open-task-manager.gpg
+echo "deb [signed-by=/usr/share/keyrings/open-task-manager.gpg] https://sabaoongfx.github.io/Open-Task-Manager stable main" \
+  | sudo tee /etc/apt/sources.list.d/open-task-manager.list
+sudo apt update && sudo apt install open-task-manager
+```
+
+Updates then arrive with the normal `sudo apt upgrade`.
+
+**Arch / Manjaro / EndeavourOS (AUR)**:
+
+```bash
+yay -S open-task-manager-bin   # prebuilt, installs in seconds
+yay -S open-task-manager       # or build from source
+```
+
+**Fedora / openSUSE, or anything else**: grab the `.rpm` or `.AppImage` from the
+[latest release](https://github.com/sabaoongfx/Open-Task-Manager/releases).
+
 ## Getting started
 
 ### Prerequisites

@@ -1,0 +1,83 @@
+name: Publish Linux packages
+
+# Runs when a release is published (i.e. after release.yml's draft has been reviewed and
+# published), so apt and AUR users only ever see releases that were actually shipped.
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Release tag to publish (e.g. v0.3.0)'
+        required: true
+
+env:
+  TAG: ${{ github.event.release.tag_name || inputs.tag }}
+
+jobs:
+  # Signed apt repo on GitHub Pages. It is rebuilt from scratch with the latest .deb each time,
+  # so there is no repo state to keep anywhere; apt only ever needs the newest version.
+  apt:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install reprepro
+        run: sudo apt-get update && sudo apt-get install -y reprepro
+
+      - name: Import signing key
+        env:
+          APT_GPG_PRIVATE_KEY: ${{ secrets.APT_GPG_PRIVATE_KEY }}
+        run: echo "$APT_GPG_PRIVATE_KEY" | gpg --batch --import
+
+      - name: Download .deb from the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release download "$TAG" --pattern '*.deb' --dir debs
+
+      - name: Build repo
+        run: |
+          mkdir -p reprepro/conf public
+          cp packaging/apt/distributions reprepro/conf/
+          reprepro --basedir reprepro --outdir "$PWD/public" includedeb stable debs/*.deb
+          gpg --armor --export > public/KEY.gpg
+          touch public/.nojekyll
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: public
+
+      - id: deploy
+        uses: actions/deploy-pages@v4
+
+  # AUR: a source-built package and a -bin package that repackages the release .deb.
+  aur:
+    # pkgver can't contain '-', so pre-release tags like v1.0.0-beta.1 are skipped.
+    if: ${{ !contains(github.event.release.tag_name || inputs.tag, '-') }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        pkg: [open-task-manager, open-task-manager-bin]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set version
+        run: sed -i "s/^pkgver=.*/pkgver=${TAG#v}/; s/^pkgrel=.*/pkgrel=1/" "packaging/aur/${{ matrix.pkg }}/PKGBUILD"
+
+      - uses: KSXGitHub/github-actions-deploy-aur@v3
+        with:
+          pkgname: ${{ matrix.pkg }}
+          pkgbuild: packaging/aur/${{ matrix.pkg }}/PKGBUILD
+          updpkgsums: true
+          commit_username: sabaoongfx
+          commit_email: sabaoongfx@users.noreply.github.com
+          ssh_private_key: ${{ secrets.AUR_SSH_PRIVATE_KEY }}
+          commit_message: Update to ${{ env.TAG }}

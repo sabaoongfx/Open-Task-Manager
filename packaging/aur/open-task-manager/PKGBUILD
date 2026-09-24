@@ -1,0 +1,55 @@
+# Maintainer: sabaoongfx
+#
+# Builds from source. pkgver and sha256sums are rewritten by .github/workflows/publish-linux.yml
+# on every published GitHub release; edit everything else here.
+pkgname=open-task-manager
+pkgver=0.2.0
+pkgrel=1
+pkgdesc="Fast, open-source process and performance monitor: desktop app (open-task-manager) and terminal UI (otm)"
+arch=('x86_64' 'aarch64')
+url="https://github.com/sabaoongfx/Open-Task-Manager"
+license=('MIT')
+depends=('webkit2gtk-4.1' 'gtk3' 'gcc-libs' 'glibc')
+makedepends=('cargo' 'nodejs' 'npm')
+provides=('otm')
+conflicts=('open-task-manager-bin' 'otm')
+options=('!lto' '!debug')
+source=("$pkgname-$pkgver.tar.gz::$url/archive/refs/tags/v$pkgver.tar.gz")
+sha256sums=('SKIP')
+
+_srcdir="Open-Task-Manager-$pkgver"
+
+prepare() {
+  cd "$_srcdir"
+  export RUSTUP_TOOLCHAIN=stable
+  cargo fetch --locked --target "$(rustc -vV | sed -n 's/host: //p')"
+  npm ci --no-audit --no-fund
+}
+
+build() {
+  cd "$_srcdir"
+  export RUSTUP_TOOLCHAIN=stable
+  # Absolute: tauri runs cargo from src-tauri/, so a relative path would land in src-tauri/target.
+  export CARGO_TARGET_DIR="$srcdir/$_srcdir/target"
+  # Builds the frontend (beforeBuildCommand) and the GUI binary; bundling is makepkg's job.
+  npx tauri build --no-bundle -- --frozen
+  cargo build --frozen --release -p otm
+}
+
+package() {
+  cd "$_srcdir"
+  install -Dm755 target/release/open-task-manager "$pkgdir/usr/bin/open-task-manager"
+  install -Dm755 target/release/otm "$pkgdir/usr/bin/otm"
+  install -Dm644 packaging/linux/open-task-manager.desktop \
+    "$pkgdir/usr/share/applications/open-task-manager.desktop"
+  local size
+  for size in 32 128; do
+    install -Dm644 "src-tauri/icons/${size}x${size}.png" \
+      "$pkgdir/usr/share/icons/hicolor/${size}x${size}/apps/open-task-manager.png"
+  done
+  install -Dm644 "src-tauri/icons/128x128@2x.png" \
+    "$pkgdir/usr/share/icons/hicolor/256x256/apps/open-task-manager.png"
+  install -Dm644 "src-tauri/icons/icon.png" \
+    "$pkgdir/usr/share/icons/hicolor/512x512/apps/open-task-manager.png"
+  install -Dm644 LICENSE "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+}

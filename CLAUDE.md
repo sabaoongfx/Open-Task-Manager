@@ -120,6 +120,28 @@ relative paths for anything in `public/` that's referenced by a literal string i
 resolved relative to whatever Vercel's dashboard "Root Directory" project setting is (currently
 `website`), which is why `outputDirectory` is `"."` and not `"website"`.
 
+### Linux packaging (`packaging/`, `.github/workflows/publish-linux.yml`)
+
+The package/binary name is `open-task-manager` (renamed from `task-manager` after v0.2.0; the
+deb/rpm declare `Conflicts`/`Replaces` on the old name). Every Linux package ships **both**
+binaries: `tauri.conf.json`'s `beforeBundleCommand` builds `otm`, and `bundle.linux.deb.files` /
+`rpm.files` add it as `/usr/bin/otm` — so the `.deb`/`.rpm` from `npm run tauri build` already
+contain both.
+
+`publish-linux.yml` runs when a GitHub release is *published* (not when release.yml creates the
+draft):
+- **apt**: downloads the release `.deb`, builds a signed repo with `reprepro`
+  (`packaging/apt/distributions`) and deploys it to GitHub Pages. Stateless — rebuilt from only
+  the latest `.deb` each time. Needs the `APT_GPG_PRIVATE_KEY` secret and Pages set to
+  "GitHub Actions" as source.
+- **AUR**: pushes `packaging/aur/open-task-manager` (source build) and `open-task-manager-bin`
+  (repackages the `.deb`). CI rewrites `pkgver`/`sha256sums`, so the values committed in the
+  PKGBUILDs are placeholders — don't bump them by hand. Needs the `AUR_SSH_PRIVATE_KEY` secret.
+  Tags containing `-` (pre-releases) are skipped since `pkgver` can't contain `-`.
+
+`packaging/linux/open-task-manager.desktop` is used only by the source PKGBUILD; the deb/rpm
+generate theirs from `src-tauri/assets/open-task-manager.desktop.hbs` — keep the two in sync.
+
 ### Version numbers
 
 Kept in sync manually across three files: `package.json`, the root `Cargo.toml`

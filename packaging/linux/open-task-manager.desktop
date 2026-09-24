@@ -1,0 +1,10 @@
+[Desktop Entry]
+Categories=Utility;
+Comment=A fast, open-source process and performance monitor
+Exec=open-task-manager
+StartupWMClass=open-task-manager
+Icon=open-task-manager
+Name=Open Task Manager
+Keywords=task;process;monitor;system;cpu;memory;
+Terminal=false
+Type=Application

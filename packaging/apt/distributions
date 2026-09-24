@@ -1,0 +1,8 @@
+# reprepro config for the apt repo published to GitHub Pages by .github/workflows/publish-linux.yml
+Origin: Open Task Manager
+Label: Open Task Manager
+Codename: stable
+Architectures: amd64
+Components: main
+Description: Open Task Manager — desktop app (open-task-manager) and terminal UI (otm)
+SignWith: yes

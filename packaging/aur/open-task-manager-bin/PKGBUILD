@@ -1,0 +1,26 @@
+# Maintainer: sabaoongfx
+#
+# Repackages the prebuilt .deb from the GitHub release (it already contains both binaries).
+# pkgver and sha256sums are rewritten by .github/workflows/publish-linux.yml on every
+# published GitHub release; edit everything else here.
+pkgname=open-task-manager-bin
+_pkgname=open-task-manager
+pkgver=0.2.0
+pkgrel=1
+pkgdesc="Fast, open-source process and performance monitor: desktop app (open-task-manager) and terminal UI (otm) (prebuilt)"
+arch=('x86_64')
+url="https://github.com/sabaoongfx/Open-Task-Manager"
+license=('MIT')
+depends=('webkit2gtk-4.1' 'gtk3' 'gcc-libs' 'glibc')
+provides=("$_pkgname" 'otm')
+conflicts=("$_pkgname" 'otm')
+options=('!strip' '!debug')
+source=("$url/releases/download/v$pkgver/${_pkgname}_${pkgver}_amd64.deb"
+        "LICENSE-$pkgver::https://raw.githubusercontent.com/sabaoongfx/Open-Task-Manager/v$pkgver/LICENSE")
+sha256sums=('SKIP'
+            'SKIP')
+
+package() {
+  bsdtar -xf data.tar.gz -C "$pkgdir"
+  install -Dm644 "LICENSE-$pkgver" "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+}

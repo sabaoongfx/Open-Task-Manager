@@ -91,6 +91,7 @@ across restarts), with a working "Delete usage history" action.
 | UI             | React 19 + TypeScript, plain CSS (no framework)  |
 | Build tool     | Vite                                             |
 | Desktop shell  | [Tauri 2](https://tauri.app)                     |
+| Terminal UI    | [ratatui](https://ratatui.rs) + crossterm        |
 | System data    | Rust + [`sysinfo`](https://crates.io/crates/sysinfo) |
 | Testing        | [Playwright](https://playwright.dev)             |
 
@@ -98,6 +99,33 @@ The frontend also runs standalone in a regular browser (`npm run dev`) against a
 generated mock snapshot (see `src/mockData.ts`), so you can work on the UI without a
 Rust toolchain — the app only calls into the real Tauri backend when it detects it's
 actually running inside the native shell.
+
+## Install on Linux
+
+Every package installs both apps: the desktop app (**Open Task Manager** in your app
+menu, or `open-task-manager`) and the terminal UI (`otm`).
+
+**Debian / Ubuntu (apt)** — Ubuntu 22.04+ or Debian 12+, x86_64:
+
+```bash
+curl -fsSL https://sabaoongfx.github.io/Open-Task-Manager/KEY.gpg \
+  | sudo gpg --dearmor -o /usr/share/keyrings/open-task-manager.gpg
+echo "deb [signed-by=/usr/share/keyrings/open-task-manager.gpg] https://sabaoongfx.github.io/Open-Task-Manager stable main" \
+  | sudo tee /etc/apt/sources.list.d/open-task-manager.list
+sudo apt update && sudo apt install open-task-manager
+```
+
+Updates then arrive with the normal `sudo apt upgrade`.
+
+**Arch / Manjaro / EndeavourOS (AUR)**:
+
+```bash
+yay -S open-task-manager-bin   # prebuilt, installs in seconds
+yay -S open-task-manager       # or build from source
+```
+
+**Fedora / openSUSE, or anything else**: grab the `.rpm` or `.AppImage` from the
+[latest release](https://github.com/sabaoongfx/Open-Task-Manager/releases).
 
 ## Getting started
 
@@ -133,6 +161,31 @@ npm run tauri dev
 Compiles the Rust backend and opens a native window backed by real `sysinfo` data,
 with hot-reload on both the frontend and backend.
 
+### Run in the terminal (`otm`)
+
+```bash
+cargo run --release -p otm
+# or install it on your PATH:
+cargo install --path tui
+otm
+```
+
+A keyboard- and mouse-driven terminal UI with the same seven tabs, backed by the exact
+same Rust data collection as the desktop app. It needs only a Rust toolchain — no Node,
+no webview. Press `?` inside it for all key bindings; the essentials:
+
+| Key                    | Action                              |
+| ---------------------- | ----------------------------------- |
+| `Tab` / `1`–`7`        | switch tab                          |
+| `↑↓` / `j k`           | move selection                      |
+| `→ ←` / `Enter`        | expand / collapse a group           |
+| `/`                    | filter by name                      |
+| `s` / `S`              | next sort column / reverse order    |
+| `x` / `Delete`         | end task (asks for confirmation)    |
+| `q`                    | quit                                |
+
+`otm --interval 1000` changes the refresh rate (milliseconds, default 1500).
+
 ### Build a release binary
 
 ```bash
@@ -160,17 +213,23 @@ src/                  React frontend
   types.ts            Shared TypeScript types for the snapshot/process data
   icons.tsx, appIcons.tsx   UI icons + per-app brand icon matching
 
-src-tauri/            Rust backend
-  src/lib.rs          Tauri commands: get_snapshot, kill_process
+core/                 otm-core: all system data collection (sysinfo, systemctl,
+                      autostart entries), shared by the desktop app and the TUI
+
+src-tauri/            Tauri shell
+  src/lib.rs          Thin #[tauri::command] wrappers around otm-core
   tauri.conf.json     Window size, bundle config
+
+tui/                  otm: the terminal UI (ratatui + crossterm)
 
 tests/                Playwright end-to-end tests
 ```
 
 ## How it talks to the OS
 
-The frontend polls a single Tauri command, `get_snapshot`, every 1.5 seconds. On the
-Rust side, that command:
+The frontend polls a single Tauri command, `get_snapshot`, every 1.5 seconds (the terminal
+UI calls the same `otm-core` function directly on the same interval). On the Rust side,
+that command:
 
 1. Refreshes CPU, memory, process, disk and network state via `sysinfo`.
 2. Computes per-process disk I/O rate and system-wide network throughput from the

@@ -9,19 +9,37 @@ npm install                # install JS deps
 npm run dev                 # frontend only, in a browser, against mock data (localhost:1420)
 npm run tauri dev           # full app: compiles Rust + opens a native window with real sysinfo data
 npm run build                # tsc typecheck + vite build -> dist/ (also runs automatically before `tauri build`)
-npm run tauri build          # release binaries + installers in src-tauri/target/release/bundle/
+npm run tauri build          # release binaries + installers in target/release/bundle/ (workspace root)
+
+cargo run -p otm             # terminal UI (real data; no Node needed)
 
 npx playwright test                          # full e2e suite (runs against mock data via a dev server Playwright starts itself)
 npx playwright test tests/processes.spec.ts   # one file
 npx playwright test -g "right-click"          # by test name
 
-cd src-tauri && cargo test    # Rust unit tests (prettify_process_name, get_services, get_startup_apps)
-cd src-tauri && cargo check   # fast Rust compile check
+cargo test --workspace       # Rust tests: otm-core (prettify_process_name, get_services, get_startup_apps)
+                             #   + otm (formatting, and TestBackend renders of every TUI tab against live data)
+cargo check --workspace      # fast Rust compile check
 ```
 
 There is no linter configured; `npm run build`'s `tsc` step (or `npx tsc --noEmit`) is the typecheck/lint gate.
 
 ## Architecture
+
+### Rust is a Cargo workspace: `core/` + `src-tauri/` + `tui/`
+
+The root `Cargo.toml` is a workspace (one shared `Cargo.lock` and `target/` at the repo root).
+All system data collection lives in **`core/` (`otm-core`)**: the `Monitor` struct (owns the
+`sysinfo` handles and the rate/App-history state; `snapshot()`, `kill_process()`,
+`reset_app_history()`) plus `get_services()`/`get_startup_apps()` and the serialized types.
+`src-tauri/src/lib.rs` is only thin `#[tauri::command]` wrappers around it (`Mutex<Monitor>`
+as Tauri state), and **`tui/` (`otm` binary, ratatui + crossterm)** calls the same functions
+directly. Put new backend logic in `core/`, then expose it from both frontends.
+
+`tui/` is structured as `app.rs` (state + key/mouse handling), `views.rs` (one table-builder
+per tab, mirroring each GUI pane's grouping/columns), `ui.rs` (rendering), `format.rs`
+(ports of `src/format.ts`). Selection is tracked by a stable row key, not index, so it
+follows the same process as rows re-sort each refresh.
 
 ### Every screen has a real path and a mock path
 
@@ -34,8 +52,8 @@ const data = isTauri() ? await invoke("some_command") : mockSomething();
 
 This is why the frontend runs standalone in a plain browser with no Rust toolchain at all —
 `npm run dev` exercises the exact same components against `src/mockData.ts`'s generated data.
-**When adding a new backend capability, add both the Tauri command (`src-tauri/src/lib.rs`) and
-a matching mock function in `mockData.ts`**, or the tab will work in the real app but break (or
+**When adding a new backend capability, add the logic to `core/`, a Tauri command wrapper
+(`src-tauri/src/lib.rs`), and a matching mock function in `mockData.ts`**, or the tab will work in the real app but break (or
 silently do nothing) in the browser-only dev flow and in Playwright (which always runs against
 mock data).
 
@@ -53,7 +71,7 @@ touch the real system (`kill_process`/task-ending is the only real system mutati
 performs). App history's CPU time is real and live but resets on restart (no persistence). See
 `README.md`'s Roadmap section for what's intentionally left as UI-only.
 
-`get_services` and `get_startup_apps` in `lib.rs` are `#[cfg(target_os = "linux")]` with an
+`get_services` and `get_startup_apps` in `core/src/lib.rs` are `#[cfg(target_os = "linux")]` with an
 empty-Vec fallback on other platforms — on Windows/macOS those two tabs will show nothing when
 run as the real Tauri app (mock data still works everywhere since it doesn't hit the OS).
 
@@ -102,8 +120,32 @@ relative paths for anything in `public/` that's referenced by a literal string i
 resolved relative to whatever Vercel's dashboard "Root Directory" project setting is (currently
 `website`), which is why `outputDirectory` is `"."` and not `"website"`.
 
+### Linux packaging (`packaging/`, `.github/workflows/publish-linux.yml`)
+
+The package/binary name is `open-task-manager` (renamed from `task-manager` after v0.2.0; the
+deb/rpm declare `Conflicts`/`Replaces` on the old name). Every Linux package ships **both**
+binaries: `tauri.conf.json`'s `beforeBundleCommand` builds `otm`, and `bundle.linux.deb.files` /
+`rpm.files` add it as `/usr/bin/otm` — so the `.deb`/`.rpm` from `npm run tauri build` already
+contain both.
+
+`publish-linux.yml` runs when a GitHub release is *published* (not when release.yml creates the
+draft):
+- **apt**: downloads the release `.deb`, builds a signed repo with `reprepro`
+  (`packaging/apt/distributions`) and deploys it to GitHub Pages. Stateless — rebuilt from only
+  the latest `.deb` each time. Needs the `APT_GPG_PRIVATE_KEY` secret and Pages set to
+  "GitHub Actions" as source.
+- **AUR**: pushes `packaging/aur/open-task-manager` (source build) and `open-task-manager-bin`
+  (repackages the `.deb`). CI rewrites `pkgver`/`sha256sums`, so the values committed in the
+  PKGBUILDs are placeholders — don't bump them by hand. Needs the `AUR_SSH_PRIVATE_KEY` secret.
+  Tags containing `-` (pre-releases) are skipped since `pkgver` can't contain `-`.
+
+`packaging/linux/open-task-manager.desktop` is used only by the source PKGBUILD; the deb/rpm
+generate theirs from `src-tauri/assets/open-task-manager.desktop.hbs` — keep the two in sync.
+
 ### Version numbers
 
-Kept in sync manually across three files: `package.json`, `src-tauri/Cargo.toml`,
-`src-tauri/tauri.conf.json`. `.github/workflows/release.yml` builds cross-platform installers
-and creates a draft GitHub Release whenever a `v*` tag is pushed.
+Kept in sync manually across three files: `package.json`, the root `Cargo.toml`
+(`[workspace.package] version`, inherited by all three crates), and `src-tauri/tauri.conf.json`.
+`.github/workflows/release.yml` builds cross-platform installers and creates a draft GitHub
+Release whenever a `v*` tag is pushed; a second job then attaches standalone `otm` TUI
+archives for each platform to that same draft.

@@ -1,0 +1,10 @@
+[package]
+name = "otm"
+description = "Open Task Manager in the terminal"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+otm-core = { path = "../core" }
+ratatui = "0.30.2"

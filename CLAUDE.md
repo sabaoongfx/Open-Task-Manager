@@ -116,6 +116,18 @@ hardcoded root-absolute asset path in app source (e.g. `src="/foo.svg"`) will si
 this embed even though it works fine in the real Tauri app and in plain `npm run dev` — use
 relative paths for anything in `public/` that's referenced by a literal string in source.
 
+The terminal section's `otm` screens are **real renderer output**, not a mockup: an ignored test
+(`tui/src/demo.rs`) fills `otm` with curated demo data (never the real machine's processes or user
+names), renders the Processes and Performance tabs, and rewrites the block between
+`<!-- otm-demo:start -->` and `<!-- otm-demo:end -->` in `website/index.html`. Re-run it after
+changing the TUI's look: `cargo test -p otm export_website_demo -- --ignored`. Braille graph
+characters are wrapped in `<i>` pinned to `1ch` by the site CSS, because IBM Plex Mono lacks
+Braille glyphs and the fallback font's width otherwise skews every graph row.
+
+SEO lives in `website/index.html`'s `<head>` (description, canonical, Open Graph/Twitter tags
+pointing at `website/og.png`, JSON-LD `SoftwareApplication`), plus `website/robots.txt` and
+`website/sitemap.xml`. All of them hardcode the production URL `https://opentaskmanager.vercel.app/`.
+
 `vercel.json` at the repo root deploys `website/` with no build step. Its `outputDirectory` is
 resolved relative to whatever Vercel's dashboard "Root Directory" project setting is (currently
 `website`), which is why `outputDirectory` is `"."` and not `"website"`.

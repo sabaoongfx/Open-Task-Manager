@@ -1,5 +1,51 @@
-<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Open Task Manager</title>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Open Task Manager: free task manager for Linux, Windows &amp; macOS</title>
+<meta name="description" content="Free, open-source task manager with the Windows 11 layout, for Linux, Windows and macOS. A desktop app plus otm, a terminal UI. Install with apt or pacman.">
+<link rel="canonical" href="https://opentaskmanager.vercel.app/">
+<meta name="theme-color" content="#F6F4EF" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#16130F" media="(prefers-color-scheme: dark)">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Task Manager">
+<meta property="og:title" content="Open Task Manager: see what your computer is actually doing">
+<meta property="og:description" content="Free, open-source task manager for Linux, Windows and macOS: a desktop app plus otm, a terminal UI. Install with apt or pacman.">
+<meta property="og:url" content="https://opentaskmanager.vercel.app/">
+<meta property="og:image" content="https://opentaskmanager.vercel.app/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Open Task Manager's Processes view next to the tagline: See what your computer is actually doing.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Open Task Manager: see what your computer is actually doing">
+<meta name="twitter:description" content="Free, open-source task manager for Linux, Windows and macOS: a desktop app plus otm, a terminal UI.">
+<meta name="twitter:image" content="https://opentaskmanager.vercel.app/og.png">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "Open Task Manager",
+  "alternateName": "otm",
+  "description": "Free, open-source task manager and system monitor with the Windows 11 Task Manager layout. Ships as a desktop app (Tauri + Rust) and otm, a terminal UI.",
+  "applicationCategory": "UtilitiesApplication",
+  "applicationSubCategory": "System monitor",
+  "operatingSystem": "Linux, Windows, macOS",
+  "url": "https://opentaskmanager.vercel.app/",
+  "downloadUrl": "https://github.com/sabaoongfx/Open-Task-Manager/releases/latest",
+  "image": "https://opentaskmanager.vercel.app/og.png",
+  "screenshot": "https://opentaskmanager.vercel.app/og.png",
+  "license": "https://opensource.org/licenses/MIT",
+  "isAccessibleForFree": true,
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+  "author": { "@type": "Person", "name": "sabaoongfx", "url": "https://sabaoon.dev" },
+  "sameAs": ["https://github.com/sabaoongfx/Open-Task-Manager"],
+  "featureList": [
+    "Processes grouped by app, searchable and sortable",
+    "End task from a context menu or the keyboard",
+    "Live CPU, memory, disk and network graphs",
+    "App history, startup apps, users, details and services tabs",
+    "Terminal UI (otm) with the same seven tabs",
+    "Signed apt and pacman repositories"
+  ]
+}
+</script>
 <link rel="icon" href="favicon.ico" sizes="any">
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;900&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@300;400;500;600&display=swap">
@@ -158,6 +204,67 @@
   footer{ max-width:1120px; margin-inline:auto; padding-block:32px 48px; display:flex; justify-content:space-between; align-items:center; gap:16px; flex-wrap:wrap; color:var(--ink-faint); font-size:12.5px; font-family:"IBM Plex Mono",monospace; }
   footer a{ text-decoration:underline; text-underline-offset:2px; }
   footer a:hover{ color:var(--ink); }
+
+  /* ---------- terminal (otm) ---------- */
+  .term{
+    width:fit-content; max-width:100%; margin-inline:auto;
+    background:#15130F; border:1px solid #2B251D; border-radius:12px; box-shadow:var(--shadow); overflow:hidden;
+  }
+  .term-bar{ display:flex; align-items:center; gap:6px; padding:10px 14px; background:#1E1A15; border-bottom:1px solid #2B251D; }
+  .term-bar .device-dot{ background:#3A3228; }
+  .term-bar .device-title{ color:#A89D8C; }
+  .term-switch{ display:flex; gap:4px; margin-left:auto; }
+  .term-switch button{
+    font:500 12px "IBM Plex Mono",monospace; color:#A89D8C; background:transparent; border:1px solid #3A3228;
+    border-radius:6px; padding:5px 10px; cursor:pointer;
+  }
+  .term-switch button[aria-selected="true"]{ color:#15130F; background:#56B6C2; border-color:#56B6C2; }
+  .term-scroll{ overflow-x:auto; }
+  .term-screen{
+    margin:0; padding:14px 16px; width:max-content; min-width:100%;
+    font:12.5px/1.25 "IBM Plex Mono",ui-monospace,monospace; color:#D8D2C6; background:#15130F;
+  }
+  /* one Braille graph dot per cell, whatever font supplies the glyph (see tui/src/demo.rs) */
+  .term-screen i{ font-style:normal; display:inline-block; width:1ch; overflow:hidden; vertical-align:top; }
+  /* terminal palette for the colours otm uses */
+  .f-black{color:#15130F} .f-red{color:#E06C75} .f-green{color:#98C379} .f-yellow{color:#E5C07B}
+  .f-blue{color:#61AFEF} .f-magenta{color:#C678DD} .f-cyan{color:#56B6C2} .f-gray{color:#A89D8C}
+  .f-darkgray{color:#6B6254} .f-lightred{color:#FF7B7B} .f-white{color:#F3EFE7}
+  .b-blue{background:#2F5D9E} .b-cyan{background:#56B6C2} .b-black{background:#15130F}
+  .term-screen .bold{font-weight:600} .term-screen .ul{text-decoration:underline; text-underline-offset:2px}
+  .keys{ display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:1px; background:var(--border); border:1px solid var(--border); border-radius:10px; overflow:hidden; margin-top:16px; }
+  .key{ background:var(--surface); padding:12px 14px; font-size:13px; color:var(--ink-muted); }
+  kbd{
+    font:600 12px "IBM Plex Mono",monospace; color:var(--ink); background:var(--surface-2);
+    border:1px solid var(--border); border-bottom-width:2px; border-radius:5px; padding:1px 6px; margin-right:6px;
+  }
+
+  /* ---------- install ---------- */
+  .tabs{ display:flex; gap:6px; flex-wrap:wrap; margin-bottom:16px; }
+  .tabs button{
+    font:inherit; font-size:13.5px; font-weight:600; color:var(--ink-muted); background:var(--surface);
+    border:1px solid var(--border); border-radius:7px; padding:8px 14px; cursor:pointer;
+  }
+  .tabs button:hover{ color:var(--ink); }
+  .tabs button[aria-selected="true"]{ color:#fff; background:var(--red); border-color:var(--red); }
+  .panel{ background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:22px; }
+  .panel p{ color:var(--ink-muted); font-size:14px; line-height:1.6; }
+  .panel p + p, .panel p + .code, .panel .code + p{ margin-top:14px; }
+  .panel ul{ margin:12px 0 0; padding-left:20px; color:var(--ink-muted); font-size:14px; line-height:1.8; }
+  .panel a{ text-decoration:underline; text-underline-offset:2px; }
+  .code{ position:relative; }
+  .code pre{
+    margin:0; padding:14px 16px; padding-right:72px; overflow-x:auto; border-radius:8px;
+    background:#15130F; color:#D8D2C6; font:12.5px/1.6 "IBM Plex Mono",ui-monospace,monospace;
+  }
+  .code pre .c{ color:#6B6254; }
+  .copy{
+    position:absolute; top:8px; right:8px; font:500 11.5px "IBM Plex Mono",monospace;
+    color:#D8D2C6; background:#2B251D; border:1px solid #3A3228; border-radius:6px; padding:5px 9px; cursor:pointer;
+  }
+  .copy:hover{ background:#3A3228; }
+  @media (max-width:720px){ .code pre{ padding-top:44px; padding-right:16px; } }
+  .note{ font-size:12.5px !important; color:var(--ink-faint) !important; }
 </style>
 
 <div class="topbar">
@@ -170,8 +277,10 @@
     Open Task Manager
   </div>
   <nav class="topnav">
-    <a href="#demo">Live demo</a>
+    <a href="#full-demo">Live demo</a>
     <a href="#features">Features</a>
+    <a href="#terminal">Terminal</a>
+    <a href="#install">Install</a>
     <a href="#specs">Specs</a>
     <a href="#roadmap">Roadmap</a>
     <a class="gh" href="https://github.com/sabaoongfx/Open-Task-Manager" target="_blank" rel="noopener">
@@ -184,13 +293,13 @@
 <div class="hero">
   <p class="eyebrow">pid 1 &middot; system monitor</p>
   <h1>See what your&nbsp;computer<br>is <em>actually</em> doing.</h1>
-  <p class="lede">Your favorite Windows 11 Task Manager is now open source. It's a free process &amp; performance monitor &mdash; the layout you already know, rebuilt with Tauri and Rust instead of Electron. No telemetry, no background service, one native binary. <a href="https://github.com/sabaoongfx/Open-Task-Manager" target="_blank" rel="noopener" style="text-decoration:underline;text-underline-offset:2px;">View the code on GitHub &rarr;</a></p>
+  <p class="lede">Your favorite Windows 11 Task Manager is now open source. It's a free process &amp; performance monitor for Linux, Windows and macOS &mdash; the layout you already know, rebuilt with Tauri and Rust instead of Electron, plus <a href="#terminal" style="text-decoration:underline;text-underline-offset:2px;">a terminal version</a>. No telemetry, no background service, one native binary. <a href="https://github.com/sabaoongfx/Open-Task-Manager" target="_blank" rel="noopener" style="text-decoration:underline;text-underline-offset:2px;">View the code on GitHub &rarr;</a></p>
   <div class="cta-row">
     <a class="btn btn-primary" href="https://github.com/sabaoongfx/Open-Task-Manager" target="_blank" rel="noopener">
       <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
       Star on GitHub
     </a>
-    <a class="btn btn-ghost" href="https://github.com/sabaoongfx/Open-Task-Manager/releases" target="_blank" rel="noopener">Download</a>
+    <a class="btn btn-ghost" href="#install">Install</a>
   </div>
 </div>
 
@@ -260,6 +369,169 @@
   </div>
 </section>
 
+<section id="terminal">
+  <div class="section-head">
+    <div>
+      <p class="eyebrow">terminal ui &middot; otm</p>
+      <h2>The same task manager, in your terminal.</h2>
+    </div>
+    <p><code class="mono">otm</code> is the terminal version: the same seven tabs and the same Rust data as the desktop app, driven by keyboard or mouse. Handy over SSH, on servers, or anywhere you'd reach for <code class="mono">htop</code>.</p>
+  </div>
+
+  <div class="term">
+    <div class="term-bar">
+      <div class="device-dot"></div><div class="device-dot"></div><div class="device-dot"></div>
+      <span class="device-title">~ $ otm</span>
+      <div class="term-switch" role="tablist" aria-label="otm screen">
+        <button type="button" role="tab" aria-selected="true" data-show="processes">Processes</button>
+        <button type="button" role="tab" aria-selected="false" data-show="performance">Performance</button>
+      </div>
+    </div>
+    <div class="term-scroll">
+<!-- otm-demo:start (generated by `cargo test -p otm export_website_demo -- --ignored`; do not edit) -->
+<pre class="term-screen" data-screen="processes" role="img" aria-label="otm showing the Processes tab: apps grouped by name, sorted by CPU"><span class="f-cyan bold"> ◆ Open Task Manager </span><span class="f-black b-cyan bold"> 1 Processes </span><span class="f-gray"> 2 Performance  3 App history  4 Startup apps  5 Users  6 Details  7 Services </span>
+<span class="f-darkgray">╭</span><span class="f-cyan bold"> Processes · 24 </span><span class="f-darkgray">────────────────────────────────────────────────────────────────────────────────────────────────────╮</span>
+<span class="f-darkgray">│</span><span class="f-gray bold ul">Name                                                                             PID    CPU ▼      Memory       Disk</span><span class="f-darkgray">│</span>
+<span class="f-darkgray">│</span><span class="f-cyan bold">▾ Apps (10)                                                                                                         </span><span class="f-darkgray">│</span>
+<span class="f-darkgray">│</span><span class="f-white b-blue bold">  ▾ Firefox (5)                                                                         21.1%     1.56 GB   0.4 MB/s</span><span class="f-darkgray">│</span>
+<span class="f-darkgray">│</span><span class="f-gray">      └ Firefox                                                             </span><span class="f-darkgray">    2210</span><span class="f-gray">     9.8%    612.0 MB   0.4 MB/s</span><span class="f-darkgray">│</span>
+<span class="f-darkgray">│</span><span class="f-gray">      └ Firefox                                                             </span><span class="f-darkgray">    2264</span><span class="f-gray">     6.1%    388.0 MB     0 MB/s</span><span class="f-darkgray">│</span>
+<span class="f-darkgray">│</span><span class="f-gray">      └ Firefox                                                             </span><span class="f-darkgray">    2291</span><span class="f-gray">     3.4%    274.0 MB     0 MB/s</span><span class="f-darkgray">│</span>
+<span class="f-darkgray">│</span><span class="f-gray">      └ Firefox                                                             </span><span class="f-darkgray">    2318</span><span class="f-gray">     1.2%    196.0 MB     0 MB/s</span><span class="f-darkgray">│</span>
+<span class="f-darkgray">│</span><span class="f-gray">      └ Firefox                                                             </span><span class="f-darkgray">    2342</span><span class="f-gray">     0.6%    131.0 MB     0 MB/s</span><span class="f-darkgray">│</span>
+<span class="f-darkgray">│</span>  ▸ Code (3)                                                                <span class="f-darkgray">        </span>     7.9% <span class="f-yellow">   999.0 MB</span> <span class="f-yellow">  1.8 MB/s</span><span class="f-darkgray">│</span>
+<span class="f-darkgray">│</span>  ▸ Spotify (2)                                                             <span class="f-darkgray">        </span>     3.5%    463.0 MB   0.1 MB/s<span class="f-darkgray">│</span>
+<span class="f-darkgray">│</span>    Gnome Shell                                                             <span class="f-darkgray">    1870</span>     3.1%    472.0 MB     0 MB/s<span class="f-darkgray">│</span>
+<span class="f-darkgray">│</span>  ▸ Discord (2)                                                             <span class="f-darkgray">        </span>     2.1%    598.0 MB     0 MB/s<span class="f-darkgray">│</span>
+<span class="f-darkgray">│</span>    Xwayland                                                                <span class="f-darkgray">    1655</span>     1.1%     96.0 MB     0 MB/s<span class="f-darkgray">│</span>
+<span class="f-darkgray">│</span>    Obsidian                                                                <span class="f-darkgray">    5120</span>     0.7%    265.0 MB     0 MB/s<span class="f-darkgray">│</span>
+<span class="f-darkgray">│</span>    Kitty                                                                   <span class="f-darkgray">    5301</span>     0.5%     88.0 MB     0 MB/s<span class="f-darkgray">│</span>
+<span class="f-darkgray">│</span>    Otm                                                                     <span class="f-darkgray">    6010</span>     0.3%      9.0 MB     0 MB/s<span class="f-darkgray">│</span>
+<span class="f-darkgray">│</span>    Nautilus                                                                <span class="f-darkgray">    5480</span>     0.0%    142.0 MB     0 MB/s<span class="f-darkgray">│</span>
+<span class="f-darkgray">│</span><span class="f-cyan bold">▾ Background processes (6)                                                                                          </span><span class="f-darkgray">│</span>
+<span class="f-darkgray">│</span>    Systemd Journald                                                        <span class="f-darkgray">     402</span>     0.2%     38.0 MB   0.3 MB/s<span class="f-darkgray">│</span>
+<span class="f-darkgray">│</span>    Dbus Daemon                                                             <span class="f-darkgray">     911</span>     0.1%      6.0 MB     0 MB/s<span class="f-darkgray">│</span>
+<span class="f-darkgray">│</span>    Systemd                                                                 <span class="f-darkgray">       1</span>     0.0%     14.0 MB     0 MB/s<span class="f-darkgray">│</span>
+<span class="f-darkgray">│</span>    Polkit Agent                                                            <span class="f-darkgray">    1502</span>     0.0%     31.0 MB     0 MB/s<span class="f-darkgray">│</span>
+<span class="f-darkgray">│</span>    Upower Daemon                                                           <span class="f-darkgray">    1733</span>     0.0%      9.0 MB     0 MB/s<span class="f-darkgray">│</span>
+<span class="f-darkgray">│</span>    Gsd Power Helper                                                        <span class="f-darkgray">    1790</span>     0.0%     27.0 MB     0 MB/s<span class="f-darkgray">│</span>
+<span class="f-darkgray">│</span>                                                                                                                    <span class="f-darkgray">│</span>
+<span class="f-darkgray">│</span>                                                                                                                    <span class="f-darkgray">│</span>
+<span class="f-darkgray">╰────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯</span>
+ <span class="f-cyan bold">Tab</span><span class="f-gray"> switch  </span><span class="f-cyan bold">↑↓</span><span class="f-gray"> move  </span><span class="f-cyan bold">←→</span><span class="f-gray"> expand  </span><span class="f-cyan bold">/</span><span class="f-gray"> filter  </span><span class="f-cyan bold">s</span><span class="f-gray"> sort  </span><span class="f-cyan bold">x</span><span class="f-gray"> end task  </span><span class="f-cyan bold">?</span><span class="f-gray"> help  </span><span class="f-cyan bold">q</span><span class="f-gray"> quit  </span>
+</pre>
+<pre class="term-screen" data-screen="performance" role="img" aria-label="otm showing the Performance tab: live CPU, memory, disk and network graphs" hidden><span class="f-cyan bold"> ◆ Open Task Manager </span><span class="f-gray"> 1 Processes </span><span class="f-black b-cyan bold"> 2 Performance </span><span class="f-gray"> 3 App history  4 Startup apps  5 Users  6 Details  7 Services </span>
+<span class="f-darkgray">╭</span><span class="f-cyan bold"> CPU  23% · 3.40 GHz </span><span class="f-darkgray">────────────────────────────────────╮╭</span><span class="f-cyan bold"> Memory  12.7 GB/32.0 GB (40%) </span><span class="f-darkgray">──────────────────────────╮</span>
+<span class="f-darkgray">│</span>100%<span class="f-darkgray">│</span>                                                    <span class="f-darkgray">││</span>100%<span class="f-darkgray">│</span>                                                    <span class="f-darkgray">│</span>
+<span class="f-darkgray">│</span>    <span class="f-darkgray">│</span>                                                    <span class="f-darkgray">││</span>    <span class="f-darkgray">│</span>                                                    <span class="f-darkgray">│</span>
+<span class="f-darkgray">│</span>    <span class="f-darkgray">│</span>                                                    <span class="f-darkgray">││</span>    <span class="f-darkgray">│</span>                                                    <span class="f-darkgray">│</span>
+<span class="f-darkgray">│</span>    <span class="f-darkgray">│</span>                                                    <span class="f-darkgray">││</span>    <span class="f-darkgray">│</span>                                                    <span class="f-darkgray">│</span>
+<span class="f-darkgray">│</span>    <span class="f-darkgray">│</span> <span class="f-cyan"><i>⢀</i><i>⡀</i><i>⡠</i><i>⠤</i><i>⣀</i><i>⠤</i><i>⠤</i><i>⠒</i><i>⠢</i><i>⠊</i><i>⠢</i><i>⠤</i><i>⠤</i><i>⣀</i><i>⠤</i><i>⠤</i><i>⢄</i><i>⣀</i><i>⡀</i></span>                  <span class="f-cyan"><i>⢀</i><i>⡀</i></span> <span class="f-cyan"><i>⣀</i><i>⠤</i><i>⠔</i><i>⠢</i><i>⠤</i><i>⠤</i><i>⠤</i><i>⠒</i><i>⠤</i><i>⢆</i><i>⠔</i></span><span class="f-darkgray">││</span>    <span class="f-darkgray">│</span><span class="f-magenta"><i>⠉</i><i>⠉</i><i>⠉</i><i>⠉</i><i>⠉</i><i>⠉</i><i>⠉</i><i>⠉</i><i>⠉</i><i>⠉</i><i>⠉</i><i>⠉</i><i>⠉</i><i>⠉</i><i>⠉</i><i>⠉</i><i>⠉</i><i>⠉</i><i>⠉</i><i>⠉</i><i>⠉</i><i>⠉</i><i>⠉</i><i>⠉</i><i>⠉</i><i>⠉</i><i>⠉</i><i>⠉</i><i>⠉</i><i>⠉</i><i>⠉</i><i>⠉</i><i>⠉</i><i>⠉</i><i>⠉</i><i>⠉</i><i>⠉</i><i>⠉</i><i>⠉</i><i>⠉</i><i>⠉</i><i>⠉</i><i>⠉</i><i>⠉</i><i>⠉</i><i>⠉</i><i>⠉</i><i>⠉</i><i>⠉</i><i>⠉</i><i>⠉</i><i>⠉</i></span><span class="f-darkgray">│</span>
+<span class="f-darkgray">│</span>    <span class="f-darkgray">│</span><span class="f-cyan"><i>⠉</i><i>⠁</i><i>⠈</i></span>                <span class="f-cyan"><i>⠈</i><i>⠒</i><i>⠒</i><i>⠒</i><i>⠢</i><i>⠔</i><i>⠢</i><i>⠤</i><i>⣀</i><i>⣀</i><i>⡠</i><i>⢄</i><i>⡠</i><i>⠴</i><i>⣀</i><i>⣀</i><i>⠔</i><i>⠑</i><i>⠒</i><i>⠁</i><i>⠈</i><i>⠉</i></span>           <span class="f-darkgray">││</span>    <span class="f-darkgray">│</span>                                                    <span class="f-darkgray">│</span>
+<span class="f-darkgray">│</span>0   <span class="f-darkgray">│</span>                                                    <span class="f-darkgray">││</span>0   <span class="f-darkgray">│</span>                                                    <span class="f-darkgray">│</span>
+<span class="f-darkgray">╰─────────────────────────────────────────────────────────╯╰─────────────────────────────────────────────────────────╯</span>
+<span class="f-darkgray">╭</span><span class="f-cyan bold"> Disk  2.3 MB/s · 4% active </span><span class="f-darkgray">─────────────────────────────╮╭</span><span class="f-cyan bold"> Network  ↓ 1.9 MB/s  ↑ 0.2 MB/s </span><span class="f-darkgray">────────────────────────╮</span>
+<span class="f-darkgray">│</span>6.2 MB/s<span class="f-darkgray">│</span>                                                <span class="f-darkgray">││</span>3.4 MB/s<span class="f-darkgray">│</span>                                                <span class="f-darkgray">│</span>
+<span class="f-darkgray">│</span>        <span class="f-darkgray">│</span>                     <span class="f-green"><i>⢰</i><i>⡄</i></span>                         <span class="f-darkgray">││</span>        <span class="f-darkgray">│</span>     <span class="f-yellow"><i>⡀</i><i>⣴</i></span>          <span class="f-yellow"><i>⡀</i><i>⢀</i><i>⡀</i></span> <span class="f-yellow"><i>⡀</i></span>        <span class="f-yellow"><i>⢠</i><i>⢄</i></span>          <span class="f-yellow"><i>⢀</i><i>⡀</i><i>⡠</i><i>⣀</i><i>⡄</i></span> <span class="f-darkgray">│</span>
+<span class="f-darkgray">│</span>        <span class="f-darkgray">│</span>       <span class="f-green"><i>⡇</i></span>             <span class="f-green"><i>⢸</i><i>⢸</i></span>                     <span class="f-green"><i>⢠</i></span>   <span class="f-darkgray">││</span>        <span class="f-darkgray">│</span>  <span class="f-yellow"><i>⢠</i><i>⠒</i><i>⠊</i><i>⠈</i></span> <span class="f-yellow"><i>⠓</i><i>⠒</i><i>⢣</i></span>      <span class="f-yellow"><i>⡜</i><i>⠑</i><i>⠁</i><i>⠈</i><i>⠊</i><i>⢣</i><i>⡀</i></span>      <span class="f-yellow"><i>⣀</i><i>⠎</i><i>⠈</i><i>⠒</i><i>⠒</i><i>⢇</i><i>⢀</i></span>     <span class="f-yellow"><i>⡠</i><i>⠊</i><i>⠈</i></span>  <span class="f-yellow"><i>⠘</i><i>⡄</i></span><span class="f-darkgray">│</span>
+<span class="f-darkgray">│</span>        <span class="f-darkgray">│</span>       <span class="f-green"><i>⣷</i></span>             <span class="f-green"><i>⢸</i></span> <span class="f-green"><i>⡇</i></span>          <span class="f-green"><i>⢀</i></span>         <span class="f-green"><i>⣸</i></span>   <span class="f-darkgray">││</span>        <span class="f-darkgray">│</span> <span class="f-yellow"><i>⢠</i><i>⠃</i></span>       <span class="f-yellow"><i>⠑</i><i>⡄</i></span>  <span class="f-yellow"><i>⡜</i><i>⠉</i></span>      <span class="f-yellow"><i>⠈</i><i>⠱</i><i>⡀</i></span> <span class="f-yellow"><i>⢰</i><i>⠢</i><i>⠊</i></span>     <span class="f-yellow"><i>⠈</i><i>⠉</i><i>⠢</i><i>⡀</i><i>⢀</i><i>⣀</i><i>⠔</i><i>⠁</i></span>     <span class="f-yellow"><i>⠘</i></span><span class="f-darkgray">│</span>
+<span class="f-darkgray">│</span>        <span class="f-darkgray">│</span>      <span class="f-green"><i>⢠</i><i>⢻</i></span>           <span class="f-green"><i>⢠</i></span> <span class="f-green"><i>⡇</i></span> <span class="f-green"><i>⢣</i></span>          <span class="f-green"><i>⢸</i><i>⡀</i></span>  <span class="f-green"><i>⡀</i></span>     <span class="f-green"><i>⡿</i><i>⡀</i></span>  <span class="f-darkgray">││</span>        <span class="f-darkgray">│</span><span class="f-yellow"><i>⢠</i><i>⠃</i></span>         <span class="f-yellow"><i>⠘</i><i>⡴</i><i>⠉</i></span>          <span class="f-yellow"><i>⠑</i><i>⠤</i><i>⠇</i></span>          <span class="f-yellow"><i>⠘</i><i>⠎</i></span>         <span class="f-darkgray">│</span>
+<span class="f-darkgray">│</span>        <span class="f-darkgray">│</span><span class="f-green"><i>⢣</i></span>     <span class="f-green"><i>⢸</i><i>⠸</i><i>⡀</i></span>          <span class="f-green"><i>⡾</i><i>⡀</i><i>⡇</i></span> <span class="f-green"><i>⢸</i></span>          <span class="f-green"><i>⡎</i><i>⡇</i></span> <span class="f-green"><i>⢰</i><i>⡇</i></span>    <span class="f-green"><i>⢀</i><i>⠇</i><i>⡇</i></span>  <span class="f-darkgray">││</span>        <span class="f-darkgray">│</span><span class="f-yellow"><i>⠁</i></span>                                               <span class="f-darkgray">│</span>
+<span class="f-darkgray">│</span>0       <span class="f-darkgray">│</span><span class="f-green"><i>⠈</i><i>⠦</i><i>⢄</i><i>⣀</i><i>⣀</i><i>⢄</i><i>⡸</i></span> <span class="f-green"><i>⣇</i><i>⠤</i><i>⢄</i><i>⡠</i><i>⣀</i><i>⠤</i><i>⠤</i><i>⢄</i><i>⣀</i><i>⢄</i><i>⡰</i><i>⠁</i><i>⠧</i><i>⠇</i></span> <span class="f-green"><i>⠈</i><i>⡦</i><i>⠢</i><i>⡠</i><i>⢄</i><i>⣀</i><i>⠤</i><i>⠤</i><i>⠤</i><i>⣀</i><i>⣀</i><i>⠇</i><i>⢱</i><i>⠤</i><i>⠎</i><i>⢸</i><i>⣀</i><i>⡠</i><i>⠤</i><i>⢄</i><i>⡸</i></span> <span class="f-green"><i>⠧</i><i>⣀</i><i>⣀</i></span><span class="f-darkgray">││</span>0       <span class="f-darkgray">│</span>                                                <span class="f-darkgray">│</span>
+<span class="f-darkgray">╰─────────────────────────────────────────────────────────╯╰─────────────────────────────────────────────────────────╯</span>
+<span class="f-darkgray">╭</span><span class="f-cyan bold"> System </span><span class="f-darkgray">────────────────────────╮╭</span><span class="f-cyan bold"> Disks </span><span class="f-darkgray">─────────────────────────────────────────╮╭</span><span class="f-cyan bold"> Network </span><span class="f-darkgray">───────────────────────╮</span>
+<span class="f-darkgray">│</span><span class="f-gray">Processor    </span>Intel Core i7-1360P<span class="f-darkgray">││</span><span class="f-gray bold">Mount        Type                   Used  Active</span><span class="f-darkgray">││</span><span class="f-gray bold">Interface      ↓ Recv     ↑ Send</span><span class="f-darkgray">│</span>
+<span class="f-darkgray">│</span><span class="f-gray">Cores        </span>12 physical · 16   <span class="f-darkgray">││</span>/            SSD     341.0 GB / 953.0 GB      4%<span class="f-darkgray">││</span>lo             0 MB/s     0 MB/s<span class="f-darkgray">│</span>
+<span class="f-darkgray">│</span>logical                         <span class="f-darkgray">││</span>/boot/efi    SSD         0.2 GB / 1.0 GB      0%<span class="f-darkgray">││</span>wlan0        1.9 MB/s   0.2 MB/s<span class="f-darkgray">│</span>
+<span class="f-darkgray">│</span><span class="f-gray">Speed        </span>3.40 GHz           <span class="f-darkgray">││</span>                                                <span class="f-darkgray">││</span>                                <span class="f-darkgray">│</span>
+<span class="f-darkgray">│</span><span class="f-gray">Processes    </span>312                <span class="f-darkgray">││</span>                                                <span class="f-darkgray">││</span>                                <span class="f-darkgray">│</span>
+<span class="f-darkgray">│</span><span class="f-gray">Up time      </span>03:12:40           <span class="f-darkgray">││</span>                                                <span class="f-darkgray">││</span>                                <span class="f-darkgray">│</span>
+<span class="f-darkgray">│</span><span class="f-gray">Swap         </span>0.0 GB / 8.0 GB    <span class="f-darkgray">││</span>                                                <span class="f-darkgray">││</span>                                <span class="f-darkgray">│</span>
+<span class="f-darkgray">│</span>                                <span class="f-darkgray">││</span>                                                <span class="f-darkgray">││</span>                                <span class="f-darkgray">│</span>
+<span class="f-darkgray">╰────────────────────────────────╯╰────────────────────────────────────────────────╯╰────────────────────────────────╯</span>
+ <span class="f-cyan bold">Tab</span><span class="f-gray"> switch  </span><span class="f-cyan bold">?</span><span class="f-gray"> help  </span><span class="f-cyan bold">q</span><span class="f-gray"> quit  </span>
+</pre>
+<!-- otm-demo:end -->
+    </div>
+  </div>
+
+  <div class="keys" aria-label="otm key bindings">
+    <div class="key"><kbd>Tab</kbd><kbd>1</kbd>&ndash;<kbd>7</kbd>switch tab</div>
+    <div class="key"><kbd>/</kbd>filter by name</div>
+    <div class="key"><kbd>s</kbd><kbd>S</kbd>sort, reverse</div>
+    <div class="key"><kbd>&rarr;</kbd><kbd>&larr;</kbd>expand groups</div>
+    <div class="key"><kbd>x</kbd>end task (asks first)</div>
+    <div class="key"><kbd>?</kbd>all keys &middot; <kbd>q</kbd>quit</div>
+  </div>
+</section>
+
+<section id="install">
+  <div class="section-head">
+    <div>
+      <p class="eyebrow">install</p>
+      <h2>Install it in a minute.</h2>
+    </div>
+    <p>On Linux, every package installs both: the desktop app (<strong>Open Task Manager</strong> in your app menu) and <code class="mono">otm</code> for the terminal.</p>
+  </div>
+
+  <div class="tabs" role="tablist" aria-label="Choose your system">
+    <button type="button" role="tab" aria-selected="true" aria-controls="i-apt" data-os="apt">Ubuntu / Debian</button>
+    <button type="button" role="tab" aria-selected="false" aria-controls="i-arch" data-os="arch">Arch / Manjaro</button>
+    <button type="button" role="tab" aria-selected="false" aria-controls="i-win" data-os="win">Windows</button>
+    <button type="button" role="tab" aria-selected="false" aria-controls="i-mac" data-os="mac">macOS</button>
+    <button type="button" role="tab" aria-selected="false" aria-controls="i-other" data-os="other">Other Linux</button>
+    <button type="button" role="tab" aria-selected="false" aria-controls="i-cli" data-os="cli">Terminal only</button>
+  </div>
+
+  <div class="panel" id="i-apt" role="tabpanel">
+    <h3 class="ftitle">Ubuntu, Debian, Linux Mint, Pop!_OS (apt)</h3>
+    <p>Add the signed repository once, then updates arrive with the rest of your system via <code class="mono">sudo apt upgrade</code>. Needs Ubuntu 22.04+ or Debian 12+, x86_64.</p>
+    <div class="code"><button class="copy" type="button">Copy</button><pre>curl -fsSL https://sabaoongfx.github.io/Open-Task-Manager/KEY.gpg \
+  | sudo gpg --dearmor -o /usr/share/keyrings/open-task-manager.gpg
+echo "deb [signed-by=/usr/share/keyrings/open-task-manager.gpg] https://sabaoongfx.github.io/Open-Task-Manager stable main" \
+  | sudo tee /etc/apt/sources.list.d/open-task-manager.list
+sudo apt update &amp;&amp; sudo apt install open-task-manager</pre></div>
+  </div>
+
+  <div class="panel" id="i-arch" role="tabpanel" hidden>
+    <h3 class="ftitle">Arch Linux, Manjaro, EndeavourOS (pacman)</h3>
+    <p>A signed pacman repository, built natively on Arch. Add it once, then <code class="mono">sudo pacman -Syu</code> keeps it updated.</p>
+    <div class="code"><button class="copy" type="button">Copy</button><pre>curl -fsSL https://sabaoongfx.github.io/Open-Task-Manager/KEY.gpg | sudo pacman-key --add -
+sudo pacman-key --lsign-key "Open Task Manager packages"
+printf '\n[open-task-manager]\nServer = https://sabaoongfx.github.io/Open-Task-Manager/arch/$arch\n' \
+  | sudo tee -a /etc/pacman.conf
+sudo pacman -Sy open-task-manager</pre></div>
+  </div>
+
+  <div class="panel" id="i-win" role="tabpanel" hidden>
+    <h3 class="ftitle">Windows 10 and 11</h3>
+    <p>Download the <code class="mono">.msi</code> or <code class="mono">-setup.exe</code> installer from the <a href="https://github.com/sabaoongfx/Open-Task-Manager/releases/latest" target="_blank" rel="noopener">latest release</a> and run it.</p>
+    <p class="note">The installer isn't code-signed yet, so Windows SmartScreen may warn you: choose <em>More info &rarr; Run anyway</em>.</p>
+  </div>
+
+  <div class="panel" id="i-mac" role="tabpanel" hidden>
+    <h3 class="ftitle">macOS</h3>
+    <p>Download the <code class="mono">.dmg</code> from the <a href="https://github.com/sabaoongfx/Open-Task-Manager/releases/latest" target="_blank" rel="noopener">latest release</a>: <code class="mono">aarch64</code> for Apple Silicon (M1 and newer), <code class="mono">x64</code> for Intel Macs. Drag the app to Applications.</p>
+    <p class="note">The app isn't notarized yet, so the first time you open it, right-click it and choose <em>Open</em>.</p>
+  </div>
+
+  <div class="panel" id="i-other" role="tabpanel" hidden>
+    <h3 class="ftitle">Fedora, openSUSE and other distributions</h3>
+    <p>From the <a href="https://github.com/sabaoongfx/Open-Task-Manager/releases/latest" target="_blank" rel="noopener">latest release</a>:</p>
+    <ul>
+      <li><code class="mono">.rpm</code> for Fedora and openSUSE: <code class="mono">sudo dnf install ./open-task-manager-*.rpm</code></li>
+      <li><code class="mono">.AppImage</code> for anything else: make it executable and run it (desktop app only)</li>
+    </ul>
+  </div>
+
+  <div class="panel" id="i-cli" role="tabpanel" hidden>
+    <h3 class="ftitle">Just <code class="mono">otm</code>, the terminal UI</h3>
+    <p>For servers and minimal installs: no desktop app, no webview. Download the <code class="mono">otm</code> archive for Linux, macOS or Windows from the <a href="https://github.com/sabaoongfx/Open-Task-Manager/releases/latest" target="_blank" rel="noopener">latest release</a>, or build it with Rust:</p>
+    <div class="code"><button class="copy" type="button">Copy</button><pre>cargo install --locked --git https://github.com/sabaoongfx/Open-Task-Manager otm
+otm</pre></div>
+  </div>
+</section>
+
 <section id="specs">
   <div class="section-head">
     <div>
@@ -272,6 +544,10 @@
     <div class="spec"><div class="l">Shell</div><div class="v">Tauri 2</div></div>
     <div class="spec"><div class="l">System data</div><div class="v">Rust &middot; sysinfo</div></div>
     <div class="spec"><div class="l">Poll interval</div><div class="v">1.5s</div></div>
+    <div class="spec"><div class="l">Terminal UI</div><div class="v">ratatui</div></div>
+    <div class="spec"><div class="l">Platforms</div><div class="v">Linux &middot; Win &middot; macOS</div></div>
+    <div class="spec"><div class="l">Linux repos</div><div class="v">apt &middot; pacman</div></div>
+    <div class="spec"><div class="l">License</div><div class="v">MIT</div></div>
   </div>
 </section>
 
@@ -300,6 +576,49 @@
 </footer>
 
 <script>
+// Tab strips: the otm screen switcher and the install instructions.
+(function(){
+  function tabs(list, show){
+    var buttons = list.querySelectorAll('[role="tab"]');
+    buttons.forEach(function(b){
+      b.addEventListener('click', function(){ select(b); });
+    });
+    function select(active){
+      buttons.forEach(function(b){ b.setAttribute('aria-selected', b === active ? 'true' : 'false'); });
+      show(active);
+    }
+    return select;
+  }
+
+  tabs(document.querySelector('.term-switch'), function(b){
+    document.querySelectorAll('.term-screen').forEach(function(pre){
+      pre.hidden = pre.dataset.screen !== b.dataset.show;
+    });
+  });
+
+  var installList = document.querySelector('#install .tabs');
+  var selectInstall = tabs(installList, function(b){
+    document.querySelectorAll('#install [role="tabpanel"]').forEach(function(p){
+      p.hidden = p.id !== b.getAttribute('aria-controls');
+    });
+  });
+  // Open the tab for the visitor's OS (Linux defaults to apt).
+  var ua = navigator.userAgent;
+  var os = /Windows/.test(ua) ? 'win' : /Mac OS X|Macintosh/.test(ua) && !/iPhone|iPad/.test(ua) ? 'mac'
+         : /Arch|Manjaro/i.test(ua) ? 'arch' : /Fedora|SUSE/i.test(ua) ? 'other' : null;
+  if (os) selectInstall(installList.querySelector('[data-os="' + os + '"]'));
+
+  document.querySelectorAll('.copy').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var text = btn.nextElementSibling.textContent;
+      navigator.clipboard.writeText(text).then(function(){
+        btn.textContent = 'Copied';
+        setTimeout(function(){ btn.textContent = 'Copy'; }, 1500);
+      });
+    });
+  });
+})();
+
 (function(){
   var start = Date.now();
   setInterval(function(){

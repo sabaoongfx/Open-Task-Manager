@@ -2,6 +2,8 @@
 //! Tauri app, so every number here matches the GUI.
 
 mod app;
+#[cfg(test)]
+mod demo;
 mod format;
 mod ui;
 mod views;

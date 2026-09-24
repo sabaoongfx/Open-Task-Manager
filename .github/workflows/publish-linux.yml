@@ -1,7 +1,16 @@
 name: Publish Linux packages
 
 # Runs when a release is published (i.e. after release.yml's draft has been reviewed and
-# published), so apt and AUR users only ever see releases that were actually shipped.
+# published), so apt/pacman users only ever see releases that were actually shipped.
+#
+# Everything lands on one GitHub Pages site, rebuilt from scratch each release (only the newest
+# version is kept; package managers only need that):
+#   /                  signed apt repo      (dists/, pool/)
+#   /arch/x86_64/      signed pacman repo   (open-task-manager.db + packages)
+#   /KEY.gpg           the public key that signs both
+#
+# Pre-release tags containing '-' (v1.0.0-beta.1) are skipped entirely: pacman's pkgver can't
+# contain '-', and the stable repos shouldn't get betas anyway.
 on:
   release:
     types: [published]
@@ -15,9 +24,45 @@ env:
   TAG: ${{ github.event.release.tag_name || inputs.tag }}
 
 jobs:
-  # Signed apt repo on GitHub Pages. It is rebuilt from scratch with the latest .deb each time,
-  # so there is no repo state to keep anywhere; apt only ever needs the newest version.
-  apt:
+  # Builds from source inside Arch itself (so it links against Arch's own webkit2gtk), using the
+  # same PKGBUILD as the AUR source package.
+  pacman:
+    if: ${{ !contains(github.event.release.tag_name || inputs.tag, '-') }}
+    runs-on: ubuntu-latest
+    container: archlinux:base-devel
+    steps:
+      - name: Install tools
+        run: pacman -Syu --noconfirm --needed git pacman-contrib
+
+      - uses: actions/checkout@v4
+
+      - name: Build package
+        run: |
+          # makepkg refuses to run as root
+          useradd -m builder
+          echo 'builder ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/builder
+          mkdir /build
+          cp packaging/aur/open-task-manager/PKGBUILD /build/
+          sed -i "s/^pkgver=.*/pkgver=${TAG#v}/; s/^pkgrel=.*/pkgrel=1/" /build/PKGBUILD
+          chown -R builder /build
+          cd /build
+          sudo -u builder updpkgsums
+          sudo -u builder makepkg --syncdeps --noconfirm
+
+      - name: Sign and create repo
+        env:
+          PACKAGES_GPG_PRIVATE_KEY: ${{ secrets.PACKAGES_GPG_PRIVATE_KEY }}
+        run: packaging/arch/make-repo.sh /build arch-repo/x86_64
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: arch-repo
+          path: arch-repo
+
+  # Builds the apt repo and deploys the whole Pages site. Requires the pacman job, so a failed
+  # Arch build leaves the previous site (both repos) untouched instead of half-updating it.
+  pages:
+    needs: pacman
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -34,21 +79,26 @@ jobs:
 
       - name: Import signing key
         env:
-          APT_GPG_PRIVATE_KEY: ${{ secrets.APT_GPG_PRIVATE_KEY }}
-        run: echo "$APT_GPG_PRIVATE_KEY" | gpg --batch --import
+          PACKAGES_GPG_PRIVATE_KEY: ${{ secrets.PACKAGES_GPG_PRIVATE_KEY }}
+        run: echo "$PACKAGES_GPG_PRIVATE_KEY" | gpg --batch --import
 
       - name: Download .deb from the release
         env:
           GH_TOKEN: ${{ github.token }}
         run: gh release download "$TAG" --pattern '*.deb' --dir debs
 
-      - name: Build repo
+      - name: Build apt repo
         run: |
           mkdir -p reprepro/conf public
           cp packaging/apt/distributions reprepro/conf/
           reprepro --basedir reprepro --outdir "$PWD/public" includedeb stable debs/*.deb
           gpg --armor --export > public/KEY.gpg
           touch public/.nojekyll
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: arch-repo
+          path: public/arch
 
       - uses: actions/upload-pages-artifact@v3
         with:
@@ -58,26 +108,36 @@ jobs:
         uses: actions/deploy-pages@v4
 
   # AUR: a source-built package and a -bin package that repackages the release .deb.
+  # AUR registration is currently closed, so this quietly skips until the
+  # AUR_SSH_PRIVATE_KEY secret exists; adding it later needs no workflow change.
   aur:
-    # pkgver can't contain '-', so pre-release tags like v1.0.0-beta.1 are skipped.
     if: ${{ !contains(github.event.release.tag_name || inputs.tag, '-') }}
     runs-on: ubuntu-latest
+    env:
+      AUR_SSH_PRIVATE_KEY: ${{ secrets.AUR_SSH_PRIVATE_KEY }}
     strategy:
       fail-fast: false
       matrix:
         pkg: [open-task-manager, open-task-manager-bin]
     steps:
+      - name: Skip without an AUR key
+        if: ${{ env.AUR_SSH_PRIVATE_KEY == '' }}
+        run: echo "::notice::AUR_SSH_PRIVATE_KEY is not set; skipping the AUR upload of ${{ matrix.pkg }}"
+
       - uses: actions/checkout@v4
+        if: ${{ env.AUR_SSH_PRIVATE_KEY != '' }}
 
       - name: Set version
+        if: ${{ env.AUR_SSH_PRIVATE_KEY != '' }}
         run: sed -i "s/^pkgver=.*/pkgver=${TAG#v}/; s/^pkgrel=.*/pkgrel=1/" "packaging/aur/${{ matrix.pkg }}/PKGBUILD"
 
       - uses: KSXGitHub/github-actions-deploy-aur@v3
+        if: ${{ env.AUR_SSH_PRIVATE_KEY != '' }}
         with:
           pkgname: ${{ matrix.pkg }}
           pkgbuild: packaging/aur/${{ matrix.pkg }}/PKGBUILD
           updpkgsums: true
           commit_username: sabaoongfx
           commit_email: sabaoongfx@users.noreply.github.com
-          ssh_private_key: ${{ secrets.AUR_SSH_PRIVATE_KEY }}
+          ssh_private_key: ${{ env.AUR_SSH_PRIVATE_KEY }}
           commit_message: Update to ${{ env.TAG }}

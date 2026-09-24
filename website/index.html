@@ -121,6 +121,8 @@
   .hero h1 em{ font-style:normal; color:var(--red); }
   .hero p.lede{ font-size:17px; line-height:1.6; color:var(--ink-muted); max-width:46ch; }
   .cta-row{ display:flex; gap:12px; margin-top:28px; flex-wrap:wrap; }
+  .hero-note{ margin-top:12px; font-size:13px; color:var(--ink-muted); }
+  .hero-note a{ text-decoration:underline; text-underline-offset:2px; }
   .btn{
     font:inherit; font-weight:600; font-size:14px; border-radius:7px; padding:12px 18px;
     border:1px solid transparent; cursor:pointer; display:inline-flex; align-items:center; gap:8px;
@@ -267,6 +269,27 @@
   @media (max-width:720px){ .code pre{ padding-top:44px; padding-right:16px; } }
   .note{ font-size:12.5px !important; color:var(--ink-faint) !important; }
   .dl-row{ display:flex; gap:10px; flex-wrap:wrap; margin-top:16px; }
+
+  /* ---------- all downloads ---------- */
+  .dl-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:14px; }
+  .dl-card{ background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:18px; }
+  .dl-card.yours{ border-color:var(--red); box-shadow:0 0 0 1px var(--red); }
+  .dl-card h3{ font-size:15px; font-weight:700; display:flex; align-items:center; gap:8px; margin-bottom:10px; }
+  .dl-card .yours-tag{
+    display:none; font:500 10.5px "IBM Plex Mono",monospace; text-transform:uppercase; letter-spacing:.04em;
+    color:#fff; background:var(--red); border-radius:20px; padding:3px 8px;
+  }
+  .dl-card.yours .yours-tag{ display:inline-block; }
+  .dl-card ul{ list-style:none; margin:0; padding:0; }
+  .dl-card li + li{ border-top:1px solid var(--border); }
+  .dl-card a{
+    display:flex; align-items:center; gap:10px; padding:10px 2px; text-decoration:none; font-size:14px; font-weight:500;
+  }
+  .dl-card a:hover{ color:var(--red); }
+  .dl-card a svg{ width:16px; height:16px; flex-shrink:0; color:var(--red); }
+  .dl-card a .ext{ margin-left:auto; font:500 11.5px "IBM Plex Mono",monospace; color:var(--ink-faint); }
+  .dl-foot{ margin-top:16px; font-size:13px; color:var(--ink-muted); }
+  .dl-foot a{ text-decoration:underline; text-underline-offset:2px; }
   .dl-row + p, .dl-row + .code{ margin-top:14px; }
 </style>
 
@@ -284,6 +307,7 @@
     <a href="#features">Features</a>
     <a href="#terminal">Terminal</a>
     <a href="#install">Install</a>
+    <a href="#download">Download</a>
     <a href="#specs">Specs</a>
     <a href="#roadmap">Roadmap</a>
     <a class="gh" href="https://github.com/sabaoongfx/Open-Task-Manager" target="_blank" rel="noopener">
@@ -303,7 +327,9 @@
       Star on GitHub
     </a>
     <a class="btn btn-ghost" href="#install">Install</a>
+    <a class="btn btn-ghost" id="hero-download" href="#download"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg><span>Download</span></a>
   </div>
+  <p class="hero-note" id="hero-download-note" hidden></p>
 </div>
 
 <div class="full-demo-wrap" id="full-demo">
@@ -559,6 +585,50 @@ otm</pre></div>
   </div>
 </section>
 
+<section id="download">
+  <div class="section-head">
+    <div>
+      <p class="eyebrow">download</p>
+      <h2>Every download, one click.</h2>
+    </div>
+    <p>Direct links to the latest release, free and open source. On Linux, prefer the <a href="#install" style="text-decoration:underline;text-underline-offset:2px;">apt or pacman repositories</a> so you get updates automatically.</p>
+  </div>
+  <div class="dl-grid">
+    <div class="dl-card" data-platform="win">
+      <h3>Windows <span class="yours-tag">Your system</span></h3>
+      <ul>
+        <li><a href="https://github.com/sabaoongfx/Open-Task-Manager/releases/latest/download/Open-Task-Manager-x64-setup.exe"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>Installer (recommended)<span class="ext">exe</span></a></li>
+        <li><a href="https://github.com/sabaoongfx/Open-Task-Manager/releases/latest/download/Open-Task-Manager-x64.msi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>MSI package<span class="ext">msi</span></a></li>
+      </ul>
+    </div>
+    <div class="dl-card" data-platform="mac">
+      <h3>macOS <span class="yours-tag">Your system</span></h3>
+      <ul>
+        <li><a href="https://github.com/sabaoongfx/Open-Task-Manager/releases/latest/download/Open-Task-Manager-aarch64.dmg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>Apple Silicon (M1 and newer)<span class="ext">dmg</span></a></li>
+        <li><a href="https://github.com/sabaoongfx/Open-Task-Manager/releases/latest/download/Open-Task-Manager-x64.dmg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>Intel Mac<span class="ext">dmg</span></a></li>
+      </ul>
+    </div>
+    <div class="dl-card" data-platform="linux">
+      <h3>Linux <span class="yours-tag">Your system</span></h3>
+      <ul>
+        <li><a href="https://github.com/sabaoongfx/Open-Task-Manager/releases/latest/download/Open-Task-Manager-x86_64.AppImage"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>Any distribution<span class="ext">AppImage</span></a></li>
+        <li><a href="https://github.com/sabaoongfx/Open-Task-Manager/releases/latest/download/Open-Task-Manager-amd64.deb"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>Debian, Ubuntu<span class="ext">deb</span></a></li>
+        <li><a href="https://github.com/sabaoongfx/Open-Task-Manager/releases/latest/download/Open-Task-Manager-x86_64.rpm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>Fedora, openSUSE<span class="ext">rpm</span></a></li>
+      </ul>
+    </div>
+    <div class="dl-card" data-platform="cli">
+      <h3>Terminal UI (otm) <span class="yours-tag">Your system</span></h3>
+      <ul>
+        <li><a href="https://github.com/sabaoongfx/Open-Task-Manager/releases/latest/download/otm-x86_64-unknown-linux-gnu.tar.gz"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>Linux x86_64<span class="ext">tar.gz</span></a></li>
+        <li><a href="https://github.com/sabaoongfx/Open-Task-Manager/releases/latest/download/otm-aarch64-apple-darwin.tar.gz"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>macOS Apple Silicon<span class="ext">tar.gz</span></a></li>
+        <li><a href="https://github.com/sabaoongfx/Open-Task-Manager/releases/latest/download/otm-x86_64-apple-darwin.tar.gz"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>macOS Intel<span class="ext">tar.gz</span></a></li>
+        <li><a href="https://github.com/sabaoongfx/Open-Task-Manager/releases/latest/download/otm-x86_64-pc-windows-msvc.zip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>Windows<span class="ext">zip</span></a></li>
+      </ul>
+    </div>
+  </div>
+  <p class="dl-foot">Installers for Windows and macOS aren't code-signed yet; see <a href="#install">Install</a> for how to open them. Older versions, checksums and release notes are on <a href="https://github.com/sabaoongfx/Open-Task-Manager/releases" target="_blank" rel="noopener">GitHub Releases</a>.</p>
+</section>
+
 <section id="specs">
   <div class="section-head">
     <div>
@@ -634,6 +704,40 @@ otm</pre></div>
   var os = /Windows/.test(ua) ? 'win' : /Mac OS X|Macintosh/.test(ua) && !/iPhone|iPad/.test(ua) ? 'mac'
          : /Arch|Manjaro/i.test(ua) ? 'arch' : /Fedora|SUSE/i.test(ua) ? 'other' : null;
   if (os) selectInstall(installList.querySelector('[data-os="' + os + '"]'));
+  var platform = os === 'win' || os === 'mac' ? os : /Linux|X11/.test(ua) && !/Android/.test(ua) ? 'linux' : null;
+  if (platform) document.querySelector('.dl-card[data-platform="' + platform + '"]').classList.add('yours');
+
+  // Hero button: a direct download for the visitor's OS. Phones and unknown systems keep the
+  // plain "Download" button, which scrolls to #download (also the no-JavaScript behaviour).
+  var BASE = 'https://github.com/sabaoongfx/Open-Task-Manager/releases/latest/download/';
+  var hero = document.getElementById('hero-download'), note = document.getElementById('hero-download-note');
+  var other = '<a href="#download">Other platforms</a>';
+  function offer(label, file, noteHtml){
+    hero.href = BASE + file;
+    hero.querySelector('span').textContent = label;
+    hero.classList.replace('btn-ghost', 'btn-primary');
+    // The direct download becomes the red primary button; "Star on GitHub" steps back.
+    var star = document.querySelector('.hero .btn-primary:not(#hero-download)');
+    if (star) star.classList.replace('btn-primary', 'btn-ghost');
+    note.innerHTML = noteHtml;
+    note.hidden = false;
+  }
+  if (platform === 'win') {
+    offer('Download for Windows', 'Open-Task-Manager-x64-setup.exe', 'Windows 10 and 11 installer &middot; ' + other);
+  } else if (platform === 'mac') {
+    offer('Download for Mac', 'Open-Task-Manager-aarch64.dmg',
+      'For Apple Silicon Macs &middot; <a href="' + BASE + 'Open-Task-Manager-x64.dmg">Intel Mac?</a> &middot; ' + other);
+    // Chromium browsers can tell Intel from Apple Silicon; Safari and Firefox always say "Intel".
+    if (navigator.userAgentData && navigator.userAgentData.getHighEntropyValues) {
+      navigator.userAgentData.getHighEntropyValues(['architecture']).then(function(v){
+        if (v.architecture === 'x86') offer('Download for Mac', 'Open-Task-Manager-x64.dmg',
+          'For Intel Macs &middot; <a href="' + BASE + 'Open-Task-Manager-aarch64.dmg">Apple Silicon?</a> &middot; ' + other);
+      });
+    }
+  } else if (platform === 'linux') {
+    offer('Download for Linux', 'Open-Task-Manager-x86_64.AppImage',
+      'AppImage, runs on any distro &middot; <a href="#install">apt or pacman</a> for automatic updates &middot; ' + other);
+  }
 
   document.querySelectorAll('.copy').forEach(function(btn){
     btn.addEventListener('click', function(){

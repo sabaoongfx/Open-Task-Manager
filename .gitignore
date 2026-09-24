@@ -12,6 +12,9 @@ dist
 dist-ssr
 *.local
 
+# Rust (Cargo workspace build output)
+/target/
+
 # Playwright
 /test-results/
 /playwright-report/

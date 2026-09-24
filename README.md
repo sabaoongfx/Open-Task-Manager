@@ -91,6 +91,7 @@ across restarts), with a working "Delete usage history" action.
 | UI             | React 19 + TypeScript, plain CSS (no framework)  |
 | Build tool     | Vite                                             |
 | Desktop shell  | [Tauri 2](https://tauri.app)                     |
+| Terminal UI    | [ratatui](https://ratatui.rs) + crossterm        |
 | System data    | Rust + [`sysinfo`](https://crates.io/crates/sysinfo) |
 | Testing        | [Playwright](https://playwright.dev)             |
 
@@ -133,6 +134,31 @@ npm run tauri dev
 Compiles the Rust backend and opens a native window backed by real `sysinfo` data,
 with hot-reload on both the frontend and backend.
 
+### Run in the terminal (`otm`)
+
+```bash
+cargo run --release -p otm
+# or install it on your PATH:
+cargo install --path tui
+otm
+```
+
+A keyboard- and mouse-driven terminal UI with the same seven tabs, backed by the exact
+same Rust data collection as the desktop app. It needs only a Rust toolchain — no Node,
+no webview. Press `?` inside it for all key bindings; the essentials:
+
+| Key                    | Action                              |
+| ---------------------- | ----------------------------------- |
+| `Tab` / `1`–`7`        | switch tab                          |
+| `↑↓` / `j k`           | move selection                      |
+| `→ ←` / `Enter`        | expand / collapse a group           |
+| `/`                    | filter by name                      |
+| `s` / `S`              | next sort column / reverse order    |
+| `x` / `Delete`         | end task (asks for confirmation)    |
+| `q`                    | quit                                |
+
+`otm --interval 1000` changes the refresh rate (milliseconds, default 1500).
+
 ### Build a release binary
 
 ```bash
@@ -160,17 +186,23 @@ src/                  React frontend
   types.ts            Shared TypeScript types for the snapshot/process data
   icons.tsx, appIcons.tsx   UI icons + per-app brand icon matching
 
-src-tauri/            Rust backend
-  src/lib.rs          Tauri commands: get_snapshot, kill_process
+core/                 otm-core: all system data collection (sysinfo, systemctl,
+                      autostart entries), shared by the desktop app and the TUI
+
+src-tauri/            Tauri shell
+  src/lib.rs          Thin #[tauri::command] wrappers around otm-core
   tauri.conf.json     Window size, bundle config
+
+tui/                  otm: the terminal UI (ratatui + crossterm)
 
 tests/                Playwright end-to-end tests
 ```
 
 ## How it talks to the OS
 
-The frontend polls a single Tauri command, `get_snapshot`, every 1.5 seconds. On the
-Rust side, that command:
+The frontend polls a single Tauri command, `get_snapshot`, every 1.5 seconds (the terminal
+UI calls the same `otm-core` function directly on the same interval). On the Rust side,
+that command:
 
 1. Refreshes CPU, memory, process, disk and network state via `sysinfo`.
 2. Computes per-process disk I/O rate and system-wide network throughput from the

@@ -117,12 +117,19 @@ sudo apt update && sudo apt install open-task-manager
 
 Updates then arrive with the normal `sudo apt upgrade`.
 
-**Arch / Manjaro / EndeavourOS (AUR)**:
+**Arch / Manjaro / EndeavourOS (pacman)** — a signed repo built natively on Arch:
 
 ```bash
-yay -S open-task-manager-bin   # prebuilt, installs in seconds
-yay -S open-task-manager       # or build from source
+curl -fsSL https://sabaoongfx.github.io/Open-Task-Manager/KEY.gpg | sudo pacman-key --add -
+sudo pacman-key --lsign-key "Open Task Manager packages"
+printf '\n[open-task-manager]\nServer = https://sabaoongfx.github.io/Open-Task-Manager/arch/$arch\n' \
+  | sudo tee -a /etc/pacman.conf
+sudo pacman -Sy open-task-manager
 ```
+
+Updates then arrive with the normal `sudo pacman -Syu`. To build it yourself instead (no
+automatic updates): clone this repo, `cd packaging/aur/open-task-manager`, `makepkg -si`.
+AUR packages are prepared and will be published once AUR account registration reopens.
 
 **Fedora / openSUSE, or anything else**: grab the `.rpm` or `.AppImage` from the
 [latest release](https://github.com/sabaoongfx/Open-Task-Manager/releases).

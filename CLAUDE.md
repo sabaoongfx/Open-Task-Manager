@@ -129,15 +129,24 @@ binaries: `tauri.conf.json`'s `beforeBundleCommand` builds `otm`, and `bundle.li
 contain both.
 
 `publish-linux.yml` runs when a GitHub release is *published* (not when release.yml creates the
-draft):
-- **apt**: downloads the release `.deb`, builds a signed repo with `reprepro`
-  (`packaging/apt/distributions`) and deploys it to GitHub Pages. Stateless — rebuilt from only
-  the latest `.deb` each time. Needs the `APT_GPG_PRIVATE_KEY` secret and Pages set to
-  "GitHub Actions" as source.
-- **AUR**: pushes `packaging/aur/open-task-manager` (source build) and `open-task-manager-bin`
-  (repackages the `.deb`). CI rewrites `pkgver`/`sha256sums`, so the values committed in the
-  PKGBUILDs are placeholders — don't bump them by hand. Needs the `AUR_SSH_PRIVATE_KEY` secret.
-  Tags containing `-` (pre-releases) are skipped since `pkgver` can't contain `-`.
+draft). Tags containing `-` (pre-releases) are skipped entirely, since `pkgver` can't contain `-`.
+It publishes one GitHub Pages site, rebuilt from scratch each release (only the newest version is
+kept), signed with one GPG key (`PACKAGES_GPG_PRIVATE_KEY` secret, UID "Open Task Manager
+packages"; Pages source must be "GitHub Actions" and the `github-pages` environment must allow
+`v*` tags):
+- **pacman** (`/arch/x86_64/`): builds `packaging/aur/open-task-manager/PKGBUILD` from source in
+  an `archlinux:base-devel` container, then `packaging/arch/make-repo.sh` signs it and runs
+  `repo-add --sign --include-sigs`. Pages can't serve symlinks, so the script replaces
+  repo-add's `.db`/`.files` links with copies. The script runs locally too.
+- **apt** (`/`): downloads the release `.deb`, builds a signed repo with `reprepro`
+  (`packaging/apt/distributions`). The Pages deploy `needs` the pacman job, so a failed Arch build
+  leaves the previous site untouched rather than dropping the pacman repo.
+- **AUR**: pushes `packaging/aur/open-task-manager` (source) and `open-task-manager-bin`
+  (repackages the `.deb`). Skipped with a notice while the `AUR_SSH_PRIVATE_KEY` secret is unset
+  (AUR registration was closed when this was set up).
+
+CI rewrites `pkgver`/`sha256sums`, so the values committed in the PKGBUILDs are placeholders —
+don't bump them by hand.
 
 `packaging/linux/open-task-manager.desktop` is used only by the source PKGBUILD; the deb/rpm
 generate theirs from `src-tauri/assets/open-task-manager.desktop.hbs` — keep the two in sync.

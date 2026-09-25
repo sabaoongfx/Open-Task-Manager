@@ -97,7 +97,7 @@
     display:flex; align-items:center; justify-content:space-between;
     padding-block:20px; gap:16px; flex-wrap:wrap;
   }
-  .brand{ display:flex; align-items:center; gap:10px; font-weight:600; font-size:15px; }
+  .brand{ display:flex; align-items:center; gap:10px; font-weight:600; font-size:15px; text-decoration:none; }
   .brand svg{ width:26px; height:20px; flex-shrink:0; }
   .topnav{ display:flex; gap:28px; font-size:14px; color:var(--ink-muted); flex-wrap:wrap; align-items:center; }
   .topnav a{ text-decoration:none; }
@@ -294,14 +294,14 @@
 </style>
 
 <div class="topbar">
-  <div class="brand">
+  <a class="brand" href="/" aria-label="Open Task Manager home">
     <svg viewBox="0 0 513 398" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
       <rect width="512" height="398" rx="70" fill="#E93233"/>
       <path d="M492.818 397.869C503.914 397.941 512.948 388.966 512.948 377.87V187.414C512.948 176.368 503.994 167.414 492.948 167.414H454.616C446.258 167.414 438.781 162.216 435.869 154.382L407.167 77.1576C401.073 60.7631 378.355 59.5366 370.532 75.1798L351.027 114.182C344.098 128.036 324.73 129.095 316.333 116.079L314.235 112.827C306.08 100.186 287.412 100.735 280.014 113.835L224.686 211.807C216.254 226.738 194.173 224.83 188.427 208.673L144.755 85.8569C138.495 68.2542 113.662 68.0829 107.161 85.5975L2.38706 367.842C-2.44362 380.855 7.12634 394.711 21.0068 394.802L492.818 397.869Z" fill="#FBA806"/>
       <path d="M492.948 398C503.994 398 512.948 389.046 512.948 378V244.321C512.948 233.275 503.994 224.321 492.948 224.321H453.201C445.586 224.321 438.632 219.996 435.264 213.166L406.591 155.02C399.769 141.185 380.516 139.954 371.988 152.808L350.108 185.783C342.768 196.847 326.882 197.818 318.249 187.731L312.676 181.221C304.35 171.493 289.154 171.986 281.476 182.234L223.26 259.935C214.222 271.997 195.596 270.107 189.166 256.476L144.021 160.784C136.922 145.738 115.627 145.431 108.098 160.267L2.19154 368.949C-4.56059 382.254 5.10628 398 20.0262 398H492.948Z" fill="#FFDB56"/>
     </svg>
     Open Task Manager
-  </div>
+  </a>
   <nav class="topnav">
     <a href="#full-demo">Live demo</a>
     <a href="#features">Features</a>

@@ -20,6 +20,10 @@ npx playwright test -g "right-click"          # by test name
 cargo test --workspace       # Rust tests: otm-core (prettify_process_name, get_services, get_startup_apps)
                              #   + otm (formatting, and TestBackend renders of every TUI tab against live data)
 cargo check --workspace      # fast Rust compile check
+
+cargo test -p otm export_website_demo -- --ignored   # regenerate the website's otm screens
+python3 -m http.server -d website 8000               # preview the static website locally
+appstreamcli validate --no-net packaging/linux/io.github.sabaoongfx.OpenTaskManager.appdata.xml
 ```
 
 There is no linter configured; `npm run build`'s `tsc` step (or `npx tsc --noEmit`) is the typecheck/lint gate.
@@ -75,6 +79,12 @@ performs). App history's CPU time is real and live but resets on restart (no per
 empty-Vec fallback on other platforms — on Windows/macOS those two tabs will show nothing when
 run as the real Tauri app (mock data still works everywhere since it doesn't hit the OS).
 
+Known issue, not yet fixed: on Linux, `sysinfo` lists every **thread** as its own process, each
+reporting its whole process's memory. That inflates the process count and summed memory (the
+Users tab can show more memory than the machine has) in both the GUI and `otm`. The fix belongs in
+`Monitor::snapshot()` (skip entries whose `thread_kind()` is set); it changes the GUI's numbers
+too, and `otm`'s kill-prompt test relies on finding its own process by PID, not on threads.
+
 ### Shared UI conventions are copy-pasted per tab, not abstracted
 
 `Details.tsx`, `Services.tsx`, `StartupApps.tsx`, and the Processes view in `App.tsx` each
@@ -124,6 +134,18 @@ changing the TUI's look: `cargo test -p otm export_website_demo -- --ignored`. B
 characters are wrapped in `<i>` pinned to `1ch` by the site CSS, because IBM Plex Mono lacks
 Braille glyphs and the fallback font's width otherwise skews every graph row.
 
+Page sections, top to bottom: hero, `#full-demo` (the iframe), `#features`, `#terminal` (otm
+screens + key cheat sheet), `#install` (tabs: apt, pacman, Windows, macOS, other Linux, terminal
+only), `#download` (every direct download as cards), `#specs`, `#roadmap`. The top-left logo links
+to `/`. One inline script at the bottom detects the visitor's OS from the user agent and uses it
+three ways: preselects the install tab, marks the matching `#download` card "Your system", and
+turns the hero's plain "Download" button (which scrolls to `#download`, also the no-JS and phone
+behaviour) into a direct "Download for Windows/Mac/Linux" link with a note underneath. Macs get the
+Apple Silicon `.dmg` unless a Chromium browser's `userAgentData` reports an `x86` chip (Safari and
+Firefox can't tell). Every download link is a versionless `releases/latest/download/<name>` URL
+(see Releasing). The site has no tests: preview it with a static server and check it in a browser
+at desktop and ~390px widths.
+
 SEO lives in `website/index.html`'s `<head>` (description, canonical, Open Graph/Twitter tags
 pointing at `website/og.png`, JSON-LD `SoftwareApplication`), plus `website/robots.txt` and
 `website/sitemap.xml`. All of them hardcode the production URL `https://opentaskmanager.vercel.app/`.
@@ -163,18 +185,44 @@ don't bump them by hand.
 `packaging/linux/open-task-manager.desktop` is used only by the source PKGBUILD; the deb/rpm
 generate theirs from `src-tauri/assets/open-task-manager.desktop.hbs` — keep the two in sync.
 
-### Version numbers
+AppStream metadata (`packaging/linux/io.github.sabaoongfx.OpenTaskManager.appdata.xml`) goes into
+the AppImage, `.deb` and `.rpm` via `bundle.linux.{appimage,deb,rpm}.files` in `tauri.conf.json`,
+and into the pacman package via the source PKGBUILD. It keeps the older `.appdata.xml` suffix on
+purpose: the AppImage catalog's `appdir-lint.sh` only detects that name. XML comments in it can't
+contain `--`. Its screenshots point at `docs/*.png` on `main` via raw.githubusercontent.com, so
+don't rename those files.
 
-Kept in sync manually across three files: `package.json`, the root `Cargo.toml`
-(`[workspace.package] version`, inherited by all three crates), and `src-tauri/tauri.conf.json`.
-Also add a `<release>` entry to `packaging/linux/io.github.sabaoongfx.OpenTaskManager.appdata.xml`
-(AppStream metadata shipped in every Linux package; validate with `appstreamcli validate --no-net`).
-`.github/workflows/release.yml` builds cross-platform installers and creates a draft GitHub
-Release whenever a `v*` tag is pushed; a second job then attaches standalone `otm` TUI
-archives for each platform to that same draft. Every installer and `otm` archive is also
-uploaded under a **versionless** name (`Open-Task-Manager-x64-setup.exe`, `-x64.msi`,
-`-aarch64.dmg`, `-x64.dmg`, `-amd64.deb`, `-x86_64.rpm`, `-x86_64.AppImage`,
-`otm-<target>.tar.gz|.zip`), which the website's and README's `releases/latest/download/<name>`
-buttons rely on; renaming any of them breaks those links. The AppImage is additionally uploaded
-as `Open-Task-Manager-<version>-x86_64.AppImage`, the AppImage catalog's naming. Local AppImage builds fail on Arch (linuxdeploy's old `strip` and its GTK
-plugin's Ubuntu paths); CI builds them on Ubuntu 22.04.
+### Distribution channels: status and decisions
+
+- **apt, pacman**: live, self-hosted on GitHub Pages (above).
+- **AUR**: ready but unpublished; waiting for AUR account registration to reopen.
+- **AppImage catalog** (`AppImage/appimage.github.io`): submit after v0.3.1 (the first AppImage
+  with metainfo) as a one-line `data/Open-Task-Manager` file containing the repo URL. The owner
+  opens that PR, not Claude. appimagehub.com is a separate Pling/OpenDesktop store with manual
+  listing.
+- **Flathub: not viable; don't write a Flathub manifest.** Flathub's rules forbid AI-generated
+  or AI-assisted manifests and AI-opened submission PRs, and won't grant sandbox-escape exceptions
+  (`--talk-name=org.freedesktop.Flatpak`, needed by any task manager to see host processes) when
+  the software shows signs of LLM use, which this repo does. They also reject console apps, so
+  `otm` is out either way. A self-hosted Flatpak remote would be allowed but needs a host-side
+  helper run through `flatpak-spawn --host` (Mission Center's approach); deferred until users
+  ask for it.
+
+### Releasing
+
+1. Bump the version in `package.json`, the root `Cargo.toml` (`[workspace.package] version`,
+   inherited by all three crates) and `src-tauri/tauri.conf.json`, and add a `<release>` entry to
+   the AppStream file above.
+2. Push a `v*` tag. `.github/workflows/release.yml` builds every installer into a **draft** GitHub
+   release, then a second job attaches standalone `otm` archives for each platform.
+3. Publish the draft. That triggers `publish-linux.yml` (apt/pacman repos on Pages, AUR).
+
+Every installer and `otm` archive is also uploaded under a **versionless** name
+(`Open-Task-Manager-x64-setup.exe`, `-x64.msi`, `-aarch64.dmg`, `-x64.dmg`, `-amd64.deb`,
+`-x86_64.rpm`, `-x86_64.AppImage`, `otm-<target>.tar.gz|.zip`). The website's and README's
+`releases/latest/download/<name>` links rely on these names, so renaming any of them breaks
+those links. The AppImage is additionally uploaded as `Open-Task-Manager-<version>-x86_64.AppImage`,
+the AppImage catalog's naming.
+
+Local AppImage builds fail on Arch (linuxdeploy's old `strip` and its GTK plugin's Ubuntu
+paths); CI builds them on Ubuntu 22.04. `npx tauri build --bundles deb rpm` works locally.

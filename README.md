@@ -43,7 +43,7 @@ It comes in two forms that share one Rust backend, which reads process and hardw
 straight from the OS through the [`sysinfo`](https://crates.io/crates/sysinfo) crate:
 
 - **The desktop app**: a native window using the system webview (no bundled Chromium).
-- **`otm`**: the same seven tabs in a terminal UI, for SSH sessions, servers, or anyone who
+- **`otm`**: the same eight tabs in a terminal UI, for SSH sessions, servers, or anyone who
   lives in a terminal.
 
 No telemetry, no background service.
@@ -173,6 +173,21 @@ cargo install --locked --git https://github.com/sabaoongfx/Open-Task-Manager otm
 - **Services**: the real systemd service list (name, description, status), with
   Start/Stop (also UI-only for now; see [Roadmap](#roadmap)).
 
+### Disk usage
+
+A WinDirStat-style view of what's filling your disk: pick your home folder, a drive, or
+type any path and press Scan.
+
+- **Folder tree**, biggest first, with size, share of the parent folder and file count.
+- **File types**: space and file count per extension; the eight biggest get a color.
+- **Treemap**: every file as a shaded tile sized by its bytes, colored by type. Hover for
+  its name and size, click to find it in the tree, pick an extension to outline all of its files.
+- Right-click a folder to scan just that folder, show it in your file manager, or copy its path.
+
+Sizes are bytes actually allocated on disk (what `du` reports), hard links are counted
+once, and the scan stays on the starting filesystem like `du -x`, so scanning `/` doesn't
+wander into `/proc`, other drives or network mounts. It's read-only: nothing is deleted.
+
 ### App history
 
 Real cumulative CPU time per app, tracked since the app was launched (not persisted
@@ -180,7 +195,7 @@ across restarts), with a working "Delete usage history" action.
 
 ### Terminal UI (`otm`)
 
-The same seven tabs in the terminal, backed by the exact same data collection as the
+The same eight tabs in the terminal, backed by the exact same data collection as the
 desktop app: grouped processes you can expand, filtering, sorting, end task with a
 confirmation prompt, Braille graphs for CPU/memory/disk/network, and mouse support
 (click tabs, column headers and rows; scroll). Press `?` inside it for every key binding;
@@ -188,16 +203,18 @@ the essentials:
 
 | Key                    | Action                              |
 | ---------------------- | ----------------------------------- |
-| `Tab` / `1`–`7`        | switch tab                          |
+| `Tab` / `1`–`8`        | switch tab                          |
 | `↑↓` / `j k`           | move selection                      |
 | `→ ←` / `Enter`        | expand / collapse a group           |
 | `/`                    | filter by name                      |
 | `s` / `S`              | next sort column / reverse order    |
 | `x` / `Delete`         | end task (asks for confirmation)    |
-| `r`                    | reset App history / reload Startup apps & Services |
+| `r`                    | reset App history / reload Startup apps & Services / rescan Disk usage |
+| `o` / `Backspace`      | Disk usage: scan the selected folder / the parent folder |
 | `q`                    | quit                                |
 
 `otm --interval 1000` changes the refresh rate (milliseconds, default 1500, minimum 250).
+The Disk usage tab scans the folder `otm` was started in (like `ncdu`), the first time you open it.
 On Startup apps and Services it's read-only: there's no enable/disable or start/stop yet.
 
 ## Roadmap
@@ -310,12 +327,13 @@ src/                  React frontend
   App.tsx             Main app shell: sidebar, tabs, process table, context menu
   App.css             All styling (design tokens in :root, light/dark aware)
   Performance.tsx      Performance tab: tiles, sparklines, the big chart
+  DiskUsage.tsx       Disk usage tab: folder tree, extension list, cushion treemap
   mockData.ts         Deterministic mock snapshot used outside Tauri
   types.ts            Shared TypeScript types for the snapshot/process data
   icons.tsx, appIcons.tsx   UI icons + per-app brand icon matching
 
 core/                 otm-core: all system data collection (sysinfo, systemctl,
-                      autostart entries), shared by the desktop app and the TUI
+                      autostart entries, disk usage scans), shared by the desktop app and the TUI
 
 src-tauri/            Tauri shell
   src/lib.rs          Thin #[tauri::command] wrappers around otm-core
@@ -347,6 +365,12 @@ snapshot:
    Rust structs as-is).
 
 Ending a task calls a second command, `kill_process`, with a PID.
+
+The Disk usage tab calls `scan_disk` once per scan. `otm-core` walks the folder in parallel
+(rayon), then folds items smaller than 1/10,000 of the total into one "N smaller items"
+entry per folder, so even a whole drive comes back as a few thousand nodes instead of
+millions. While it runs the frontend polls `disk_scan_progress` for a live file count and
+can stop it with `cancel_disk_scan`.
 
 On Linux, process names come from `/proc/[pid]/comm`, which is always lowercase and
 often hyphenated (e.g. `chromium`, `task-manager`). The backend prettifies these into

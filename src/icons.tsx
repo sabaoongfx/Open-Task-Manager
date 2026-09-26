@@ -145,3 +145,25 @@ export const IconLeafPair = ({ size }: IconProps) =>
     </>,
     size
   );
+
+export const IconDisk = ({ size }: IconProps) =>
+  base(
+    <>
+      <ellipse cx="12" cy="6" rx="8" ry="3" />
+      <path d="M4 6v12c0 1.7 3.6 3 8 3s8-1.3 8-3V6" />
+      <path d="M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3" />
+    </>,
+    size
+  );
+
+export const IconFolder = ({ size }: IconProps) =>
+  base(<path d="M3 6.5A1.5 1.5 0 0 1 4.5 5h4.2l2 2.2h8.8A1.5 1.5 0 0 1 21 8.7v9.8a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 18.5Z" />, size);
+
+export const IconFile = ({ size }: IconProps) =>
+  base(
+    <>
+      <path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8Z" />
+      <polyline points="14 3 14 8 19 8" />
+    </>,
+    size
+  );

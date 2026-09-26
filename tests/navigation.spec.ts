@@ -8,6 +8,7 @@ const TABS = [
   "Users",
   "Details",
   "Services",
+  "Disk usage",
 ];
 
 test.beforeEach(async ({ page }) => {

@@ -5,6 +5,9 @@ use std::collections::HashMap;
 use std::time::Instant;
 use sysinfo::{DiskKind, Disks, Networks, Pid, System, Users};
 
+mod disk_usage;
+pub use disk_usage::{home_dir, scan_disk_usage, DiskNode, DiskScan, ExtensionStat, NodeKind, ScanProgress};
+
 #[cfg(target_os = "linux")]
 fn read_disk_io_ticks() -> HashMap<String, u64> {
     let mut map = HashMap::new();

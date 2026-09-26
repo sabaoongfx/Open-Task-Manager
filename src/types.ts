@@ -69,3 +69,25 @@ export interface StartupAppInfo {
   publisher: string;
   enabled: boolean;
 }
+
+export interface DiskNode {
+  name: string;
+  kind: "dir" | "file" | "other";
+  size: number;
+  files: number;
+  children: DiskNode[];
+}
+
+export interface ExtensionStat {
+  ext: string;
+  size: number;
+  files: number;
+}
+
+export interface DiskScan {
+  path: string;
+  root: DiskNode;
+  extensions: ExtensionStat[];
+  errors: number;
+  cancelled: boolean;
+}

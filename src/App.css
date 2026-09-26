@@ -823,3 +823,158 @@ body {
 .context-menu-item.danger:hover {
   background: var(--danger-bg);
 }
+
+/* Disk usage tab */
+
+.disk-location,
+.disk-path {
+  padding: 6px 8px;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  background: var(--bg-elevated);
+  color: var(--text);
+  font-size: 13px;
+}
+
+.disk-path {
+  width: 260px;
+}
+
+.disk-error {
+  color: var(--danger);
+}
+
+.disk-usage {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 0;
+}
+
+.disk-usage-top {
+  flex: 3;
+  display: flex;
+  gap: 20px;
+  min-height: 0;
+}
+
+.disk-tree {
+  min-width: 0;
+}
+
+.disk-extensions {
+  flex: 0 0 300px;
+  border-left: 1px solid var(--border);
+}
+
+/* The tables sit side by side, so their heads and rows can't bleed to the card edges. */
+.disk-usage .table-head,
+.disk-usage .row {
+  margin: 0;
+  padding: 0;
+}
+
+.col-du-name {
+  flex: 1 1 0%;
+  min-width: 200px;
+  padding-left: 0;
+}
+
+.col-ext {
+  flex: 1 1 0%;
+  min-width: 100px;
+}
+
+.col-size,
+.col-files {
+  width: 96px;
+  flex-shrink: 0;
+  justify-content: flex-end;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.col-percent {
+  width: 150px;
+  flex-shrink: 0;
+  gap: 8px;
+  font-variant-numeric: tabular-nums;
+}
+
+.disk-bar {
+  flex: 1;
+  height: 8px;
+  border-radius: 4px;
+  background: var(--row-hover);
+  overflow: hidden;
+}
+
+.disk-bar-fill {
+  display: block;
+  height: 100%;
+  border-radius: 4px;
+  background: var(--accent);
+}
+
+.disk-bar-label {
+  width: 44px;
+  text-align: right;
+  color: var(--text-muted);
+}
+
+.disk-node-icon {
+  display: inline-flex;
+  color: var(--text-muted);
+  flex-shrink: 0;
+  margin-right: 4px;
+}
+
+.disk-node-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ext-swatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  flex-shrink: 0;
+  margin-right: 6px;
+}
+
+.treemap {
+  flex: 2;
+  position: relative;
+  min-height: 120px;
+  border-radius: 6px;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.treemap canvas {
+  display: block;
+}
+
+.treemap-tooltip {
+  position: absolute;
+  pointer-events: none;
+  max-width: 260px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
+  padding: 6px 10px;
+  font-size: 12px;
+}
+
+.treemap-tooltip-name {
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.treemap-tooltip-meta {
+  color: var(--text-muted);
+}

@@ -54,11 +54,27 @@ pub fn draw(frame: &mut Frame, app: &mut App) {
 }
 
 fn draw_top_bar(frame: &mut Frame, app: &mut App, area: Rect) {
-    let mut spans = vec![Span::styled(" ◆ Open Task Manager ", Style::new().fg(ACCENT).bold())];
+    // Narrow terminals first lose the padding inside each tab, then the long brand name.
+    let tabs_width = |pad: usize| -> usize {
+        Tab::ALL.iter().enumerate().map(|(i, t)| format!("{} {}", i + 1, t.label()).chars().count() + pad).sum()
+    };
+    let full_brand = " ◆ Open Task Manager ";
+    let (brand, pad) = if full_brand.chars().count() + tabs_width(2) <= area.width as usize {
+        (full_brand, 2)
+    } else if full_brand.chars().count() + tabs_width(1) <= area.width as usize {
+        (full_brand, 1)
+    } else {
+        (" ◆ OTM ", 1)
+    };
+
+    let mut spans = vec![Span::styled(brand, Style::new().fg(ACCENT).bold())];
     let mut x = area.x + spans[0].width() as u16;
     app.areas.tabs.clear();
     for (i, &tab) in Tab::ALL.iter().enumerate() {
-        let label = format!(" {} {} ", i + 1, tab.label());
+        let (label, gap) = match pad {
+            2 => (format!(" {} {} ", i + 1, tab.label()), ""),
+            _ => (format!("{} {}", i + 1, tab.label()), " "),
+        };
         let width = label.chars().count() as u16;
         let style = if tab == app.tab {
             Style::new().fg(Color::Black).bg(ACCENT).bold()
@@ -67,7 +83,8 @@ fn draw_top_bar(frame: &mut Frame, app: &mut App, area: Rect) {
         };
         app.areas.tabs.push((Rect::new(x, area.y, width, 1), tab));
         spans.push(Span::styled(label, style));
-        x += width;
+        spans.push(Span::raw(gap));
+        x += width + gap.len() as u16;
     }
     frame.render_widget(Line::from(spans), area);
 
@@ -123,7 +140,13 @@ fn draw_table(frame: &mut Frame, app: &mut App, view: &View, area: Rect) {
     app.areas.header_columns = column_rects(&widths, header_area);
 
     if view.rows.is_empty() {
-        let msg = if filter.is_empty() { "Nothing to show" } else { "No matches" };
+        let msg = if !filter.is_empty() {
+            "No matches"
+        } else if tab == Tab::DiskUsage && app.disk.scanning().is_some() {
+            "Scanning…"
+        } else {
+            "Nothing to show"
+        };
         frame.render_widget(data_table(Vec::new(), &widths, header), inner);
         frame.render_widget(Paragraph::new(msg).fg(Color::DarkGray).centered(), body_area);
         return;
@@ -304,6 +327,16 @@ fn draw_footer(frame: &mut Frame, app: &App, area: Rect) {
         Tab::Startup | Tab::Services => {
             hints.extend([("↑↓", "move"), ("/", "filter"), ("s", "sort"), ("r", "reload")])
         }
+        Tab::DiskUsage if app.disk.scanning().is_some() => hints.push(("Esc", "stop scan")),
+        Tab::DiskUsage => hints.extend([
+            ("↑↓", "move"),
+            ("←→", "expand"),
+            ("/", "filter"),
+            ("s", "sort"),
+            ("o", "scan folder"),
+            ("⌫", "scan parent"),
+            ("r", "rescan"),
+        ]),
     }
     hints.extend([("?", "help"), ("q", "quit")]);
 
@@ -349,7 +382,7 @@ fn draw_confirm(frame: &mut Frame, label: &str, count: usize) {
 
 fn draw_help(frame: &mut Frame) {
     let keys: &[(&str, &str)] = &[
-        ("Tab / Shift+Tab, 1–7", "switch tab"),
+        ("Tab / Shift+Tab, 1–8", "switch tab"),
         ("↑↓ / j k", "move selection"),
         ("PgUp PgDn / g G", "page / jump to top, bottom"),
         ("→ ← / l h, Enter", "expand / collapse group"),
@@ -357,7 +390,8 @@ fn draw_help(frame: &mut Frame) {
         ("Esc", "clear filter"),
         ("s / S", "next sort column / reverse order"),
         ("x / Delete", "end task (asks first)"),
-        ("r", "reset App history · reload lists"),
+        ("r", "reset App history · reload lists · rescan"),
+        ("o / Backspace", "Disk usage: scan selected folder / parent"),
         ("mouse", "click tabs, headers, rows; scroll"),
         ("q / Ctrl+C", "quit"),
     ];

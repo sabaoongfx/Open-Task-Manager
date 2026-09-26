@@ -28,7 +28,8 @@
       <li>End any task from a right-click menu</li>
       <li>Live CPU, memory, disk and network graphs with a 60-second history</li>
       <li>App history, startup apps, users, per-process details and systemd services</li>
-      <li>A terminal version, otm, with the same seven tabs for SSH sessions and servers</li>
+      <li>A disk usage view in the style of WinDirStat: folder tree, space per file type and a treemap</li>
+      <li>A terminal version, otm, with the same eight tabs for SSH sessions and servers</li>
     </ul>
     <p>No telemetry and no background service: it only reads your system while it is open.</p>
   </description>

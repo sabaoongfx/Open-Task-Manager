@@ -44,7 +44,7 @@ fn process(pid: u32, name: &str, cpu: f32, mem_mb: u64, disk_mb: f64, user: &str
 }
 
 fn demo_app() -> App {
-    let mut app = App::new(Duration::from_millis(1500));
+    let mut app = App::new(Duration::from_millis(1500), std::env::temp_dir());
     let u = "alex";
     let mut processes = vec![
         process(2210, "Firefox", 9.8, 612, 0.4, u),

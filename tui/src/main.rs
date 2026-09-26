@@ -53,8 +53,12 @@ fn parse_args() -> Result<Duration, String> {
 fn run(terminal: &mut ratatui::DefaultTerminal, app: &mut App) -> io::Result<()> {
     let mut last_tick = Instant::now();
     while !app.should_quit {
+        app.poll_disk_scan();
         terminal.draw(|frame| ui::draw(frame, app))?;
-        let timeout = app.interval.saturating_sub(last_tick.elapsed());
+        let mut timeout = app.interval.saturating_sub(last_tick.elapsed());
+        if app.busy() {
+            timeout = timeout.min(Duration::from_millis(200)); // keep the scan's file count moving
+        }
         if event::poll(timeout)? {
             app.handle_event(event::read()?);
         }
@@ -76,7 +80,9 @@ fn main() -> io::Result<()> {
     };
 
     // Collect the first snapshot before taking over the screen.
-    let mut app = App::new(interval);
+    // The Disk usage tab scans the folder otm was started in, like `du` or `ncdu`.
+    let disk_root = std::env::current_dir().ok().or_else(otm_core::home_dir).unwrap_or_else(|| "/".into());
+    let mut app = App::new(interval, disk_root);
 
     let mut terminal = ratatui::init();
     // ratatui::init's panic hook restores raw mode and the alternate screen but doesn't know
@@ -119,7 +125,7 @@ mod tests {
     // Renders every tab against the real live system and checks each shows its own content.
     #[test]
     fn renders_every_tab_with_live_data() {
-        let mut app = App::new(Duration::from_millis(1500));
+        let mut app = App::new(Duration::from_millis(1500), std::env::temp_dir());
         app.tick();
         for (i, tab) in Tab::ALL.into_iter().enumerate() {
             press(&mut app, KeyCode::Char(char::from(b'1' + i as u8)));
@@ -137,6 +143,7 @@ mod tests {
                 Tab::Users => "User",
                 Tab::Details => "User name",
                 Tab::Services => "Description",
+                Tab::DiskUsage => "% of folder",
             };
             assert!(screen.contains(expected), "{tab:?} tab missing {expected:?}:\n{screen}");
         }
@@ -144,7 +151,7 @@ mod tests {
 
     #[test]
     fn filter_sort_and_kill_prompt() {
-        let mut app = App::new(Duration::from_millis(1500));
+        let mut app = App::new(Duration::from_millis(1500), std::env::temp_dir());
         // Filter on this test process's own name, whatever the OS reports it as, so there is
         // always at least one row to act on.
         let me = std::process::id();
@@ -172,7 +179,7 @@ mod tests {
 
     #[test]
     fn home_end_and_no_hidden_kill_key() {
-        let mut app = App::new(Duration::from_millis(1500));
+        let mut app = App::new(Duration::from_millis(1500), std::env::temp_dir());
         press(&mut app, KeyCode::Char('6'));
         let rows = app.synced_view().rows.len();
         let selected = |app: &App| app.tab_state(app.tab).table.selected();
@@ -189,5 +196,64 @@ mod tests {
         // Only the documented keys (x / Delete) may start ending a task.
         press(&mut app, KeyCode::Char('e'));
         assert!(app.popup.is_none());
+    }
+
+    #[test]
+    fn disk_usage_scans_expands_filters_and_rescans() {
+        let dir = std::env::temp_dir().join(format!("otm-tui-disk-{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&dir);
+        std::fs::create_dir_all(dir.join("videos/old")).unwrap();
+        std::fs::write(dir.join("videos/movie.mkv"), vec![1u8; 300_000]).unwrap();
+        std::fs::write(dir.join("videos/old/clip.mkv"), vec![1u8; 100_000]).unwrap();
+        std::fs::write(dir.join("notes.txt"), vec![1u8; 10_000]).unwrap();
+
+        let wait = |app: &mut App| {
+            let start = Instant::now();
+            while app.busy() {
+                assert!(start.elapsed() < Duration::from_secs(10), "scan never finished");
+                std::thread::sleep(Duration::from_millis(10));
+                app.poll_disk_scan();
+            }
+        };
+
+        let mut app = App::new(Duration::from_millis(1500), dir.clone());
+        assert!(!app.busy(), "scan must not start before the tab is opened");
+        press(&mut app, KeyCode::Char('8'));
+        assert_eq!(app.tab, Tab::DiskUsage);
+        wait(&mut app);
+        let screen = render(&mut app);
+        assert!(screen.contains("3 files"), "{screen}");
+        assert!(screen.contains("▸ videos/"), "{screen}");
+        assert!(!screen.contains("movie.mkv"), "folders start collapsed:\n{screen}");
+
+        press(&mut app, KeyCode::Down); // videos/ (biggest first)
+        press(&mut app, KeyCode::Right);
+        let screen = render(&mut app);
+        if std::env::var_os("OTM_PRINT").is_some() {
+            println!("{screen}\n");
+        }
+        assert!(screen.contains("▾ videos/") && screen.contains("movie.mkv"), "{screen}");
+
+        press(&mut app, KeyCode::Char('/'));
+        for c in "clip".chars() {
+            press(&mut app, KeyCode::Char(c));
+        }
+        press(&mut app, KeyCode::Enter);
+        let screen = render(&mut app);
+        assert!(screen.contains(&format!("videos{0}old{0}clip.mkv", std::path::MAIN_SEPARATOR)), "{screen}");
+        press(&mut app, KeyCode::Esc);
+
+        // `o` on videos/ rescans with it as the root; Backspace goes back up.
+        press(&mut app, KeyCode::Char('g'));
+        press(&mut app, KeyCode::Down);
+        press(&mut app, KeyCode::Char('o'));
+        wait(&mut app);
+        assert!(app.disk.root.ends_with("videos"), "{:?}", app.disk.root);
+        assert_eq!(app.disk.scan.as_ref().unwrap().root.files, 2);
+        press(&mut app, KeyCode::Backspace);
+        wait(&mut app);
+        assert_eq!(app.disk.scan.as_ref().unwrap().root.files, 3);
+
+        let _ = std::fs::remove_dir_all(&dir);
     }
 }

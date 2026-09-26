@@ -11,9 +11,11 @@ import UsersPane from "./Users";
 import StartupAppsPane from "./StartupApps";
 import ServicesPane from "./Services";
 import AppHistoryPane from "./AppHistory";
+import DiskUsagePane from "./DiskUsage";
 import {
   IconChevronDown,
   IconDetails,
+  IconDisk,
   IconHistory,
   IconLeafPair,
   IconMenu,
@@ -38,6 +40,7 @@ const NAV_ITEMS = [
   { key: "users", label: "Users", icon: IconUsers },
   { key: "details", label: "Details", icon: IconDetails },
   { key: "services", label: "Services", icon: IconServices },
+  { key: "disk", label: "Disk usage", icon: IconDisk },
 ];
 
 const BACKGROUND_HINTS = [
@@ -328,6 +331,8 @@ function App() {
           <StartupAppsPane processes={processes} />
         ) : activeTab === "services" ? (
           <ServicesPane />
+        ) : activeTab === "disk" ? (
+          <DiskUsagePane stats={stats} />
         ) : activeTab === "history" ? (
           <AppHistoryPane entries={appHistory} onDeleteHistory={resetAppHistory} />
         ) : activeTab !== "processes" ? (

@@ -1,9 +1,12 @@
 use crate::views::{self, Toggle, View, ViewRow};
-use otm_core::{Monitor, ServiceInfo, Snapshot, StartupAppInfo};
+use otm_core::{DiskScan, Monitor, ScanProgress, ServiceInfo, Snapshot, StartupAppInfo};
 use ratatui::crossterm::event::{Event, KeyCode, KeyEvent, KeyEventKind, KeyModifiers, MouseButton, MouseEvent, MouseEventKind};
 use ratatui::layout::{Position, Rect};
 use ratatui::widgets::TableState;
 use std::collections::{HashMap, HashSet, VecDeque};
+use std::path::PathBuf;
+use std::sync::mpsc::{self, Receiver, TryRecvError};
+use std::sync::Arc;
 use std::time::{Duration, Instant};
 
 /// Same length as the GUI's Performance graphs (`HISTORY_LEN` in Performance.tsx).
@@ -21,10 +24,11 @@ pub enum Tab {
     Users,
     Details,
     Services,
+    DiskUsage,
 }
 
 impl Tab {
-    pub const ALL: [Tab; 7] = [
+    pub const ALL: [Tab; 8] = [
         Tab::Processes,
         Tab::Performance,
         Tab::AppHistory,
@@ -32,6 +36,7 @@ impl Tab {
         Tab::Users,
         Tab::Details,
         Tab::Services,
+        Tab::DiskUsage,
     ];
 
     pub fn label(self) -> &'static str {
@@ -43,6 +48,7 @@ impl Tab {
             Tab::Users => "Users",
             Tab::Details => "Details",
             Tab::Services => "Services",
+            Tab::DiskUsage => "Disk usage",
         }
     }
 
@@ -53,6 +59,7 @@ impl Tab {
     fn default_sort(self) -> (SortKey, bool) {
         match self {
             Tab::Processes | Tab::Users | Tab::Details | Tab::AppHistory => (SortKey::Cpu, true),
+            Tab::DiskUsage => (SortKey::Size, true),
             _ => (SortKey::Name, false),
         }
     }
@@ -67,12 +74,14 @@ pub enum SortKey {
     Cpu,
     Memory,
     Disk,
+    /// Disk usage tab: bytes on disk.
+    Size,
 }
 
 impl SortKey {
     /// Text columns read naturally A→Z; numeric columns are most useful biggest-first.
     fn default_desc(self) -> bool {
-        matches!(self, SortKey::Cpu | SortKey::Memory | SortKey::Disk)
+        matches!(self, SortKey::Cpu | SortKey::Memory | SortKey::Disk | SortKey::Size)
     }
 }
 
@@ -104,6 +113,23 @@ fn push_capped(buf: &mut VecDeque<f64>, value: f64) {
     }
 }
 
+/// The Disk usage tab's scan. Scans run on a background thread (they can take minutes on a
+/// whole drive) and start the first time the tab is opened, not at launch.
+pub struct DiskUsage {
+    /// Folder being scanned or last scanned.
+    pub root: PathBuf,
+    pub scan: Option<DiskScan>,
+    pub error: Option<String>,
+    running: Option<(Arc<ScanProgress>, Receiver<Result<DiskScan, String>>)>,
+}
+
+impl DiskUsage {
+    /// Files counted so far, while a scan is running.
+    pub fn scanning(&self) -> Option<u64> {
+        self.running.as_ref().map(|(progress, _)| progress.files())
+    }
+}
+
 /// Screen regions recorded during the last draw, used to route mouse clicks.
 #[derive(Default)]
 pub struct Areas {
@@ -131,10 +157,12 @@ pub struct App {
     pub areas: Areas,
     pub should_quit: bool,
     pub interval: Duration,
+    pub disk: DiskUsage,
 }
 
 impl App {
-    pub fn new(interval: Duration) -> Self {
+    /// `disk_root`: the folder the Disk usage tab scans (otm uses the working directory, like `du`).
+    pub fn new(interval: Duration, disk_root: PathBuf) -> Self {
         let mut monitor = Monitor::new();
         let snapshot = monitor.snapshot();
         let tabs = Tab::ALL
@@ -160,6 +188,7 @@ impl App {
             areas: Areas::default(),
             should_quit: false,
             interval,
+            disk: DiskUsage { root: disk_root, scan: None, error: None, running: None },
         };
         app.record_history();
         app
@@ -168,6 +197,82 @@ impl App {
     pub fn tick(&mut self) {
         self.snapshot = self.monitor.snapshot();
         self.record_history();
+    }
+
+    /// Whether the screen needs redrawing more often than the refresh interval (a disk scan
+    /// is showing live progress).
+    pub fn busy(&self) -> bool {
+        self.disk.running.is_some()
+    }
+
+    pub fn start_disk_scan(&mut self, root: PathBuf) {
+        if let Some((progress, _)) = self.disk.running.take() {
+            progress.cancel();
+        }
+        let progress = Arc::new(ScanProgress::new());
+        let (tx, rx) = mpsc::channel();
+        let (thread_progress, path) = (progress.clone(), root.clone());
+        std::thread::spawn(move || {
+            let _ = tx.send(otm_core::scan_disk_usage(&path, &thread_progress));
+        });
+        self.disk.root = root;
+        self.disk.error = None;
+        self.disk.running = Some((progress, rx));
+    }
+
+    /// Picks up a finished background scan. Called before every draw.
+    pub fn poll_disk_scan(&mut self) {
+        let Some((_, rx)) = &self.disk.running else { return };
+        let result = match rx.try_recv() {
+            Ok(result) => result,
+            Err(TryRecvError::Empty) => return,
+            Err(TryRecvError::Disconnected) => Err("Scan stopped unexpectedly".to_string()),
+        };
+        self.disk.running = None;
+        match result {
+            Ok(scan) => {
+                self.disk.root = PathBuf::from(&scan.path);
+                if scan.cancelled {
+                    self.set_status("Scan stopped — sizes are partial");
+                }
+                self.disk.scan = Some(scan);
+                let state = self.tab_state_mut(Tab::DiskUsage);
+                state.selected_key = None;
+                state.table.select(Some(0));
+            }
+            Err(e) => self.disk.error = Some(e),
+        }
+    }
+
+    fn cancel_disk_scan(&mut self) -> bool {
+        match &self.disk.running {
+            Some((progress, _)) => {
+                progress.cancel();
+                true
+            }
+            None => false,
+        }
+    }
+
+    /// Rescans the selected folder (`Some`) or the current root's parent (`None`).
+    fn rescan_at(&mut self, selected: bool) {
+        let target = if selected {
+            let view = self.synced_view();
+            let Some(row) = self.selected_index().map(|idx| &view.rows[idx]) else { return };
+            match (row.toggle, views::disk_path(&row.key)) {
+                (Toggle::Leaf, _) | (_, None) => {
+                    self.set_status("Select a folder to scan it");
+                    return;
+                }
+                (_, Some(path)) => PathBuf::from(path),
+            }
+        } else {
+            match self.disk.root.parent() {
+                Some(parent) => parent.to_path_buf(),
+                None => return,
+            }
+        };
+        self.start_disk_scan(target);
     }
 
     fn record_history(&mut self) {
@@ -260,6 +365,10 @@ impl App {
     fn set_tab(&mut self, tab: Tab) {
         self.tab = tab;
         self.editing_filter = false;
+        if tab == Tab::DiskUsage && self.disk.scan.is_none() && self.disk.running.is_none() && self.disk.error.is_none() {
+            let root = self.disk.root.clone();
+            self.start_disk_scan(root);
+        }
     }
 
     fn cycle_tab(&mut self, delta: isize) {
@@ -410,10 +519,11 @@ impl App {
         match key.code {
             KeyCode::Char('q') => self.should_quit = true,
             KeyCode::Char('?') | KeyCode::F(1) => self.popup = Some(Popup::Help),
+            KeyCode::Esc if self.tab == Tab::DiskUsage && self.cancel_disk_scan() => {}
             KeyCode::Esc => self.tab_state_mut(self.tab).filter.clear(),
             KeyCode::Tab => self.cycle_tab(1),
             KeyCode::BackTab => self.cycle_tab(-1),
-            KeyCode::Char(c @ '1'..='7') => self.set_tab(Tab::ALL[c as usize - '1' as usize]),
+            KeyCode::Char(c @ '1'..='8') => self.set_tab(Tab::ALL[c as usize - '1' as usize]),
             KeyCode::Char('/' | 'f') if self.tab != Tab::Performance => self.editing_filter = true,
             KeyCode::Down | KeyCode::Char('j') => self.move_selection(1),
             KeyCode::Up | KeyCode::Char('k') => self.move_selection(-1),
@@ -432,6 +542,9 @@ impl App {
             KeyCode::Delete | KeyCode::Char('x') => self.request_kill(),
             KeyCode::Char('r') if self.tab == Tab::AppHistory => self.reset_app_history(),
             KeyCode::Char('r') if matches!(self.tab, Tab::Services | Tab::Startup) => self.reload_lists(),
+            KeyCode::Char('r') if self.tab == Tab::DiskUsage => self.start_disk_scan(self.disk.root.clone()),
+            KeyCode::Char('o') if self.tab == Tab::DiskUsage => self.rescan_at(true),
+            KeyCode::Backspace if self.tab == Tab::DiskUsage => self.rescan_at(false),
             _ => {}
         }
     }

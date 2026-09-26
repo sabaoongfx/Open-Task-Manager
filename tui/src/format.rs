@@ -9,6 +9,15 @@ pub fn bytes(bytes: u64) -> String {
     }
 }
 
+/// Like `bytes`, but small files show in KB instead of "0.0 MB" (`formatSize`).
+pub fn size(bytes: u64) -> String {
+    if bytes < 1024 * 1024 {
+        format!("{:.0} KB", bytes as f64 / 1024.0)
+    } else {
+        self::bytes(bytes)
+    }
+}
+
 pub fn rate(bytes_per_sec: f64) -> String {
     let mbps = bytes_per_sec / 1024.0 / 1024.0;
     if mbps < 0.05 {
@@ -48,6 +57,8 @@ mod tests {
     fn formats_like_the_gui() {
         assert_eq!(bytes(512 * 1024 * 1024), "512.0 MB");
         assert_eq!(bytes(3 * 1024 * 1024 * 1024), "3.00 GB");
+        assert_eq!(size(20 * 1024), "20 KB");
+        assert_eq!(size(3 * 1024 * 1024), "3.0 MB");
         assert_eq!(rate(1024.0), "0 MB/s");
         assert_eq!(rate(2.5 * 1024.0 * 1024.0), "2.5 MB/s");
         assert_eq!(hz(0), "—");

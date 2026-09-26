@@ -1,4 +1,4 @@
-import type { ServiceInfo, Snapshot, StartupAppInfo } from "./types";
+import type { DiskNode, DiskScan, ExtensionStat, ServiceInfo, Snapshot, StartupAppInfo } from "./types";
 
 interface Seed {
   pid: number;
@@ -152,4 +152,106 @@ export function mockSnapshot(): Snapshot {
       network_tx_bytes_per_sec: mb(0.15) + Math.random() * mb(0.1),
     },
   };
+}
+
+function mockFile(name: string, sizeMb: number): DiskNode {
+  return { name, kind: "file", size: mb(sizeMb), files: 1, children: [] };
+}
+
+function mockDir(name: string, children: DiskNode[]): DiskNode {
+  const sorted = [...children].sort((a, b) => b.size - a.size);
+  return {
+    name,
+    kind: "dir",
+    size: sorted.reduce((sum, c) => sum + c.size, 0),
+    files: sorted.reduce((sum, c) => sum + c.files, 0),
+    children: sorted,
+  };
+}
+
+function mockSeries(prefix: string, ext: string, count: number, baseMb: number): DiskNode[] {
+  return Array.from({ length: count }, (_, i) =>
+    mockFile(`${prefix}-${String(i + 1).padStart(3, "0")}.${ext}`, baseMb * (1 + ((i * 37) % 11) / 5))
+  );
+}
+
+function mockOther(count: number, sizeMb: number): DiskNode {
+  return { name: `${count} smaller items`, kind: "other", size: mb(sizeMb), files: count, children: [] };
+}
+
+function extensionOf(name: string): string {
+  const i = name.lastIndexOf(".");
+  return i > 0 && i + 1 < name.length ? name.slice(i + 1).toLowerCase() : "";
+}
+
+let mockScanFiles = 0;
+
+// A made-up home folder (never the real machine's), the same shape `scan_disk` returns.
+export async function mockDiskScan(path: string | null): Promise<DiskScan> {
+  const rootPath = path || "/home/user";
+  mockScanFiles = 0;
+  for (let i = 0; i < 4; i++) {
+    await new Promise((r) => setTimeout(r, 150));
+    mockScanFiles += 31_000;
+  }
+  const root = mockDir(rootPath, [
+    mockDir("Videos", [
+      mockDir("Holiday 2025", mockSeries("clip", "mp4", 14, 850)),
+      mockFile("Big Buck Bunny.mkv", 4200),
+      mockFile("screen-recording.webm", 1800),
+    ]),
+    mockDir("Games", [
+      mockDir("SteamLibrary", [
+        mockDir("Portal 2", [...mockSeries("pak", "vpk", 20, 380), mockOther(812, 240)]),
+        mockDir("Celeste", [mockFile("Celeste.bin", 1200), ...mockSeries("audio", "bank", 6, 90)]),
+      ]),
+    ]),
+    mockDir("Pictures", [
+      mockDir("Camera", mockSeries("IMG", "jpg", 60, 6)),
+      mockDir("Raw", mockSeries("DSC", "raw", 30, 28)),
+      mockOther(2140, 310),
+    ]),
+    mockDir("Documents", [
+      mockDir("Projects", [
+        mockDir("open-task-manager", [
+          mockDir("node_modules", [mockOther(18_430, 420)]),
+          mockDir("target", [mockFile("otm", 18), mockOther(5_210, 1900)]),
+        ]),
+      ]),
+      mockDir("Invoices", mockSeries("invoice", "pdf", 40, 0.8)),
+      mockFile("thesis.docx", 45),
+    ]),
+    mockDir("Music", [
+      mockDir("Albums", mockSeries("track", "flac", 48, 32)),
+      mockDir("Podcasts", mockSeries("episode", "mp3", 25, 55)),
+    ]),
+    mockDir(".cache", [
+      mockDir("mozilla", [mockOther(9_800, 950)]),
+      mockDir("yarn", [mockOther(12_100, 1400)]),
+    ]),
+    mockDir("Downloads", [
+      mockFile("ubuntu-24.04-desktop-amd64.iso", 5800),
+      mockFile("archlinux-x86_64.iso", 1150),
+      ...mockSeries("setup", "zip", 8, 120),
+    ]),
+    mockFile(".bash_history", 0.2),
+  ]);
+
+  const byExt = new Map<string, ExtensionStat>();
+  (function tally(node: DiskNode) {
+    if (node.kind === "dir") return node.children.forEach(tally);
+    if (node.kind !== "file") return;
+    const ext = extensionOf(node.name);
+    const stat = byExt.get(ext) ?? { ext, size: 0, files: 0 };
+    stat.size += node.size;
+    stat.files += 1;
+    byExt.set(ext, stat);
+  })(root);
+  const extensions = [...byExt.values()].sort((a, b) => b.size - a.size);
+
+  return { path: rootPath, root, extensions, errors: path ? 0 : 3, cancelled: false };
+}
+
+export function mockDiskScanProgress(): number {
+  return mockScanFiles;
 }

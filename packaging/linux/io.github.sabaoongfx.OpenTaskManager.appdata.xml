@@ -87,6 +87,16 @@
   <content_rating type="oars-1.1" />
 
   <releases>
+    <release version="0.4.0" date="2026-09-27">
+      <description>
+        <p>Adds a disk usage view in the style of WinDirStat.</p>
+        <ul>
+          <li>New Disk usage tab: folder tree, space per file type and a treemap of every file</li>
+          <li>otm gets the same tab, scanning the folder it was started in</li>
+          <li>AppStream metadata in every Linux package</li>
+        </ul>
+      </description>
+    </release>
     <release version="0.3.0" date="2026-09-24">
       <description>
         <p>Adds otm, a terminal version of the app, and Linux packages.</p>

@@ -24,6 +24,7 @@
   },
   "bundle": {
     "active": true,
+    "publisher": "Sabaoon",
     "targets": "all",
     "shortDescription": "A fast, open-source process and performance monitor",
     "longDescription": "Open Task Manager is a fast, open-source process and performance monitor for Windows, macOS, and Linux, built with Tauri and Rust instead of Electron.",

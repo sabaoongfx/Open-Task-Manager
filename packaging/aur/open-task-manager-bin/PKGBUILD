@@ -1,4 +1,4 @@
-# Maintainer: sabaoongfx
+# Maintainer: Sabaoon
 #
 # Repackages the prebuilt .deb from the GitHub release (it already contains both binaries).
 # pkgver and sha256sums are rewritten by .github/workflows/publish-linux.yml on every

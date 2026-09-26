@@ -1,4 +1,4 @@
-# Maintainer: sabaoongfx
+# Maintainer: Sabaoon
 #
 # Builds from source. pkgver and sha256sums are rewritten by .github/workflows/publish-linux.yml
 # on every published GitHub release; edit everything else here.

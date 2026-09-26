@@ -47,7 +47,7 @@ jobs:
           chown -R builder /build
           cd /build
           sudo -u builder updpkgsums
-          sudo -u builder makepkg --syncdeps --noconfirm
+          sudo -u builder env PACKAGER="Sabaoon" makepkg --syncdeps --noconfirm
 
       - name: Sign and create repo
         env:

@@ -313,13 +313,24 @@ function Treemap({ root, rootKey, colorFor, selectedKey, selectedExt, onSelect }
 
 // ---- The pane ----
 
+// Outlives the pane, which unmounts on every tab switch: coming back shows the last scan (with
+// its open folders) instead of rescanning, and a scan still running shows up when it finishes.
+const cache: {
+  target: string;
+  scan: DiskScan | null;
+  expanded: Record<string, boolean>;
+  /** The most recently started scan, kept after it finishes to tell stale results apart. */
+  latest: Promise<DiskScan> | null;
+  running: boolean;
+} = { target: "", scan: null, expanded: {}, latest: null, running: false };
+
 export default function DiskUsagePane({ stats }: { stats: SystemStats | null }) {
-  const [target, setTarget] = useState("");
-  const [scan, setScan] = useState<DiskScan | null>(null);
-  const [scanning, setScanning] = useState(false);
+  const [target, setTarget] = useState(cache.target);
+  const [scan, setScan] = useState<DiskScan | null>(cache.scan);
+  const [scanning, setScanning] = useState(cache.running);
   const [progress, setProgress] = useState(0);
   const [error, setError] = useState<string | null>(null);
-  const [expanded, setExpanded] = useState<Record<string, boolean>>({});
+  const [expanded, setExpanded] = useState<Record<string, boolean>>(cache.expanded);
   const [selected, setSelected] = useState<string | null>(null);
   const [selectedExt, setSelectedExt] = useState<string | null>(null);
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number; key: string } | null>(null);
@@ -358,24 +369,47 @@ export default function DiskUsagePane({ stats }: { stats: SystemStats | null }) 
     return () => window.removeEventListener("click", close);
   }, [contextMenu]);
 
-  async function startScan(path: string) {
+  function startScan(path: string) {
+    cache.target = path;
+    cache.latest = isTauri()
+      ? invoke<DiskScan>("scan_disk", { path: path || null })
+      : mockDiskScan(path || null);
+    cache.running = true;
+    return showScan(cache.latest);
+  }
+
+  async function showScan(pending: Promise<DiskScan>) {
     setScanning(true);
     setProgress(0);
     setError(null);
     try {
-      const result = isTauri()
-        ? await invoke<DiskScan>("scan_disk", { path: path || null })
-        : await mockDiskScan(path || null);
+      const result = await pending;
+      if (cache.latest !== pending) return; // a newer scan replaced this one
+      cache.scan = result;
+      cache.expanded = { [result.root.name]: true };
       setScan(result);
-      setExpanded({ [result.root.name]: true });
+      setExpanded(cache.expanded);
       setSelected(null);
       setSelectedExt(null);
     } catch (e) {
-      setError(String(e));
+      if (cache.latest === pending) setError(String(e));
     } finally {
-      setScanning(false);
+      if (cache.latest === pending) {
+        cache.running = false;
+        setScanning(false);
+      }
     }
   }
+
+  // The first time the tab opens, scan the home folder right away.
+  useEffect(() => {
+    if (cache.running && cache.latest) showScan(cache.latest);
+    else if (!cache.scan) startScan("");
+  }, []);
+
+  useEffect(() => {
+    cache.expanded = expanded;
+  }, [expanded]);
 
   async function stopScan() {
     if (isTauri()) await invoke("cancel_disk_scan");
@@ -514,7 +548,11 @@ export default function DiskUsagePane({ stats }: { stats: SystemStats | null }) 
       {!scan ? (
         <div className="placeholder-pane">
           <p>{scanning ? "Scanning…" : "See what's using your disk"}</p>
-          <span>Pick a drive or folder above and press Scan.</span>
+          <span>
+            {scanning
+              ? "Scanning your home folder. A whole drive can take a minute."
+              : "Pick a drive or folder above and press Scan."}
+          </span>
         </div>
       ) : (
         <div className="disk-usage">

@@ -5,14 +5,31 @@ test.beforeEach(async ({ page }) => {
   await page.getByRole("button", { name: "Disk usage", exact: true }).click();
 });
 
+// Opening the tab scans the home folder by itself.
 async function scanHome(page: import("@playwright/test").Page) {
-  await page.getByRole("button", { name: "Scan", exact: true }).click();
   await expect(page.locator(".disk-tree .row").first()).toBeVisible();
 }
 
-test("asks for a location before scanning", async ({ page }) => {
-  await expect(page.locator(".placeholder-pane")).toContainText("See what's using your disk");
+test("scans the home folder as soon as the tab opens", async ({ page }) => {
+  await expect(page.locator(".history-meta")).toContainText("Scanning…");
   await expect(page.getByLabel("Location")).toHaveValue("");
+  await scanHome(page);
+  await expect(page.getByRole("button", { name: "Scan", exact: true })).toBeEnabled();
+});
+
+test("switching tabs keeps the last scan instead of rescanning", async ({ page }) => {
+  await scanHome(page);
+  await page.locator(".disk-tree .row", { hasText: "Videos" }).locator(".chevron").click();
+  await page.getByRole("button", { name: "Processes", exact: true }).click();
+  await page.getByRole("button", { name: "Disk usage", exact: true }).click();
+  await expect(page.locator(".history-meta")).not.toContainText("Scanning");
+  await expect(page.locator(".disk-tree .row", { hasText: "Big Buck Bunny.mkv" })).toBeVisible();
+});
+
+test("a scan left running shows up after switching back", async ({ page }) => {
+  await page.getByRole("button", { name: "Processes", exact: true }).click();
+  await page.getByRole("button", { name: "Disk usage", exact: true }).click();
+  await scanHome(page);
 });
 
 test("scans and lists folders biggest first", async ({ page }) => {

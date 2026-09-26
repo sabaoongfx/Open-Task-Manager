@@ -175,8 +175,8 @@ cargo install --locked --git https://github.com/sabaoongfx/Open-Task-Manager otm
 
 ### Disk usage
 
-A WinDirStat-style view of what's filling your disk: pick your home folder, a drive, or
-type any path and press Scan.
+A WinDirStat-style view of what's filling your disk. Opening the tab scans your home
+folder right away; pick a drive or type any path to scan something else.
 
 - **Folder tree**, biggest first, with size, share of the parent folder and file count.
 - **File types**: space and file count per extension; the eight biggest get a color.

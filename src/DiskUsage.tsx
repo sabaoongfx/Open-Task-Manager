@@ -479,7 +479,7 @@ export default function DiskUsagePane({ stats }: { stats: SystemStats | null }) 
       <div className="panel-header">
         <h1>Disk usage</h1>
         <div className="spacer" />
-        <div className="toolbar">
+        <div className="toolbar disk-toolbar">
           <select
             className="disk-location"
             aria-label="Location"

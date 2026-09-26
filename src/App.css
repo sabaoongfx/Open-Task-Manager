@@ -826,9 +826,17 @@ body {
 
 /* Disk usage tab */
 
+/* The dropdown, the path box and the Scan button share one height (a select and an input
+   otherwise size themselves differently from the same padding). */
+.disk-location,
+.disk-path,
+.disk-toolbar .toolbar-btn {
+  height: 30px;
+}
+
 .disk-location,
 .disk-path {
-  padding: 6px 8px;
+  padding: 0 8px;
   border-radius: 4px;
   border: 1px solid var(--border);
   background: var(--bg-elevated);

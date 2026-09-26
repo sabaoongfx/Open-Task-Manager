@@ -116,7 +116,8 @@ row highlights visibly stop short of the card edge. `.process-table`/`.table-bod
 
 ### `website/` is a separate static site, not part of the Vite app
 
-`website/index.html` is a hand-written marketing page that embeds a **real, separately-built
+`website/index.html` is a hand-written marketing page (its CSS is in `website/site.css`, shared
+with `website/releases.html`, the "What's new" release notes page) that embeds a **real, separately-built
 copy of this app** via `<iframe src="app/index.html">` (not a mockup). `website/app/` must be
 regenerated any time `src/` changes meaningfully:
 
@@ -219,7 +220,8 @@ don't rename those files.
 
 1. Bump the version in `package.json`, the root `Cargo.toml` (`[workspace.package] version`,
    inherited by all three crates) and `src-tauri/tauri.conf.json`, and add a `<release>` entry to
-   the AppStream file above.
+   the AppStream file above and an `<article class="release">` at the top of
+   `website/releases.html` (the site's "What's new" page; move the "Latest" tag to it).
 2. Push a `v*` tag. `.github/workflows/release.yml` builds every installer into a **draft** GitHub
    release, then a second job attaches standalone `otm` archives for each platform.
 3. Publish the draft. That triggers `publish-linux.yml` (apt/pacman repos on Pages, AUR).

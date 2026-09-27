@@ -99,9 +99,11 @@ fn heat(value: f64, warn: f64, hot: f64) -> Style {
     }
 }
 
-/// Percent of one core: 10% = noticeable, 50% = hot.
-fn cpu_heat(cpu: f64) -> Style {
-    heat(cpu, 10.0, 50.0)
+/// `cpu` is percent of the whole CPU; the thresholds are in terms of one core, so they mean the
+/// same on any machine: a tenth of a core = noticeable, half a core = hot.
+fn cpu_heat(app: &App, cpu: f64) -> Style {
+    let of_one_core = cpu * app.snapshot.stats.cpu_info.logical_cores.max(1) as f64;
+    heat(of_one_core, 10.0, 50.0)
 }
 
 /// Share of total RAM: 2% = noticeable, 10% = hot.
@@ -270,7 +272,7 @@ fn processes(app: &App) -> View {
                 cells: vec![
                     text(name),
                     num(if multi { String::new() } else { g.min_pid.to_string() }, Style::new().fg(Color::DarkGray)),
-                    num(format!("{:.1}%", g.cpu), cpu_heat(g.cpu)),
+                    num(format!("{:.1}%", g.cpu), cpu_heat(app, g.cpu)),
                     num(format::bytes(g.memory), mem_heat(app, g.memory)),
                     num(format::rate(g.disk), disk_heat(g.disk)),
                 ],
@@ -310,7 +312,7 @@ fn process_child_row(app: &App, p: &ProcessInfo, pid_column: bool) -> ViewRow {
         cells.push(text(format!("    └ {} ({})", p.name, p.pid)));
     }
     cells.extend([
-        num(format!("{cpu:.1}%"), cpu_heat(cpu)),
+        num(format!("{cpu:.1}%"), cpu_heat(app, cpu)),
         num(format::bytes(p.memory), mem_heat(app, p.memory)),
         num(format::rate(p.disk_bytes_per_sec), disk_heat(p.disk_bytes_per_sec)),
     ]);
@@ -342,7 +344,7 @@ fn details(app: &App) -> View {
                     num(p.pid.to_string(), Style::new().fg(Color::DarkGray)),
                     text(p.status.clone()),
                     text(p.user_name.clone().unwrap_or_else(|| "—".to_string())),
-                    num(format!("{cpu:.1}%"), cpu_heat(cpu)),
+                    num(format!("{cpu:.1}%"), cpu_heat(app, cpu)),
                     num(format::bytes(p.memory), mem_heat(app, p.memory)),
                 ],
                 style: Style::new(),
@@ -380,7 +382,7 @@ fn users(app: &App) -> View {
             toggle: Toggle::Expand,
             cells: vec![
                 text(format!("{} {} ({})", if expanded { "▾" } else { "▸" }, g.name, g.instances.len())),
-                num(format!("{:.1}%", g.cpu), cpu_heat(g.cpu)),
+                num(format!("{:.1}%", g.cpu), cpu_heat(app, g.cpu)),
                 num(format::bytes(g.memory), mem_heat(app, g.memory)),
                 num(format::rate(g.disk), disk_heat(g.disk)),
             ],

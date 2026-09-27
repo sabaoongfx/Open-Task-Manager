@@ -33,6 +33,8 @@ fn read_disk_io_ticks() -> HashMap<String, u64> {
 pub struct ProcessInfo {
     pub pid: u32,
     pub name: String,
+    /// Percent of the whole CPU (all cores), like Windows Task Manager: every process together
+    /// adds up to at most the system-wide `SystemStats::cpu_usage`.
     pub cpu_usage: f32,
     pub memory: u64,
     pub disk_bytes_per_sec: f64,
@@ -233,6 +235,8 @@ impl Monitor {
         }
 
         let mut total_disk_bytes = 0f64;
+        // sysinfo reports a process's CPU as percent of one core (up to 100% x cores).
+        let cores = sys.cpus().len().max(1) as f32;
         let processes: Vec<ProcessInfo> = sys
             .processes()
             .values()
@@ -251,7 +255,7 @@ impl Monitor {
                 ProcessInfo {
                     pid: p.pid().as_u32(),
                     name: prettify_process_name(&full_process_name(p)),
-                    cpu_usage: p.cpu_usage(),
+                    cpu_usage: p.cpu_usage() / cores,
                     memory: p.memory(),
                     disk_bytes_per_sec: rate,
                     status: p.status().to_string(),
@@ -262,7 +266,7 @@ impl Monitor {
 
         for p in &processes {
             *app_cpu_seconds.entry(p.name.clone()).or_insert(0.0) +=
-                (p.cpu_usage as f64 / 100.0) * elapsed;
+                (p.cpu_usage as f64 * cores as f64 / 100.0) * elapsed;
         }
         let mut app_history: Vec<AppHistoryEntry> = app_cpu_seconds
             .iter()
@@ -538,6 +542,36 @@ mod tests {
 
         let listed = snapshot.processes.iter().find(|p| p.pid == child.id()).expect("child listed");
         assert_eq!(listed.name, "Otm Long Name Test Sleeper");
+    }
+
+    #[test]
+    fn process_cpu_is_a_share_of_the_whole_cpu() {
+        use std::sync::atomic::{AtomicBool, Ordering};
+        use std::sync::Arc;
+        let stop = Arc::new(AtomicBool::new(false));
+        let spin = {
+            let stop = stop.clone();
+            std::thread::spawn(move || {
+                while !stop.load(Ordering::Relaxed) {
+                    std::hint::spin_loop();
+                }
+            })
+        };
+        let mut monitor = super::Monitor::new();
+        monitor.snapshot();
+        std::thread::sleep(std::time::Duration::from_millis(1000));
+        let snapshot = monitor.snapshot();
+        stop.store(true, Ordering::Relaxed);
+        spin.join().unwrap();
+
+        // One fully busy thread is one core: 100% / cores of the whole CPU, never ~100%.
+        let one_core = 100.0 / snapshot.stats.cpu_info.logical_cores as f32;
+        let me = snapshot.processes.iter().find(|p| p.pid == std::process::id()).unwrap();
+        assert!(
+            me.cpu_usage > one_core * 0.4 && me.cpu_usage < one_core * 1.3,
+            "{} vs one core = {one_core}",
+            me.cpu_usage
+        );
     }
 
     #[test]

@@ -35,7 +35,9 @@ fn process(pid: u32, name: &str, cpu: f32, mem_mb: u64, disk_mb: f64, user: &str
     ProcessInfo {
         pid,
         name: name.to_string(),
-        cpu_usage: cpu,
+        // The list below reads naturally as percent of one core; the app shows percent of the
+        // whole CPU, so halve it to keep every row adding up to under the 23% total.
+        cpu_usage: cpu / 2.0,
         memory: mem_mb * MB,
         disk_bytes_per_sec: disk_mb * MB as f64,
         status: "Sleeping".to_string(),

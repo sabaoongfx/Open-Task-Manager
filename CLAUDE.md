@@ -93,6 +93,11 @@ filter also hides kernel threads (`kworker`, ...), as `htop` does by default. Li
 process names to 15 bytes; `full_process_name()` restores them from the executable or, for other
 users' processes, `/proc/<pid>/cmdline`, only for names exactly that long.
 
+`ProcessInfo::cpu_usage` is percent of the **whole** CPU, like Windows Task Manager (sysinfo's
+per-core value divided by the logical core count), so rows add up to the header total. App
+history converts back to per-core before turning it into CPU-seconds, and `otm`'s CPU heat
+thresholds multiply back by the core count so they keep meaning "a tenth / half of a core".
+
 Process icons (`src/appIcons.tsx`) are Simple Icons SVGs (CC0) in `src/assets/brand-icons/`,
 matched to process names by `RULES`, with brand colors in `HEX_BY_SLUG` (from Simple Icons'
 `data/simple-icons.json`). Matching treats `-`/`_` as spaces so raw and prettified names both

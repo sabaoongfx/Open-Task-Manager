@@ -87,6 +87,17 @@
   <content_rating type="oars-1.1" />
 
   <releases>
+    <release version="0.4.2" date="2026-09-27">
+      <description>
+        <p>Clearer process list: full names, CPU like Windows, and many more app icons.</p>
+        <ul>
+          <li>Process CPU is now a share of the whole processor, so the rows add up to the total</li>
+          <li>Linux: long process names are no longer cut off at 15 characters</li>
+          <li>About 80 more app icons, and the app's own logo</li>
+          <li>Bigger toolbar icons</li>
+        </ul>
+      </description>
+    </release>
     <release version="0.4.1" date="2026-09-27">
       <description>
         <p>A lighter app: about half the CPU while open, and next to none while minimized.</p>

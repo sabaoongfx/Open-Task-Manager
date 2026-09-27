@@ -51,11 +51,32 @@
 <!-- Newest first. Add an entry here for every release (see CLAUDE.md, Releasing). -->
 <main class="releases">
 
+<article class="release" id="v0.4.2">
+  <div class="release-meta">
+    <h2><a href="#v0.4.2">0.4.2</a></h2>
+    <time datetime="2026-09-27">September 27, 2026</time>
+    <span class="release-tag">Latest</span>
+  </div>
+  <div class="release-body">
+    <p class="release-lede">A clearer process list: full names, CPU numbers that add up, and many more app icons.</p>
+    <h3>Improved</h3>
+    <ul>
+      <li><strong>CPU works like Windows.</strong> Each process now shows its share of the whole processor, so the rows add up to the total at the top. Before, a busy app could show 63% under a 30% total, because it was measured against a single core.</li>
+      <li><strong>About 80 more app icons</strong>: terminals, shells, editors, databases, desktops and media apps, plus the app's own logo. Dark logos now stay visible in dark mode.</li>
+      <li>Bigger icons on the toolbar buttons.</li>
+      <li>Disk usage keeps your scan and open folders when you switch tabs, and clicking in the treemap no longer redraws the whole picture.</li>
+    </ul>
+    <h3>Fixed</h3>
+    <ul>
+      <li>Linux: long process names were cut off at 15 characters ("WebKitWebProces", "Open Task Manag"). They now show in full, in <span class="mono">otm</span> too.</li>
+    </ul>
+  </div>
+</article>
+
 <article class="release" id="v0.4.1">
   <div class="release-meta">
     <h2><a href="#v0.4.1">0.4.1</a></h2>
     <time datetime="2026-09-27">September 27, 2026</time>
-    <span class="release-tag">Latest</span>
   </div>
   <div class="release-body">
     <p class="release-lede">A lighter app: about half the CPU while it's open, and next to none while it's minimized.</p>

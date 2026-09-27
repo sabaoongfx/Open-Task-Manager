@@ -224,8 +224,6 @@ On Startup apps and Services it's read-only: there's no enable/disable or start/
 - Persist App history across restarts.
 - Signed installers for Windows and macOS.
 - Publish to the AUR (packages are ready; waiting for AUR account registration to reopen).
-- Linux: stop counting threads as separate processes (it inflates the process count and
-  the per-user memory totals).
 
 ## Tech stack
 

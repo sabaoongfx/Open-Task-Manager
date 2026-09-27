@@ -154,8 +154,13 @@ pub struct Monitor {
     users: Users,
     disk_io_prev: HashMap<String, u64>,
     last_refresh: Instant,
+    /// When the account list was last re-read; accounts rarely change, so not every snapshot.
+    users_refreshed: Instant,
     app_cpu_seconds: HashMap<String, f64>,
 }
+
+/// How often `snapshot()` re-reads the list of user accounts.
+const USERS_REFRESH_INTERVAL: std::time::Duration = std::time::Duration::from_secs(60);
 
 impl Default for Monitor {
     fn default() -> Self {
@@ -172,6 +177,7 @@ impl Monitor {
             users: Users::new_with_refreshed_list(),
             disk_io_prev: HashMap::new(),
             last_refresh: Instant::now(),
+            users_refreshed: Instant::now(),
             app_cpu_seconds: HashMap::new(),
         }
     }
@@ -184,6 +190,7 @@ impl Monitor {
             users,
             disk_io_prev,
             last_refresh,
+            users_refreshed,
             app_cpu_seconds,
         } = self;
 
@@ -196,12 +203,18 @@ impl Monitor {
         sys.refresh_processes(sysinfo::ProcessesToUpdate::All, true);
         networks.refresh();
         disks.refresh();
-        users.refresh_list();
+        if users_refreshed.elapsed() >= USERS_REFRESH_INTERVAL {
+            users.refresh_list();
+            *users_refreshed = now;
+        }
 
         let mut total_disk_bytes = 0f64;
         let processes: Vec<ProcessInfo> = sys
             .processes()
             .values()
+            // On Linux sysinfo also lists every thread as its own entry, each reporting its whole
+            // process's memory; keep real processes only.
+            .filter(|p| p.thread_kind().is_none())
             .map(|p| {
                 let disk = p.disk_usage();
                 let bytes = disk.read_bytes + disk.written_bytes;
@@ -291,6 +304,7 @@ impl Monitor {
             logical_cores: cpus.len(),
         };
 
+        let process_count = processes.len();
         Snapshot {
             processes,
             app_history,
@@ -305,7 +319,7 @@ impl Monitor {
                 network_rx_bytes_per_sec: rx as f64 / elapsed,
                 network_tx_bytes_per_sec: tx as f64 / elapsed,
                 uptime_secs: System::uptime(),
-                process_count: sys.processes().len(),
+                process_count,
                 cpu_info,
                 disks: disk_list,
                 network_interfaces,
@@ -456,6 +470,31 @@ mod tests {
     fn leaves_already_cased_names_alone() {
         assert_eq!(prettify_process_name("Xorg"), "Xorg");
         assert_eq!(prettify_process_name("NetworkManager"), "NetworkManager");
+    }
+
+    #[test]
+    fn snapshot_lists_processes_not_threads() {
+        let (tx, rx) = std::sync::mpsc::channel::<()>();
+        let helper = std::thread::spawn(move || rx.recv());
+        let own_threads: Vec<u32> = std::fs::read_dir("/proc/self/task")
+            .unwrap()
+            .flatten()
+            .filter_map(|e| e.file_name().to_str()?.parse().ok())
+            .filter(|&tid| tid != std::process::id())
+            .collect();
+        assert!(!own_threads.is_empty());
+
+        let mut monitor = super::Monitor::new();
+        let snapshot = monitor.snapshot();
+        let _ = tx.send(());
+        helper.join().unwrap().unwrap();
+
+        let me = std::process::id();
+        assert_eq!(snapshot.processes.iter().filter(|p| p.pid == me).count(), 1);
+        for tid in own_threads {
+            assert!(snapshot.processes.iter().all(|p| p.pid != tid), "thread {tid} listed as a process");
+        }
+        assert_eq!(snapshot.stats.process_count, snapshot.processes.len());
     }
 
     #[test]

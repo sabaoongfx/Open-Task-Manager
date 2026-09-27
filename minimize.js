@@ -1,0 +1,1 @@
+for (const w of workspace.windowList()) if (w.pid === 57774) w.minimized = true;

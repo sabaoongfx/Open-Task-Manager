@@ -86,11 +86,22 @@ performs). App history's CPU time is real and live but resets on restart (no per
 empty-Vec fallback on other platforms — on Windows/macOS those two tabs will show nothing when
 run as the real Tauri app (mock data still works everywhere since it doesn't hit the OS).
 
-Known issue, not yet fixed: on Linux, `sysinfo` lists every **thread** as its own process, each
-reporting its whole process's memory. That inflates the process count and summed memory (the
-Users tab can show more memory than the machine has) in both the GUI and `otm`. The fix belongs in
-`Monitor::snapshot()` (skip entries whose `thread_kind()` is set); it changes the GUI's numbers
-too, and `otm`'s kill-prompt test relies on finding its own process by PID, not on threads.
+On Linux, `sysinfo` lists every **thread** as its own process, each reporting its whole
+process's memory. `Monitor::snapshot()` drops entries whose `thread_kind()` is set; without that
+filter the list was ~3x longer (840 entries for 301 processes) and memory totals were inflated.
+
+### Keep it light
+
+Staying light on CPU and RAM is a product goal: prefer features that cost nothing until the user
+acts (on-click commands, one-shot reads) over anything that adds background work. The GUI stops
+its 1.5s poll while the window can't be seen (`App.tsx`): `visibilitychange` covers X11, Windows
+and macOS, and each poll waits for a `requestAnimationFrame` because on Wayland a window is never
+told it was minimized, but stops getting frames. Nearly all of the app's cost is the webview
+re-rendering, not the Rust side (~2% CPU, ~7 MB), so measure the whole app, including the
+`WebKitWebProcess` children, in a release build before and after any change to polling or
+rendering, and average several runs (single runs vary by 2x). Measured at 0.4.0 -> next on KDE
+Wayland: visible ~17% -> ~8% of one core, minimized ~26% -> 0.1%, ~340 MB PSS. Tried and dropped
+(no measurable gain): `content-visibility: auto` on table rows.
 
 ### Shared UI conventions are copy-pasted per tab, not abstracted
 

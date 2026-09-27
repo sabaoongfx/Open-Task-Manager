@@ -162,11 +162,42 @@ function App() {
       }
     }
 
-    poll();
-    const interval = setInterval(poll, 1500);
+    // Stop polling while the window is minimized or hidden, so the app costs next to nothing in
+    // the background. The first snapshot after coming back averages over the whole gap, so
+    // rates and App history stay correct. Two signals, because neither covers every platform:
+    // - visibilitychange: X11, Windows, macOS.
+    // - requestAnimationFrame: on Wayland a window never learns it was minimized, but the
+    //   compositor stops sending it frames, so a poll that waits for the next frame never runs.
+    let interval: ReturnType<typeof setInterval> | undefined;
+    let frame: number | undefined;
+    function pollOnNextFrame() {
+      if (frame !== undefined) return; // still waiting for a frame: the window isn't being shown
+      frame = requestAnimationFrame(() => {
+        frame = undefined;
+        poll();
+      });
+    }
+    function start() {
+      if (interval !== undefined) return;
+      pollOnNextFrame();
+      interval = setInterval(pollOnNextFrame, 1500);
+    }
+    function stop() {
+      clearInterval(interval);
+      interval = undefined;
+      if (frame !== undefined) cancelAnimationFrame(frame);
+      frame = undefined;
+    }
+    function onVisibilityChange() {
+      if (document.hidden) stop();
+      else start();
+    }
+    if (!document.hidden) start();
+    document.addEventListener("visibilitychange", onVisibilityChange);
     return () => {
       cancelled = true;
-      clearInterval(interval);
+      stop();
+      document.removeEventListener("visibilitychange", onVisibilityChange);
     };
   }, []);
 

@@ -117,3 +117,20 @@ test("efficiency mode toggles compact row styling", async ({ page }) => {
   await toggle.click();
   await expect(table).not.toHaveClass(/compact/);
 });
+
+test("stops polling while the window is hidden and resumes when shown", async ({ page }) => {
+  const cpu = page.locator(".row", { hasText: "Google Chrome (5)" }).first().locator(".col-cpu");
+  const setHidden = (hidden: boolean) =>
+    page.evaluate((h) => {
+      Object.defineProperty(document, "hidden", { configurable: true, get: () => h });
+      document.dispatchEvent(new Event("visibilitychange"));
+    }, hidden);
+
+  await setHidden(true);
+  const frozen = await cpu.textContent();
+  await page.waitForTimeout(4000); // more than two polling intervals
+  await expect(cpu).toHaveText(frozen!);
+
+  await setHidden(false);
+  await expect(cpu).not.toHaveText(frozen!);
+});

@@ -17,8 +17,9 @@ npx playwright test                          # full e2e suite (runs against mock
 npx playwright test tests/processes.spec.ts   # one file
 npx playwright test -g "right-click"          # by test name
 
-cargo test --workspace       # Rust tests: otm-core (prettify_process_name, get_services, get_startup_apps)
-                             #   + otm (formatting, and TestBackend renders of every TUI tab against live data)
+cargo test --workspace       # Rust tests: otm-core (process names/threads/CPU scale against live data,
+                             #   get_services, get_startup_apps, the disk scanner on a temp tree)
+                             #   + otm (formatting, TestBackend renders of every tab, a Disk usage scan)
 cargo check --workspace      # fast Rust compile check
 
 cargo test -p otm export_website_demo -- --ignored   # regenerate the website's otm screens
@@ -94,18 +95,22 @@ On Linux, `sysinfo` lists every **thread** as its own process, each reporting it
 process's memory. `Monitor::snapshot()` drops entries whose `thread_kind()` is set; without that
 filter the list was ~3x longer (840 entries for 301 processes) and memory totals were inflated. The
 filter also hides kernel threads (`kworker`, ...), as `htop` does by default. Linux also cuts
-process names to 15 bytes; `full_process_name()` restores them from the executable or, for other
-users' processes, `/proc/<pid>/cmdline`, only for names exactly that long.
+process names to 15 bytes; for names exactly that long, `full_process_name()` restores them from
+the executable or, for other users' processes, `/proc/<pid>/cmdline`. `Monitor` caches the result
+by (pid, start time), so each process is looked up once, not every poll.
 
 `ProcessInfo::cpu_usage` is percent of the **whole** CPU, like Windows Task Manager (sysinfo's
 per-core value divided by the logical core count), so rows add up to the header total. App
-history converts back to per-core before turning it into CPU-seconds, and `otm`'s CPU heat
-thresholds multiply back by the core count so they keep meaning "a tenth / half of a core".
+history adds up CPU-seconds from sysinfo's raw per-core value in the same pass, before that
+division. `otm`'s CPU heat thresholds are whole-CPU too (2.5% / 12.5%), and `tui/src/demo.rs`'s
+numbers are written in the same units.
 
 Process icons (`src/appIcons.tsx`) are Simple Icons SVGs (CC0) in `src/assets/brand-icons/`,
 matched to process names by `RULES`, with brand colors in `HEX_BY_SLUG` (from Simple Icons'
-`data/simple-icons.json`). Matching treats `-`/`_` as spaces so raw and prettified names both
-match, and results are cached per name because every row asks on every refresh.
+`data/simple-icons.json`; near-black brands get `currentColor` so they show in dark mode). Matching
+treats `-`/`_` as spaces so raw and prettified names both match, and results are cached per name
+because every row asks on every refresh. The app's own process ("Open Task Manager", `otm`) shows
+`public/open task manager.svg` instead, through the same cached lookup.
 
 ### Keep it light
 
@@ -116,8 +121,8 @@ and macOS, and each poll waits for a `requestAnimationFrame` because on Wayland 
 told it was minimized, but stops getting frames. Nearly all of the app's cost is the webview
 re-rendering, not the Rust side (~2% CPU, ~7 MB), so measure the whole app, including the
 `WebKitWebProcess` children, in a release build before and after any change to polling or
-rendering, and average several runs (single runs vary by 2x). Measured at 0.4.0 -> next on KDE
-Wayland: visible ~17% -> ~8% of one core, minimized ~26% -> 0.1%, ~340 MB PSS. Tried and dropped
+rendering, and average several runs (single runs vary by 2x). Measured 0.4.0 -> 0.4.1 on KDE
+Wayland (4 cores): visible ~17% -> ~8% of one core, minimized ~26% -> 0.1%, ~340 MB PSS. Tried and dropped
 (no measurable gain): `content-visibility: auto` on table rows.
 
 ### Shared UI conventions are copy-pasted per tab, not abstracted
@@ -141,6 +146,7 @@ edge despite `.table-body`'s vertical scrollbar eating into the layout width. Wi
 row highlights visibly stop short of the card edge. `.process-table`/`.table-body` also need
 `overflow-x: hidden` explicitly — leaving it unset lets it silently compute to `auto` whenever
 `overflow-y` is non-`visible`, which reintroduces a (subtle, easy-to-miss) horizontal scrollbar.
+Panes that need it get the measured width as a prop (`DiskUsagePane`) rather than measuring again.
 
 ### `website/` is a separate static site, not part of the Vite app
 
@@ -173,7 +179,8 @@ Braille glyphs and the fallback font's width otherwise skews every graph row.
 Page sections, top to bottom: hero, `#full-demo` (the iframe), `#features`, `#terminal` (otm
 screens + key cheat sheet), `#install` (tabs: apt, pacman, Windows, macOS, other Linux, terminal
 only), `#download` (every direct download as cards), `#specs`, `#roadmap`. The top-left logo links
-to `/`. One inline script at the bottom detects the visitor's OS from the user agent and uses it
+to `/`, and the nav's "What's new" links to `releases.html`, whose top bar is the same markup with
+section links pointing back at `/#...`. One inline script at the bottom detects the visitor's OS from the user agent and uses it
 three ways: preselects the install tab, marks the matching `#download` card "Your system", and
 turns the hero's plain "Download" button (which scrolls to `#download`, also the no-JS and phone
 behaviour) into a direct "Download for Windows/Mac/Linux" link with a note underneath. Macs get the
@@ -258,9 +265,9 @@ don't rename those files.
 
 - **apt, pacman**: live, self-hosted on GitHub Pages (above).
 - **AUR**: ready but unpublished; waiting for AUR account registration to reopen.
-- **AppImage catalog** (`AppImage/appimage.github.io`): submit after v0.3.1 (the first AppImage
-  with metainfo) as a one-line `data/Open-Task-Manager` file containing the repo URL. The owner
-  opens that PR, not Claude. appimagehub.com is a separate Pling/OpenDesktop store with manual
+- **AppImage catalog** (`AppImage/appimage.github.io`): ready to submit (AppImages carry
+  metainfo since v0.4.0) as a one-line `data/Open-Task-Manager` file containing the repo URL. The
+  owner opens that PR, not Claude. appimagehub.com is a separate Pling/OpenDesktop store with manual
   listing.
 - **Flathub: not viable; don't write a Flathub manifest.** Flathub's rules forbid AI-generated
   or AI-assisted manifests and AI-opened submission PRs, and won't grant sandbox-escape exceptions
@@ -269,6 +276,14 @@ don't rename those files.
   `otm` is out either way. A self-hosted Flatpak remote would be allowed but needs a host-side
   helper run through `flatpak-spawn --host` (Mission Center's approach); deferred until users
   ask for it.
+
+- **Windows/macOS signing: not set up**, so SmartScreen shows "Unknown publisher" and macOS
+  Gatekeeper blocks the first launch. `bundle.publisher` ("Sabaoon") only changes the name in
+  Settings → Apps, not the warning. Fixing it needs a certificate the owner applies for (SignPath
+  Foundation, free for open source, is the first choice; Apple Developer Program for macOS);
+  then `release.yml` gets the signing secrets. Don't change the app identifier
+  `com.reddragon.task-manager` to match the publisher: it would break Windows upgrades and move
+  the app's data.
 
 ### Releasing
 

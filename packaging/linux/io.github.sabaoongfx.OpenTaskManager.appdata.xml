@@ -87,6 +87,16 @@
   <content_rating type="oars-1.1" />
 
   <releases>
+    <release version="0.4.1" date="2026-09-27">
+      <description>
+        <p>A lighter app: about half the CPU while open, and next to none while minimized.</p>
+        <ul>
+          <li>Stops refreshing while the window is minimized or hidden</li>
+          <li>Linux: threads are no longer listed as separate processes, which also fixes inflated memory totals</li>
+          <li>The publisher is now shown as Sabaoon</li>
+        </ul>
+      </description>
+    </release>
     <release version="0.4.0" date="2026-09-27">
       <description>
         <p>Adds a disk usage view in the style of WinDirStat.</p>

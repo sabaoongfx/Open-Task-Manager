@@ -125,6 +125,7 @@ function App() {
   const [history, setHistory] = useState<PerfHistory>({ cpu: [], memory: [], disk: [], network: [] });
   const [appHistory, setAppHistory] = useState<AppHistoryEntry[]>([]);
   const [scrollbarWidth, setScrollbarWidth] = useState(0);
+  const [diskOpened, setDiskOpened] = useState(false);
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number; selection: Selection } | null>(null);
 
   useEffect(() => {
@@ -200,6 +201,11 @@ function App() {
       document.removeEventListener("visibilitychange", onVisibilityChange);
     };
   }, []);
+
+  // A stable list for the Disk usage pane: it only changes when drives are added or removed,
+  // not on every 1.5s snapshot.
+  const mountKey = [...new Set((stats?.disks ?? []).map((d) => d.mount_point))].sort().join("\n");
+  const mountPoints = useMemo(() => (mountKey ? mountKey.split("\n") : []), [mountKey]);
 
   const filtered = useMemo(
     () => processes.filter((p) => p.name.toLowerCase().includes(filter.toLowerCase())),
@@ -332,7 +338,10 @@ function App() {
             <button
               key={item.key}
               className={`nav-item ${activeTab === item.key ? "active" : ""}`}
-              onClick={() => setActiveTab(item.key)}
+              onClick={() => {
+                setActiveTab(item.key);
+                if (item.key === "disk") setDiskOpened(true);
+              }}
               title={sidebarCollapsed ? item.label : undefined}
             >
               <item.icon />
@@ -362,9 +371,7 @@ function App() {
           <StartupAppsPane processes={processes} />
         ) : activeTab === "services" ? (
           <ServicesPane />
-        ) : activeTab === "disk" ? (
-          <DiskUsagePane stats={stats} />
-        ) : activeTab === "history" ? (
+        ) : activeTab === "disk" ? null /* rendered below, kept mounted */ : activeTab === "history" ? (
           <AppHistoryPane entries={appHistory} onDeleteHistory={resetAppHistory} />
         ) : activeTab !== "processes" ? (
           <div className="placeholder-pane">
@@ -585,6 +592,13 @@ function App() {
               </div>
             </div>
           </>
+        )}
+        {/* Kept mounted (just hidden) after the first visit, so a scan and its open folders
+            survive tab switches. */}
+        {diskOpened && (
+          <div style={{ display: activeTab === "disk" ? "contents" : "none" }}>
+            <DiskUsagePane active={activeTab === "disk"} mountPoints={mountPoints} scrollbarWidth={scrollbarWidth} />
+          </div>
         )}
         </div>
       </main>

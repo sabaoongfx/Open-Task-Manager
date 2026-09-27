@@ -99,11 +99,10 @@ fn heat(value: f64, warn: f64, hot: f64) -> Style {
     }
 }
 
-/// `cpu` is percent of the whole CPU; the thresholds are in terms of one core, so they mean the
-/// same on any machine: a tenth of a core = noticeable, half a core = hot.
-fn cpu_heat(app: &App, cpu: f64) -> Style {
-    let of_one_core = cpu * app.snapshot.stats.cpu_info.logical_cores.max(1) as f64;
-    heat(of_one_core, 10.0, 50.0)
+/// Percent of the whole CPU: 2.5% = noticeable, 12.5% = hot (a tenth and a half of one core on a
+/// 4-core machine).
+fn cpu_heat(cpu: f64) -> Style {
+    heat(cpu, 2.5, 12.5)
 }
 
 /// Share of total RAM: 2% = noticeable, 10% = hot.
@@ -272,7 +271,7 @@ fn processes(app: &App) -> View {
                 cells: vec![
                     text(name),
                     num(if multi { String::new() } else { g.min_pid.to_string() }, Style::new().fg(Color::DarkGray)),
-                    num(format!("{:.1}%", g.cpu), cpu_heat(app, g.cpu)),
+                    num(format!("{:.1}%", g.cpu), cpu_heat(g.cpu)),
                     num(format::bytes(g.memory), mem_heat(app, g.memory)),
                     num(format::rate(g.disk), disk_heat(g.disk)),
                 ],
@@ -312,7 +311,7 @@ fn process_child_row(app: &App, p: &ProcessInfo, pid_column: bool) -> ViewRow {
         cells.push(text(format!("    └ {} ({})", p.name, p.pid)));
     }
     cells.extend([
-        num(format!("{cpu:.1}%"), cpu_heat(app, cpu)),
+        num(format!("{cpu:.1}%"), cpu_heat(cpu)),
         num(format::bytes(p.memory), mem_heat(app, p.memory)),
         num(format::rate(p.disk_bytes_per_sec), disk_heat(p.disk_bytes_per_sec)),
     ]);
@@ -344,7 +343,7 @@ fn details(app: &App) -> View {
                     num(p.pid.to_string(), Style::new().fg(Color::DarkGray)),
                     text(p.status.clone()),
                     text(p.user_name.clone().unwrap_or_else(|| "—".to_string())),
-                    num(format!("{cpu:.1}%"), cpu_heat(app, cpu)),
+                    num(format!("{cpu:.1}%"), cpu_heat(cpu)),
                     num(format::bytes(p.memory), mem_heat(app, p.memory)),
                 ],
                 style: Style::new(),
@@ -382,7 +381,7 @@ fn users(app: &App) -> View {
             toggle: Toggle::Expand,
             cells: vec![
                 text(format!("{} {} ({})", if expanded { "▾" } else { "▸" }, g.name, g.instances.len())),
-                num(format!("{:.1}%", g.cpu), cpu_heat(app, g.cpu)),
+                num(format!("{:.1}%", g.cpu), cpu_heat(g.cpu)),
                 num(format::bytes(g.memory), mem_heat(app, g.memory)),
                 num(format::rate(g.disk), disk_heat(g.disk)),
             ],
@@ -538,7 +537,8 @@ fn sorted_children<'a>(node: &'a DiskNode, key: SortKey, desc: bool) -> Vec<&'a 
     kids
 }
 
-fn disk_row(app: &App, node: &DiskNode, key: String, label: String, depth: usize, parent_size: u64) -> ViewRow {
+/// One tree row, plus whether it's open (its children should follow it).
+fn disk_row(app: &App, node: &DiskNode, key: String, label: String, depth: usize, parent_size: u64) -> (ViewRow, bool) {
     let can_expand = node.kind == NodeKind::Dir && !node.children.is_empty();
     // The root is open by default (a Section); every folder under it starts closed.
     let toggle = match (can_expand, depth) {
@@ -562,7 +562,7 @@ fn disk_row(app: &App, node: &DiskNode, key: String, label: String, depth: usize
         NodeKind::File => Style::new(),
         NodeKind::Other => Style::new().fg(Color::DarkGray),
     };
-    ViewRow {
+    let row = ViewRow {
         label: label.clone(),
         pids: Vec::new(),
         toggle,
@@ -574,7 +574,8 @@ fn disk_row(app: &App, node: &DiskNode, key: String, label: String, depth: usize
         ],
         style,
         key,
-    }
+    };
+    (row, open)
 }
 
 fn disk_usage(app: &App) -> View {
@@ -585,72 +586,74 @@ fn disk_usage(app: &App) -> View {
         col("Files", Constraint::Length(9), None, true),
     ];
     let disk = &app.disk;
-    let root_path = disk.root.display().to_string();
+    let title = match (disk.scanning(), &disk.scan, &disk.error) {
+        (Some(files), ..) => format!("Disk usage · scanning {} · {files} files…", disk.root.display()),
+        (None, Some(scan), _) => {
+            let mut t = format!("Disk usage · {} · {} · {} files", scan.path, format::size(scan.root.size), scan.root.files);
+            if scan.errors > 0 {
+                t.push_str(&format!(" · {} unreadable", scan.errors));
+            }
+            t
+        }
+        (None, None, Some(e)) => format!("Disk usage · {e}"),
+        (None, None, None) => format!("Disk usage · {}", disk.root.display()),
+    };
     let Some(scan) = &disk.scan else {
-        let title = match (disk.scanning(), &disk.error) {
-            (Some(files), _) => format!("Disk usage · scanning {root_path} · {files} files…"),
-            (None, Some(e)) => format!("Disk usage · {e}"),
-            (None, None) => format!("Disk usage · {root_path}"),
-        };
         return View { columns, rows: Vec::new(), title };
     };
 
-    let mut title = format!("Disk usage · {} · {} · {} files", scan.path, format::size(scan.root.size), scan.root.files);
-    if let Some(files) = disk.scanning() {
-        title = format!("Disk usage · scanning {root_path} · {files} files…");
-    } else if scan.errors > 0 {
-        title.push_str(&format!(" · {} unreadable", scan.errors));
-    }
-
-    let (sort, desc) = app.sort_for(Tab::DiskUsage);
+    let order = app.sort_for(Tab::DiskUsage);
     let filter = app.tab_state(Tab::DiskUsage).filter.to_lowercase();
-    let root_key = format!("disk:{}", scan.path);
     let mut rows = Vec::new();
 
     if !filter.is_empty() {
-        // Filtering flattens the tree: every match at any depth, labelled by its relative path.
-        fn collect<'a>(node: &'a DiskNode, key: &str, rel: &str, out: &mut Vec<(&'a DiskNode, String, String, u64)>) {
+        // Filtering flattens the tree: every match at any depth, labelled by its path relative to
+        // the root. Keys and labels are only built for matches.
+        struct Match<'a> {
+            node: &'a DiskNode,
+            key: String,
+            rel: String,
+            parent_size: u64,
+        }
+        fn collect<'a>(node: &'a DiskNode, path: &str, rel: &str, filter: &str, out: &mut Vec<Match<'a>>) {
             for child in &node.children {
-                let child_key = disk_key(disk_path(key).unwrap_or_default(), child);
-                let child_rel = if rel.is_empty() { child.name.clone() } else { join_path(rel, &child.name) };
-                out.push((child, child_key.clone(), child_rel.clone(), node.size));
-                collect(child, &child_key, &child_rel, out);
+                let child_rel = || if rel.is_empty() { child.name.clone() } else { join_path(rel, &child.name) };
+                if child.name.to_lowercase().contains(filter) {
+                    out.push(Match { node: child, key: disk_key(path, child), rel: child_rel(), parent_size: node.size });
+                }
+                if !child.children.is_empty() {
+                    collect(child, &join_path(path, &child.name), &child_rel(), filter, out);
+                }
             }
         }
-        let mut all = Vec::new();
-        collect(&scan.root, &root_key, "", &mut all);
-        let mut matches: Vec<_> = all.into_iter().filter(|(n, ..)| n.name.to_lowercase().contains(&filter)).collect();
+        let mut matches = Vec::new();
+        collect(&scan.root, &scan.path, "", &filter, &mut matches);
+        let (sort, desc) = order;
         matches.sort_by(|a, b| {
             let ord = match sort {
-                SortKey::Name => cmp_name(&a.2, &b.2),
-                _ => a.0.size.cmp(&b.0.size),
+                SortKey::Name => cmp_name(&a.rel, &b.rel),
+                _ => a.node.size.cmp(&b.node.size),
             };
             apply_dir(ord, desc)
         });
-        for (node, key, rel, parent_size) in matches {
-            let mut row = disk_row(app, node, key, rel, 1, parent_size);
-            row.toggle = if row.toggle == Toggle::Leaf { Toggle::Leaf } else { Toggle::Expand };
-            rows.push(row);
-        }
+        rows.extend(matches.into_iter().map(|m| disk_row(app, m.node, m.key, m.rel, 1, m.parent_size).0));
         return View { columns, rows, title };
     }
 
-    #[allow(clippy::too_many_arguments)]
-    fn walk(app: &App, node: &DiskNode, key: String, depth: usize, parent_size: u64, sort: SortKey, desc: bool, rows: &mut Vec<ViewRow>) {
-        let row = disk_row(app, node, key.clone(), node.name.clone(), depth, parent_size);
-        let open = match row.toggle {
-            Toggle::Section => !app.collapsed.contains(&key),
-            Toggle::Expand => app.expanded.contains(&key),
-            Toggle::Leaf => false,
+    /// `parent`: the parent folder's path, or None for the root (whose name is its full path).
+    fn walk(app: &App, node: &DiskNode, parent: Option<&str>, depth: usize, parent_size: u64, order: (SortKey, bool), rows: &mut Vec<ViewRow>) {
+        let (path, key) = match parent {
+            None => (node.name.clone(), format!("disk:{}", node.name)),
+            Some(parent) => (join_path(parent, &node.name), disk_key(parent, node)),
         };
+        let (row, open) = disk_row(app, node, key, node.name.clone(), depth, parent_size);
         rows.push(row);
         if open {
-            let parent = disk_path(&key).unwrap_or_default().to_string();
-            for child in sorted_children(node, sort, desc) {
-                walk(app, child, disk_key(&parent, child), depth + 1, node.size, sort, desc, rows);
+            for child in sorted_children(node, order.0, order.1) {
+                walk(app, child, Some(&path), depth + 1, node.size, order, rows);
             }
         }
     }
-    walk(app, &scan.root, root_key, 0, scan.root.size, sort, desc, &mut rows);
+    walk(app, &scan.root, None, 0, scan.root.size, order, &mut rows);
     View { columns, rows, title }
 }

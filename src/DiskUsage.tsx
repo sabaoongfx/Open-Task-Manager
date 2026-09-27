@@ -1,9 +1,9 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { memo, useEffect, useMemo, useRef, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { revealItemInDir } from "@tauri-apps/plugin-opener";
 import { isTauri, mockDiskScan, mockDiskScanProgress } from "./mockData";
-import type { DiskNode, DiskScan, SystemStats } from "./types";
-import { formatSize } from "./format";
+import type { DiskNode, DiskScan } from "./types";
+import { extensionOf, formatSize } from "./format";
 import { IconChevronDown, IconFile, IconFolder, IconProhibit, IconSearch } from "./icons";
 
 // The first eight extensions by size get a categorical hue each (validated light/dark pairs);
@@ -17,11 +17,6 @@ function isDarkTheme(): boolean {
   const theme = document.documentElement.dataset.theme;
   if (theme) return theme === "dark";
   return window.matchMedia("(prefers-color-scheme: dark)").matches;
-}
-
-function extensionOf(name: string): string {
-  const i = name.lastIndexOf(".");
-  return i > 0 && i + 1 < name.length ? name.slice(i + 1).toLowerCase() : "";
 }
 
 function extLabel(ext: string): string {
@@ -49,10 +44,7 @@ function indexTree(root: DiskNode): Map<string, IndexedNode> {
   const map = new Map<string, IndexedNode>();
   (function walk(node: DiskNode, key: string, parentKey: string | null, depth: number) {
     map.set(key, { node, key, parentKey, depth });
-    for (const child of node.children) {
-      const childKey = child.kind === "other" ? `${key}\u0000other` : joinPath(key, child.name);
-      walk(child, childKey, key, depth + 1);
-    }
+    for (const child of node.children) walk(child, childKey(key, child), key, depth + 1);
   })(root, root.name, null, 0);
   return map;
 }
@@ -153,7 +145,7 @@ interface Rect {
 }
 
 /** Leaf tiles to paint, plus the rect of every placed file and folder (for outlining a selection). */
-function layoutTreemap(root: DiskNode, rootKey: string, width: number, height: number) {
+function layoutTreemap(root: DiskNode, width: number, height: number) {
   const tiles: Tile[] = [];
   const rects = new Map<string, Rect>();
   (function place(node: DiskNode, key: string, x: number, y: number, w: number, h: number, s: Surface, ridge: number) {
@@ -176,7 +168,7 @@ function layoutTreemap(root: DiskNode, rootKey: string, width: number, height: n
       const r = placed[i];
       place(child, childKey(key, child), r.x, r.y, r.w, r.h, surface, ridge * CUSHION_FALLOFF);
     });
-  })(root, rootKey, 0, 0, width, height, { x1: 0, x2: 0, y1: 0, y2: 0 }, CUSHION_HEIGHT);
+  })(root, root.name, 0, 0, width, height, { x1: 0, x2: 0, y1: 0, y2: 0 }, CUSHION_HEIGHT);
   return { tiles, rects };
 }
 
@@ -185,16 +177,49 @@ function hexToRgb(hex: string): [number, number, number] {
   return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
 }
 
+// Shade every pixel from its tile's cushion surface: ambient + diffuse light from the top left.
+function shadeTreemap(tiles: Tile[], width: number, height: number, dpr: number, colorFor: TreemapProps["colorFor"]) {
+  const W = Math.round(width * dpr);
+  const H = Math.round(height * dpr);
+  const img = new ImageData(W, H);
+  const data = img.data;
+  const [lx, ly, lz] = [-1, -1, 10].map((v, _, a) => v / Math.hypot(a[0], a[1], a[2]));
+  const ambient = 0.35;
+  const diffuse = 0.75;
+  for (const t of tiles) {
+    const [r, g, b] = hexToRgb(colorFor(t.ext, t.node.kind));
+    const x0 = Math.round(t.x * dpr);
+    const x1 = Math.round((t.x + t.w) * dpr);
+    const y0 = Math.round(t.y * dpr);
+    const y1 = Math.round((t.y + t.h) * dpr);
+    for (let py = y0; py < y1; py++) {
+      const cy = (py + 0.5) / dpr;
+      const ny = -(2 * t.s.y2 * cy + t.s.y1);
+      for (let px = x0; px < x1; px++) {
+        const cx = (px + 0.5) / dpr;
+        const nx = -(2 * t.s.x2 * cx + t.s.x1);
+        const cos = (nx * lx + ny * ly + lz) / Math.sqrt(nx * nx + ny * ny + 1);
+        const light = Math.min(1.25, ambient + diffuse * Math.max(0, cos));
+        const i = (py * W + px) * 4;
+        data[i] = Math.min(255, r * light);
+        data[i + 1] = Math.min(255, g * light);
+        data[i + 2] = Math.min(255, b * light);
+        data[i + 3] = 255;
+      }
+    }
+  }
+  return img;
+}
+
 interface TreemapProps {
   root: DiskNode;
-  rootKey: string;
   colorFor: (ext: string, kind: DiskNode["kind"]) => string;
   selectedKey: string | null;
   selectedExt: string | null;
   onSelect: (key: string) => void;
 }
 
-function Treemap({ root, rootKey, colorFor, selectedKey, selectedExt, onSelect }: TreemapProps) {
+function Treemap({ root, colorFor, selectedKey, selectedExt, onSelect }: TreemapProps) {
   const wrapRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [size, setSize] = useState({ w: 0, h: 0 });
@@ -211,50 +236,26 @@ function Treemap({ root, rootKey, colorFor, selectedKey, selectedExt, onSelect }
   const { tiles, rects } = useMemo(
     () =>
       size.w > 0 && size.h > 0
-        ? layoutTreemap(root, rootKey, size.w, size.h)
+        ? layoutTreemap(root, size.w, size.h)
         : { tiles: [], rects: new Map<string, Rect>() },
-    [root, rootKey, size]
+    [root, size]
   );
 
-  // Shade every pixel from its tile's cushion surface: ambient + diffuse light from the top left.
+  // The expensive per-pixel shading only reruns when the layout or colors change; selecting
+  // something just repaints this image and draws outlines on top.
+  const dpr = window.devicePixelRatio || 1;
+  const shaded = useMemo(
+    () => (tiles.length > 0 ? shadeTreemap(tiles, size.w, size.h, dpr, colorFor) : null),
+    [tiles, size, dpr, colorFor]
+  );
+
   useEffect(() => {
     const canvas = canvasRef.current;
-    if (!canvas || size.w === 0 || size.h === 0) return;
-    const dpr = window.devicePixelRatio || 1;
-    const W = Math.round(size.w * dpr);
-    const H = Math.round(size.h * dpr);
-    canvas.width = W;
-    canvas.height = H;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-    const img = ctx.createImageData(W, H);
-    const data = img.data;
-    const [lx, ly, lz] = [-1, -1, 10].map((v, _, a) => v / Math.hypot(a[0], a[1], a[2]));
-    const ambient = 0.35;
-    const diffuse = 0.75;
-    for (const t of tiles) {
-      const [r, g, b] = hexToRgb(colorFor(t.ext, t.node.kind));
-      const x0 = Math.round(t.x * dpr);
-      const x1 = Math.round((t.x + t.w) * dpr);
-      const y0 = Math.round(t.y * dpr);
-      const y1 = Math.round((t.y + t.h) * dpr);
-      for (let py = y0; py < y1; py++) {
-        const cy = (py + 0.5) / dpr;
-        const ny = -(2 * t.s.y2 * cy + t.s.y1);
-        for (let px = x0; px < x1; px++) {
-          const cx = (px + 0.5) / dpr;
-          const nx = -(2 * t.s.x2 * cx + t.s.x1);
-          const cos = (nx * lx + ny * ly + lz) / Math.sqrt(nx * nx + ny * ny + 1);
-          const light = Math.min(1.25, ambient + diffuse * Math.max(0, cos));
-          const i = (py * W + px) * 4;
-          data[i] = Math.min(255, r * light);
-          data[i + 1] = Math.min(255, g * light);
-          data[i + 2] = Math.min(255, b * light);
-          data[i + 3] = 255;
-        }
-      }
-    }
-    ctx.putImageData(img, 0, 0);
+    const ctx = canvas?.getContext("2d");
+    if (!canvas || !ctx || !shaded) return;
+    canvas.width = shaded.width;
+    canvas.height = shaded.height;
+    ctx.putImageData(shaded, 0, 0);
 
     ctx.scale(dpr, dpr);
     const outline = (t: Rect) => {
@@ -270,7 +271,7 @@ function Treemap({ root, rootKey, colorFor, selectedKey, selectedExt, onSelect }
     }
     const sel = selectedKey ? rects.get(selectedKey) : undefined;
     if (sel) outline(sel);
-  }, [tiles, rects, size, colorFor, selectedKey, selectedExt]);
+  }, [shaded, dpr, tiles, rects, selectedKey, selectedExt]);
 
   function tileAt(e: React.MouseEvent): { tile: Tile; x: number; y: number } | null {
     const rect = e.currentTarget.getBoundingClientRect();
@@ -313,52 +314,41 @@ function Treemap({ root, rootKey, colorFor, selectedKey, selectedExt, onSelect }
 
 // ---- The pane ----
 
-// Outlives the pane, which unmounts on every tab switch: coming back shows the last scan (with
-// its open folders) instead of rescanning, and a scan still running shows up when it finishes.
-const cache: {
-  target: string;
-  scan: DiskScan | null;
-  expanded: Record<string, boolean>;
-  /** The most recently started scan, kept after it finishes to tell stale results apart. */
-  latest: Promise<DiskScan> | null;
-  running: boolean;
-} = { target: "", scan: null, expanded: {}, latest: null, running: false };
+interface DiskUsagePaneProps {
+  /** Whether the tab is showing. App keeps the pane mounted after its first visit so a scan and
+   *  its open folders survive tab switches. */
+  active: boolean;
+  mountPoints: string[];
+  scrollbarWidth: number;
+}
 
-export default function DiskUsagePane({ stats }: { stats: SystemStats | null }) {
-  const [target, setTarget] = useState(cache.target);
-  const [scan, setScan] = useState<DiskScan | null>(cache.scan);
-  const [scanning, setScanning] = useState(cache.running);
+function DiskUsagePane({ active, mountPoints, scrollbarWidth }: DiskUsagePaneProps) {
+  const [target, setTarget] = useState("");
+  const [scan, setScan] = useState<DiskScan | null>(null);
+  const [scanning, setScanning] = useState(false);
   const [progress, setProgress] = useState(0);
   const [error, setError] = useState<string | null>(null);
-  const [expanded, setExpanded] = useState<Record<string, boolean>>(cache.expanded);
+  const [expanded, setExpanded] = useState<Record<string, boolean>>({});
   const [selected, setSelected] = useState<string | null>(null);
   const [selectedExt, setSelectedExt] = useState<string | null>(null);
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number; key: string } | null>(null);
-  const [scrollbarWidth, setScrollbarWidth] = useState(0);
   const rowRefs = useRef(new Map<string, HTMLDivElement>());
+  // The most recently started scan: results of any older one are ignored.
+  const latestScan = useRef<Promise<DiskScan> | null>(null);
 
-  const locations = useMemo(() => {
-    const mounts = [...new Set((stats?.disks ?? []).map((d) => d.mount_point))].sort();
-    return [{ label: "Home folder", path: "" }, ...mounts.map((m) => ({ label: m, path: m }))];
-  }, [stats]);
-
-  useEffect(() => {
-    const outer = document.createElement("div");
-    outer.style.cssText = "visibility:hidden;overflow:scroll;position:absolute;top:-9999px;width:100px;height:100px;";
-    const inner = document.createElement("div");
-    outer.appendChild(inner);
-    document.body.appendChild(outer);
-    setScrollbarWidth(outer.offsetWidth - inner.offsetWidth);
-    document.body.removeChild(outer);
-  }, []);
+  const locations = useMemo(
+    () => [{ label: "Home folder", path: "" }, ...mountPoints.map((m) => ({ label: m, path: m }))],
+    [mountPoints]
+  );
+  const isCustomTarget = !locations.some((l) => l.path === target);
 
   useEffect(() => {
-    if (!scanning) return;
+    if (!scanning || !active) return;
     const interval = setInterval(async () => {
       setProgress(isTauri() ? await invoke<number>("disk_scan_progress") : mockDiskScanProgress());
     }, 250);
     return () => clearInterval(interval);
-  }, [scanning]);
+  }, [scanning, active]);
 
   useEffect(() => {
     if (!contextMenu) return;
@@ -369,47 +359,32 @@ export default function DiskUsagePane({ stats }: { stats: SystemStats | null }) 
     return () => window.removeEventListener("click", close);
   }, [contextMenu]);
 
-  function startScan(path: string) {
-    cache.target = path;
-    cache.latest = isTauri()
+  async function startScan(path: string) {
+    const pending = isTauri()
       ? invoke<DiskScan>("scan_disk", { path: path || null })
       : mockDiskScan(path || null);
-    cache.running = true;
-    return showScan(cache.latest);
-  }
-
-  async function showScan(pending: Promise<DiskScan>) {
+    latestScan.current = pending;
     setScanning(true);
     setProgress(0);
     setError(null);
     try {
       const result = await pending;
-      if (cache.latest !== pending) return; // a newer scan replaced this one
-      cache.scan = result;
-      cache.expanded = { [result.root.name]: true };
+      if (latestScan.current !== pending) return;
       setScan(result);
-      setExpanded(cache.expanded);
+      setExpanded({ [result.root.name]: true });
       setSelected(null);
       setSelectedExt(null);
     } catch (e) {
-      if (cache.latest === pending) setError(String(e));
+      if (latestScan.current === pending) setError(String(e));
     } finally {
-      if (cache.latest === pending) {
-        cache.running = false;
-        setScanning(false);
-      }
+      if (latestScan.current === pending) setScanning(false);
     }
   }
 
-  // The first time the tab opens, scan the home folder right away.
+  // The pane mounts the first time the tab opens: scan the home folder right away.
   useEffect(() => {
-    if (cache.running && cache.latest) showScan(cache.latest);
-    else if (!cache.scan) startScan("");
+    startScan("");
   }, []);
-
-  useEffect(() => {
-    cache.expanded = expanded;
-  }, [expanded]);
 
   async function stopScan() {
     if (isTauri()) await invoke("cancel_disk_scan");
@@ -483,7 +458,7 @@ export default function DiskUsagePane({ stats }: { stats: SystemStats | null }) 
           <select
             className="disk-location"
             aria-label="Location"
-            value={locations.some((l) => l.path === target) ? target : "__custom"}
+            value={isCustomTarget ? "__custom" : target}
             onChange={(e) => {
               if (e.currentTarget.value !== "__custom") setTarget(e.currentTarget.value);
             }}
@@ -494,7 +469,7 @@ export default function DiskUsagePane({ stats }: { stats: SystemStats | null }) 
                 {l.label}
               </option>
             ))}
-            {!locations.some((l) => l.path === target) && <option value="__custom">{target}</option>}
+            {isCustomTarget && <option value="__custom">{target}</option>}
           </select>
           <input
             className="disk-path"
@@ -653,7 +628,6 @@ export default function DiskUsagePane({ stats }: { stats: SystemStats | null }) 
 
           <Treemap
             root={scan.root}
-            rootKey={scan.root.name}
             colorFor={colorFor}
             selectedKey={selected}
             selectedExt={selectedExt}
@@ -706,3 +680,5 @@ export default function DiskUsagePane({ stats }: { stats: SystemStats | null }) 
     </>
   );
 }
+
+export default memo(DiskUsagePane);

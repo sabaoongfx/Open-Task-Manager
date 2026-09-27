@@ -1,3 +1,4 @@
+import { extensionOf } from "./format";
 import type { DiskNode, DiskScan, ExtensionStat, ServiceInfo, Snapshot, StartupAppInfo } from "./types";
 
 interface Seed {
@@ -177,11 +178,6 @@ function mockSeries(prefix: string, ext: string, count: number, baseMb: number):
 
 function mockOther(count: number, sizeMb: number): DiskNode {
   return { name: `${count} smaller items`, kind: "other", size: mb(sizeMb), files: count, children: [] };
-}
-
-function extensionOf(name: string): string {
-  const i = name.lastIndexOf(".");
-  return i > 0 && i + 1 < name.length ? name.slice(i + 1).toLowerCase() : "";
 }
 
 let mockScanFiles = 0;

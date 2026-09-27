@@ -138,28 +138,22 @@ pub fn prettify_process_name(raw: &str) -> String {
     raw.to_string()
 }
 
-/// Linux cuts a process's name to 15 bytes ("WebKitWebProces", "open-task-manag"). When a name is
-/// exactly that long, find the full one: the executable's file name, or failing that (other
-/// users' executables can't be read) the first word of the command line, which anyone can read.
-/// Either only counts if it starts with the cut name.
-fn full_process_name(p: &sysinfo::Process) -> String {
-    let name = p.name().to_string_lossy().into_owned();
-    if !cfg!(target_os = "linux") || name.len() != 15 {
-        return name;
-    }
-    let from_exe = p.exe().and_then(|e| e.file_name()).map(|f| f.to_string_lossy().into_owned());
+/// Linux cuts a process's name to 15 bytes ("WebKitWebProces", "open-task-manag"). Finds the full
+/// one: the executable's file name, or failing that (other users' executables can't be read) the
+/// first word of the command line, which anyone can read. Either only counts if it starts with
+/// the cut name. `Monitor` caches the answer per process.
+fn full_process_name(p: &sysinfo::Process, cut: &str) -> String {
+    let from_exe = || p.exe()?.file_name().map(|f| f.to_string_lossy().into_owned());
     let from_cmdline = || {
         let raw = std::fs::read(format!("/proc/{}/cmdline", p.pid())).ok()?;
-        let arg0 = raw.split(|&b| b == 0).next()?;
-        let arg0 = String::from_utf8_lossy(arg0);
+        let arg0 = String::from_utf8_lossy(raw.split(|&b| b == 0).next()?).into_owned();
         Some(arg0.rsplit('/').next()?.to_string())
     };
-    [from_exe, from_cmdline()]
-        .into_iter()
-        .flatten()
-        .map(|full| full.trim_end_matches(" (deleted)").to_string())
-        .find(|full| full.starts_with(&name))
-        .unwrap_or(name)
+    let matches = |full: String| {
+        let full = full.trim_end_matches(" (deleted)").to_string();
+        full.starts_with(cut).then_some(full)
+    };
+    from_exe().and_then(matches).or_else(|| from_cmdline().and_then(matches)).unwrap_or_else(|| cut.to_string())
 }
 
 fn disk_kind_name(kind: DiskKind) -> String {
@@ -183,6 +177,9 @@ pub struct Monitor {
     /// When the account list was last re-read; accounts rarely change, so not every snapshot.
     users_refreshed: Instant,
     app_cpu_seconds: HashMap<String, f64>,
+    /// Full names of processes whose name Linux cut to 15 bytes, keyed by (pid, start time) so a
+    /// reused pid never inherits another process's name.
+    full_names: HashMap<(u32, u64), String>,
 }
 
 /// How often `snapshot()` re-reads the list of user accounts.
@@ -205,6 +202,7 @@ impl Monitor {
             last_refresh: Instant::now(),
             users_refreshed: Instant::now(),
             app_cpu_seconds: HashMap::new(),
+            full_names: HashMap::new(),
         }
     }
 
@@ -218,6 +216,7 @@ impl Monitor {
             last_refresh,
             users_refreshed,
             app_cpu_seconds,
+            full_names,
         } = self;
 
         let now = Instant::now();
@@ -252,9 +251,19 @@ impl Monitor {
                     .user_id()
                     .and_then(|uid| users.get_user_by_id(uid))
                     .map(|u| u.name().to_string());
+                let pid = p.pid().as_u32();
+                let raw = p.name().to_string_lossy();
+                let name = if cfg!(target_os = "linux") && raw.len() == 15 {
+                    let full = full_names.entry((pid, p.start_time())).or_insert_with(|| full_process_name(p, &raw));
+                    prettify_process_name(full)
+                } else {
+                    prettify_process_name(&raw)
+                };
+                // App history adds up CPU time, so it uses the per-core figure as is.
+                *app_cpu_seconds.entry(name.clone()).or_insert(0.0) += p.cpu_usage() as f64 / 100.0 * elapsed;
                 ProcessInfo {
-                    pid: p.pid().as_u32(),
-                    name: prettify_process_name(&full_process_name(p)),
+                    pid,
+                    name,
                     cpu_usage: p.cpu_usage() / cores,
                     memory: p.memory(),
                     disk_bytes_per_sec: rate,
@@ -264,10 +273,7 @@ impl Monitor {
             })
             .collect();
 
-        for p in &processes {
-            *app_cpu_seconds.entry(p.name.clone()).or_insert(0.0) +=
-                (p.cpu_usage as f64 * cores as f64 / 100.0) * elapsed;
-        }
+        full_names.retain(|&(pid, _), _| sys.process(Pid::from_u32(pid)).is_some());
         let mut app_history: Vec<AppHistoryEntry> = app_cpu_seconds
             .iter()
             .map(|(name, &cpu_seconds)| AppHistoryEntry {
@@ -443,8 +449,8 @@ pub fn get_startup_apps() -> Vec<StartupAppInfo> {
     let mut entries: HashMap<String, (String, String, bool)> = HashMap::new();
 
     let mut dirs = vec![std::path::PathBuf::from("/etc/xdg/autostart")];
-    if let Some(home) = std::env::var_os("HOME") {
-        dirs.push(std::path::PathBuf::from(home).join(".config/autostart"));
+    if let Some(home) = home_dir() {
+        dirs.push(home.join(".config/autostart"));
     }
 
     for dir in dirs {

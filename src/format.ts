@@ -35,3 +35,10 @@ export function formatUptime(totalSeconds: number): string {
 export function formatGB(bytes: number): string {
   return `${(bytes / 1024 / 1024 / 1024).toFixed(1)} GB`;
 }
+
+/** Lowercase extension without the dot, or "" if none (dotfiles like ".bashrc" have none).
+ *  Same rule as `extension_of` in core/src/disk_usage.rs. */
+export function extensionOf(name: string): string {
+  const i = name.lastIndexOf(".");
+  return i > 0 && i + 1 < name.length ? name.slice(i + 1).toLowerCase() : "";
+}

@@ -7,7 +7,8 @@ const rawIcons = import.meta.glob("./assets/brand-icons/*.svg", {
 interface BrandIcon {
   slug: string;
   path: string;
-  hex: string;
+  /** SVG fill: the brand color, or the text color for near-black brands (see isNearBlack). */
+  fill: string;
 }
 
 function parsePath(svg: string): string {
@@ -137,10 +138,19 @@ const HEX_BY_SLUG: Record<string, string> = {
   zulip: "6492FE",
 };
 
+// Near-black brand colors (GNOME Terminal, Rust, Steam, ...) vanish on the dark theme; those
+// follow the text color instead.
+function isNearBlack(hex: string): boolean {
+  const n = parseInt(hex, 16);
+  const [r, g, b] = [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b < 60;
+}
+
 const ICONS: Record<string, BrandIcon> = {};
 for (const [filePath, svg] of Object.entries(rawIcons)) {
   const slug = filePath.split("/").pop()!.replace(".svg", "");
-  ICONS[slug] = { slug, path: parsePath(svg), hex: HEX_BY_SLUG[slug] ?? "888888" };
+  const hex = HEX_BY_SLUG[slug] ?? "888888";
+  ICONS[slug] = { slug, path: parsePath(svg), fill: isNearBlack(hex) ? "currentColor" : `#${hex}` };
 }
 
 interface Rule {
@@ -197,9 +207,9 @@ const RULES: Rule[] = [
   { tokens: ["caddy"], slug: "caddy" },
   { tokens: ["cinnamon"], slug: "cinnamon" },
   { tokens: ["clion"], slug: "clion" },
-  { tokens: ["containerd", "containerd shim"], slug: "containerd" },
+  { tokens: ["containerd"], slug: "containerd" },
   { tokens: ["deno"], slug: "deno" },
-  { tokens: ["element desktop", "element"], slug: "element" },
+  { tokens: ["element"], slug: "element" },
   { tokens: ["ffmpeg", "ffprobe"], slug: "ffmpeg" },
   { tokens: ["fish"], slug: "fishshell" },
   { tokens: ["flatpak"], slug: "flatpak" },
@@ -209,7 +219,7 @@ const RULES: Rule[] = [
   { tokens: ["emacs"], slug: "gnuemacs" },
   { tokens: ["godot"], slug: "godotengine" },
   { tokens: ["goland"], slug: "goland" },
-  { tokens: ["grafana", "grafana server"], slug: "grafana" },
+  { tokens: ["grafana"], slug: "grafana" },
   { tokens: ["hx", "helix"], slug: "helix" },
   { tokens: ["hyprland"], slug: "hyprland" },
   { tokens: ["i3", "i3bar"], slug: "i3" },
@@ -239,16 +249,16 @@ const RULES: Rule[] = [
   { tokens: ["openvpn"], slug: "openvpn" },
   { tokens: ["owncloud"], slug: "owncloud" },
   { tokens: ["perl"], slug: "perl" },
-  { tokens: ["php", "php fpm"], slug: "php" },
-  { tokens: ["plex", "plex media server"], slug: "plex" },
+  { tokens: ["php"], slug: "php" },
+  { tokens: ["plex"], slug: "plex" },
   { tokens: ["podman", "conmon"], slug: "podman" },
   { tokens: ["postgres", "postmaster", "postgresql"], slug: "postgresql" },
   { tokens: ["prometheus"], slug: "prometheus" },
   { tokens: ["qemu"], slug: "qemu" },
-  { tokens: ["redis server", "redis"], slug: "redis" },
+  { tokens: ["redis"], slug: "redis" },
   { tokens: ["rider"], slug: "rider" },
   { tokens: ["ruby"], slug: "ruby" },
-  { tokens: ["seaf daemon", "seafile"], slug: "seafile" },
+  { tokens: ["seafile", "seaf daemon"], slug: "seafile" },
   { tokens: ["snapd"], slug: "snapcraft" },
   { tokens: ["sourcetree"], slug: "sourcetree" },
   { tokens: ["sway", "swaybar"], slug: "sway" },
@@ -258,23 +268,22 @@ const RULES: Rule[] = [
   { tokens: ["todoist"], slug: "todoist" },
   { tokens: ["tor browser", "torbrowser"], slug: "torbrowser" },
   { tokens: ["vault"], slug: "vault" },
-  { tokens: ["vivaldi", "vivaldi bin"], slug: "vivaldi" },
-  { tokens: ["vmware", "vmware vmx"], slug: "vmware" },
+  { tokens: ["vivaldi"], slug: "vivaldi" },
+  { tokens: ["vmware"], slug: "vmware" },
   { tokens: ["webstorm"], slug: "webstorm" },
-  { tokens: ["wezterm", "wezterm gui"], slug: "wezterm" },
-  { tokens: ["xfce4 panel", "xfce4 session", "xfwm4", "xfdesktop", "xfce4"], slug: "xfce" },
+  { tokens: ["wezterm"], slug: "wezterm" },
+  { tokens: ["xfce4", "xfwm4", "xfdesktop"], slug: "xfce" },
   { tokens: ["zotero"], slug: "zotero" },
   { tokens: ["zsh"], slug: "zsh" },
   { tokens: ["zulip"], slug: "zulip" },
-  { tokens: ["gnome terminal server", "gnome terminal"], slug: "gnometerminal" },
-  { tokens: ["gnome-shell", "gnome"], slug: "gnome" },
+  { tokens: ["gnome terminal"], slug: "gnometerminal" },
+  { tokens: ["gnome"], slug: "gnome" },
   {
     tokens: [
-      "plasmashell", "kwin_x11", "kwin_wayland", "kwin", "kde", "konsole", "kioworker", "kiod6",
+      "plasmashell", "kwin", "kde", "konsole", "kioworker", "kiod6",
       "kded5", "kded6", "kaccess", "ksecretd", "kwalletd5", "kwalletd6", "kactivitymanagerd",
       "ksmserver", "krunner", "kscreen", "ksystemstats", "kglobalacceld", "kdeconnectd", "dolphin",
-      "kate", "okular", "spectacle", "gwenview", "ark", "systemsettings", "powerdevil",
-      "org_kde_powerdevil", "baloo_file", "polkit-kde-authentication-agent-1", "xdg-desktop-portal-kde",
+      "kate", "okular", "spectacle", "gwenview", "ark", "systemsettings", "powerdevil", "baloo_file",
     ],
     slug: "kde",
   },
@@ -298,34 +307,28 @@ const COMPILED = RULES.map((rule) => ({
 // ~120 patterns for hundreds of rows every 1.5 seconds.
 const lookupCache = new Map<string, BrandIcon | null>();
 
+// This app itself (the GUI's process and otm) shows its own logo, not a brand icon.
+const OWN_NAMES = new Set(["open task manager", "otm"]);
+const OWN_ICON: BrandIcon = { slug: "open-task-manager", path: "", fill: "" };
+
 export function findBrandIcon(name: string): BrandIcon | null {
   const cached = lookupCache.get(name);
   if (cached !== undefined) return cached;
   const text = normalize(name);
-  const rule = COMPILED.find((r) => r.patterns.some((p) => p.test(text)));
-  const icon = rule ? ICONS[rule.slug] ?? null : null;
+  const icon = OWN_NAMES.has(text)
+    ? OWN_ICON
+    : ICONS[COMPILED.find((r) => r.patterns.some((p) => p.test(text)))?.slug ?? ""] ?? null;
   lookupCache.set(name, icon);
   return icon;
 }
 
-// Near-black brand colors (GNOME Terminal, Rust, Steam, ...) vanish on the dark theme; those
-// follow the text color instead.
-function isNearBlack(hex: string): boolean {
-  const n = parseInt(hex, 16);
-  const [r, g, b] = [(n >> 16) & 255, (n >> 8) & 255, n & 255];
-  return 0.2126 * r + 0.7152 * g + 0.0722 * b < 60;
-}
-
-// This app itself (the GUI's process and otm) shows its own logo.
-const OWN_NAMES = new Set(["open task manager", "otm"]);
-
 export function ProcIcon({ name, size = 20 }: { name: string; size?: number }) {
-  if (OWN_NAMES.has(normalize(name))) {
+  const brand = findBrandIcon(name);
+  if (brand === OWN_ICON) {
     // Relative, not "/...": the website embeds this build under a subfolder (see CLAUDE.md).
     return <img src="open%20task%20manager.svg" width={size} height={size} className="proc-icon-svg" alt="" />;
   }
-  const brand = findBrandIcon(name);
-  if (brand && brand.path) {
+  if (brand) {
     return (
       <svg
         width={size}
@@ -334,7 +337,7 @@ export function ProcIcon({ name, size = 20 }: { name: string; size?: number }) {
         className="proc-icon-svg"
         aria-hidden="true"
       >
-        <path d={brand.path} fill={isNearBlack(brand.hex) ? "currentColor" : `#${brand.hex}`} />
+        <path d={brand.path} fill={brand.fill} />
       </svg>
     );
   }

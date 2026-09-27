@@ -209,7 +209,7 @@ mod tests {
 
         let wait = |app: &mut App| {
             let start = Instant::now();
-            while app.busy() {
+            while app.scanning() {
                 assert!(start.elapsed() < Duration::from_secs(10), "scan never finished");
                 std::thread::sleep(Duration::from_millis(10));
                 app.poll_disk_scan();
@@ -217,7 +217,7 @@ mod tests {
         };
 
         let mut app = App::new(Duration::from_millis(1500), dir.clone());
-        assert!(!app.busy(), "scan must not start before the tab is opened");
+        assert!(!app.scanning(), "scan must not start before the tab is opened");
         press(&mut app, KeyCode::Char('8'));
         assert_eq!(app.tab, Tab::DiskUsage);
         wait(&mut app);

@@ -65,7 +65,11 @@ Processes/Performance/App history data flows through one poll loop in `App.tsx` 
 `get_snapshot` invoke every 1.5s, feeding `processes`/`stats`/`appHistory` state that's passed
 down as props). Startup apps and Services instead self-fetch once on mount via their own
 one-shot commands (`get_startup_apps`, `get_services`) since that data doesn't need 1.5s polling.
-Disk usage (`DiskUsage.tsx`) fetches only when the user presses Scan: `scan_disk` is an async
+Disk usage (`DiskUsage.tsx`) scans the home folder the first time its tab opens, then only when
+the user presses Scan. `App.tsx` keeps that pane mounted (hidden) after its first visit instead
+of unmounting it like the other tabs, so a running scan and its open folders survive tab
+switches; it gets a memoized mount-point list, not `stats`, so the 1.5s poll doesn't re-render
+it. `scan_disk` is an async
 command (the walk runs in `spawn_blocking`), polled for progress via `disk_scan_progress`
 and stoppable with `cancel_disk_scan`. `otm-core` folds items under 1/10,000 of the total into
 one `Other` ("N smaller items") node per folder so the whole tree fits in one JSON message;

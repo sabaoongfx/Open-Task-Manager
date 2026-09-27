@@ -199,10 +199,15 @@ impl App {
         self.record_history();
     }
 
-    /// Whether the screen needs redrawing more often than the refresh interval (a disk scan
-    /// is showing live progress).
-    pub fn busy(&self) -> bool {
+    /// Whether a disk scan is running (its result is picked up by `poll_disk_scan`).
+    pub fn scanning(&self) -> bool {
         self.disk.running.is_some()
+    }
+
+    /// Whether the screen needs redrawing more often than the refresh interval: the Disk usage
+    /// tab is showing a scan's live file count.
+    pub fn busy(&self) -> bool {
+        self.scanning() && self.tab == Tab::DiskUsage
     }
 
     pub fn start_disk_scan(&mut self, root: PathBuf) {
@@ -254,25 +259,19 @@ impl App {
         }
     }
 
-    /// Rescans the selected folder (`Some`) or the current root's parent (`None`).
-    fn rescan_at(&mut self, selected: bool) {
-        let target = if selected {
-            let view = self.synced_view();
-            let Some(row) = self.selected_index().map(|idx| &view.rows[idx]) else { return };
-            match (row.toggle, views::disk_path(&row.key)) {
-                (Toggle::Leaf, _) | (_, None) => {
-                    self.set_status("Select a folder to scan it");
-                    return;
-                }
-                (_, Some(path)) => PathBuf::from(path),
-            }
-        } else {
-            match self.disk.root.parent() {
-                Some(parent) => parent.to_path_buf(),
-                None => return,
-            }
-        };
-        self.start_disk_scan(target);
+    fn scan_selected_folder(&mut self) {
+        let view = self.synced_view();
+        let Some(row) = self.selected_index().map(|idx| &view.rows[idx]) else { return };
+        match (row.toggle, views::disk_path(&row.key)) {
+            (Toggle::Section | Toggle::Expand, Some(path)) => self.start_disk_scan(PathBuf::from(path)),
+            _ => self.set_status("Select a folder to scan it"),
+        }
+    }
+
+    fn scan_parent_folder(&mut self) {
+        if let Some(parent) = self.disk.root.parent() {
+            self.start_disk_scan(parent.to_path_buf());
+        }
     }
 
     fn record_history(&mut self) {
@@ -543,8 +542,8 @@ impl App {
             KeyCode::Char('r') if self.tab == Tab::AppHistory => self.reset_app_history(),
             KeyCode::Char('r') if matches!(self.tab, Tab::Services | Tab::Startup) => self.reload_lists(),
             KeyCode::Char('r') if self.tab == Tab::DiskUsage => self.start_disk_scan(self.disk.root.clone()),
-            KeyCode::Char('o') if self.tab == Tab::DiskUsage => self.rescan_at(true),
-            KeyCode::Backspace if self.tab == Tab::DiskUsage => self.rescan_at(false),
+            KeyCode::Char('o') if self.tab == Tab::DiskUsage => self.scan_selected_folder(),
+            KeyCode::Backspace if self.tab == Tab::DiskUsage => self.scan_parent_folder(),
             _ => {}
         }
     }

@@ -51,7 +51,7 @@ export default function ServicesPane() {
         <div className="spacer" />
         <div className="toolbar">
           <button className="toolbar-btn" disabled>
-            <IconRunNewTask size={16} />
+            <IconRunNewTask size={20} />
             Run new task
           </button>
           <button className="icon-btn" onClick={() => setShowSearch(!showSearch)} aria-label="Search">

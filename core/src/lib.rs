@@ -136,6 +136,30 @@ pub fn prettify_process_name(raw: &str) -> String {
     raw.to_string()
 }
 
+/// Linux cuts a process's name to 15 bytes ("WebKitWebProces", "open-task-manag"). When a name is
+/// exactly that long, find the full one: the executable's file name, or failing that (other
+/// users' executables can't be read) the first word of the command line, which anyone can read.
+/// Either only counts if it starts with the cut name.
+fn full_process_name(p: &sysinfo::Process) -> String {
+    let name = p.name().to_string_lossy().into_owned();
+    if !cfg!(target_os = "linux") || name.len() != 15 {
+        return name;
+    }
+    let from_exe = p.exe().and_then(|e| e.file_name()).map(|f| f.to_string_lossy().into_owned());
+    let from_cmdline = || {
+        let raw = std::fs::read(format!("/proc/{}/cmdline", p.pid())).ok()?;
+        let arg0 = raw.split(|&b| b == 0).next()?;
+        let arg0 = String::from_utf8_lossy(arg0);
+        Some(arg0.rsplit('/').next()?.to_string())
+    };
+    [from_exe, from_cmdline()]
+        .into_iter()
+        .flatten()
+        .map(|full| full.trim_end_matches(" (deleted)").to_string())
+        .find(|full| full.starts_with(&name))
+        .unwrap_or(name)
+}
+
 fn disk_kind_name(kind: DiskKind) -> String {
     match kind {
         DiskKind::HDD => "HDD".to_string(),
@@ -226,7 +250,7 @@ impl Monitor {
                     .map(|u| u.name().to_string());
                 ProcessInfo {
                     pid: p.pid().as_u32(),
-                    name: prettify_process_name(&p.name().to_string_lossy()),
+                    name: prettify_process_name(&full_process_name(p)),
                     cpu_usage: p.cpu_usage(),
                     memory: p.memory(),
                     disk_bytes_per_sec: rate,
@@ -495,6 +519,25 @@ mod tests {
             assert!(snapshot.processes.iter().all(|p| p.pid != tid), "thread {tid} listed as a process");
         }
         assert_eq!(snapshot.stats.process_count, snapshot.processes.len());
+    }
+
+    #[test]
+    fn shows_full_names_longer_than_15_characters() {
+        let dir = std::env::temp_dir().join(format!("otm-name-test-{}", std::process::id()));
+        std::fs::create_dir_all(&dir).unwrap();
+        // A copy, not a symlink: the name has to come from the executable's own file name.
+        let exe = dir.join("otm-long-name-test-sleeper");
+        std::fs::copy("/bin/sleep", &exe).unwrap();
+        let mut child = std::process::Command::new(&exe).arg("5").spawn().unwrap();
+
+        let mut monitor = super::Monitor::new();
+        let snapshot = monitor.snapshot();
+        let _ = child.kill();
+        let _ = child.wait();
+        let _ = std::fs::remove_dir_all(&dir);
+
+        let listed = snapshot.processes.iter().find(|p| p.pid == child.id()).expect("child listed");
+        assert_eq!(listed.name, "Otm Long Name Test Sleeper");
     }
 
     #[test]

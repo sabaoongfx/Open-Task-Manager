@@ -22,7 +22,7 @@ let seedState: Seed[] = [
   { pid: 1007, name: "Microsoft Edge", baseCpu: 3, baseMem: mb(300), baseDisk: mb(0.05), user: "sabaoongfx" },
   { pid: 1008, name: "Microsoft Edge", baseCpu: 0.9, baseMem: mb(140), baseDisk: 0, user: "sabaoongfx" },
   { pid: 1014, name: "Notepad", baseCpu: 0, baseMem: mb(17), baseDisk: 0, user: "sabaoongfx" },
-  { pid: 1021, name: "Task Manager", baseCpu: 1.3, baseMem: mb(57), baseDisk: 0, user: "sabaoongfx" },
+  { pid: 1021, name: "Open Task Manager", baseCpu: 1.3, baseMem: mb(57), baseDisk: 0, user: "sabaoongfx" },
   { pid: 1028, name: "Visual Studio Code", baseCpu: 0.1, baseMem: mb(219), baseDisk: mb(0.02), user: "sabaoongfx" },
   { pid: 1035, name: "Spotify", baseCpu: 0.1, baseMem: mb(786), baseDisk: mb(0.15), user: "sabaoongfx" },
   { pid: 1042, name: "Antimalware Service Executable", baseCpu: 0.1, baseMem: mb(12), baseDisk: mb(0.3), user: "SYSTEM" },

@@ -88,7 +88,15 @@ run as the real Tauri app (mock data still works everywhere since it doesn't hit
 
 On Linux, `sysinfo` lists every **thread** as its own process, each reporting its whole
 process's memory. `Monitor::snapshot()` drops entries whose `thread_kind()` is set; without that
-filter the list was ~3x longer (840 entries for 301 processes) and memory totals were inflated.
+filter the list was ~3x longer (840 entries for 301 processes) and memory totals were inflated. The
+filter also hides kernel threads (`kworker`, ...), as `htop` does by default. Linux also cuts
+process names to 15 bytes; `full_process_name()` restores them from the executable or, for other
+users' processes, `/proc/<pid>/cmdline`, only for names exactly that long.
+
+Process icons (`src/appIcons.tsx`) are Simple Icons SVGs (CC0) in `src/assets/brand-icons/`,
+matched to process names by `RULES`, with brand colors in `HEX_BY_SLUG` (from Simple Icons'
+`data/simple-icons.json`). Matching treats `-`/`_` as spaces so raw and prettified names both
+match, and results are cached per name because every row asks on every refresh.
 
 ### Keep it light
 

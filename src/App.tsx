@@ -378,7 +378,7 @@ function App() {
               <div className="spacer" />
               <div className="toolbar">
                 <button className="toolbar-btn" disabled>
-                  <IconRunNewTask size={14} />
+                  <IconRunNewTask size={16} />
                   Run new task
                 </button>
                 <button
@@ -386,14 +386,14 @@ function App() {
                   disabled={selection == null}
                   onClick={endTask}
                 >
-                  <IconProhibit size={14} />
+                  <IconProhibit size={16} />
                   End task
                 </button>
                 <button
                   className={`toolbar-btn ${compact ? "active" : ""}`}
                   onClick={() => setCompact(!compact)}
                 >
-                  <IconLeafPair size={14} />
+                  <IconLeafPair size={16} />
                   Efficiency mode
                 </button>
                 <button

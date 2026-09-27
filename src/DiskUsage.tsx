@@ -509,12 +509,12 @@ export default function DiskUsagePane({ stats }: { stats: SystemStats | null }) 
           />
           {scanning ? (
             <button className="toolbar-btn danger" onClick={stopScan} disabled={!isTauri()}>
-              <IconProhibit size={14} />
+              <IconProhibit size={16} />
               Stop
             </button>
           ) : (
             <button className="toolbar-btn" onClick={() => startScan(target.trim())}>
-              <IconSearch size={14} />
+              <IconSearch size={16} />
               Scan
             </button>
           )}

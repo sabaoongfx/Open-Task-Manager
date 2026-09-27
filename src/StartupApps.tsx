@@ -61,7 +61,7 @@ export default function StartupAppsPane({ processes }: { processes: ProcessInfo[
         <div className="spacer" />
         <div className="toolbar">
           <button className="toolbar-btn" disabled>
-            <IconRunNewTask size={14} />
+            <IconRunNewTask size={16} />
             Run new task
           </button>
           <button
@@ -69,7 +69,7 @@ export default function StartupAppsPane({ processes }: { processes: ProcessInfo[
             disabled={!selectedApp || selectedApp.enabled}
             onClick={() => setEnabled(true)}
           >
-            <IconPlay size={14} />
+            <IconPlay size={16} />
             Enable
           </button>
           <button
@@ -77,7 +77,7 @@ export default function StartupAppsPane({ processes }: { processes: ProcessInfo[
             disabled={!selectedApp || !selectedApp.enabled}
             onClick={() => setEnabled(false)}
           >
-            <IconProhibit size={14} />
+            <IconProhibit size={16} />
             Disable
           </button>
         </div>

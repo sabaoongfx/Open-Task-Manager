@@ -69,7 +69,7 @@ export default function DetailsPane({
         <div className="spacer" />
         <div className="toolbar">
           <button className="toolbar-btn" disabled>
-            <IconRunNewTask size={14} />
+            <IconRunNewTask size={16} />
             Run new task
           </button>
           <button
@@ -77,7 +77,7 @@ export default function DetailsPane({
             disabled={!selectedProcess}
             onClick={() => selectedProcess && endTask(selectedProcess.pid)}
           >
-            <IconProhibit size={14} />
+            <IconProhibit size={16} />
             End task
           </button>
           <button className="icon-btn" onClick={() => setShowSearch(!showSearch)} aria-label="Search">

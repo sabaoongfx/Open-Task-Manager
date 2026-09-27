@@ -59,7 +59,7 @@ export default function UsersPane({
         <div className="spacer" />
         <div className="toolbar">
           <button className="toolbar-btn" disabled>
-            <IconRunNewTask size={14} />
+            <IconRunNewTask size={16} />
             Run new task
           </button>
           <button className="toolbar-btn danger" disabled={!selectedGroup} onClick={disconnect}>

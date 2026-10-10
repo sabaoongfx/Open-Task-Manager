@@ -8,92 +8,134 @@
   </url>
   <url>
     <loc>https://opentaskmanager.vercel.app/blog/rust-is-permanent-in-the-linux-kernel/</loc>
+    <lastmod>2026-10-11</lastmod>
   </url>
   <url>
     <loc>https://opentaskmanager.vercel.app/blog/rust-most-admired-language-and-desktop-tools/</loc>
+    <lastmod>2026-10-11</lastmod>
   </url>
   <url>
     <loc>https://opentaskmanager.vercel.app/blog/tauri-vs-electron-what-the-numbers-say/</loc>
+    <lastmod>2026-10-11</lastmod>
   </url>
   <url>
     <loc>https://opentaskmanager.vercel.app/blog/windows-10-ended-what-linux-newcomers-should-know/</loc>
+    <lastmod>2026-10-11</lastmod>
   </url>
   <url>
     <loc>https://opentaskmanager.vercel.app/blog/ram-prices-2026-why-your-memory-matters-more/</loc>
+    <lastmod>2026-10-11</lastmod>
   </url>
   <url>
     <loc>https://opentaskmanager.vercel.app/blog/stretch-your-ram-practical-guide/</loc>
+    <lastmod>2026-10-11</lastmod>
   </url>
   <url>
     <loc>https://opentaskmanager.vercel.app/blog/windows-recall-and-the-case-for-local-first-software/</loc>
+    <lastmod>2026-10-11</lastmod>
   </url>
   <url>
     <loc>https://opentaskmanager.vercel.app/blog/reduce-windows-diagnostic-data-settings/</loc>
+    <lastmod>2026-10-11</lastmod>
   </url>
   <url>
     <loc>https://opentaskmanager.vercel.app/blog/why-windows-task-manager-cpu-numbers-changed/</loc>
+    <lastmod>2026-10-11</lastmod>
   </url>
   <url>
     <loc>https://opentaskmanager.vercel.app/blog/supply-chain-attacks-and-small-dependency-trees/</loc>
+    <lastmod>2026-10-11</lastmod>
   </url>
   <url>
     <loc>https://opentaskmanager.vercel.app/blog/what-is-a-process-a-beginners-guide/</loc>
+    <lastmod>2026-10-11</lastmod>
   </url>
   <url>
     <loc>https://opentaskmanager.vercel.app/blog/process-vs-thread-and-why-linux-lists-threads/</loc>
+    <lastmod>2026-10-11</lastmod>
   </url>
   <url>
     <loc>https://opentaskmanager.vercel.app/blog/memory-explained-rss-working-set-and-shared/</loc>
+    <lastmod>2026-10-11</lastmod>
   </url>
   <url>
     <loc>https://opentaskmanager.vercel.app/blog/how-to-find-a-memory-leak-with-a-task-manager/</loc>
+    <lastmod>2026-10-11</lastmod>
   </url>
   <url>
     <loc>https://opentaskmanager.vercel.app/blog/cpu-usage-explained-cores-threads-percent/</loc>
+    <lastmod>2026-10-11</lastmod>
   </url>
   <url>
     <loc>https://opentaskmanager.vercel.app/blog/disk-at-100-percent-how-to-diagnose/</loc>
+    <lastmod>2026-10-11</lastmod>
   </url>
   <url>
     <loc>https://opentaskmanager.vercel.app/blog/reading-the-network-graph-which-app-is-chatty/</loc>
+    <lastmod>2026-10-11</lastmod>
   </url>
   <url>
     <loc>https://opentaskmanager.vercel.app/blog/clean-up-startup-apps-for-faster-boot/</loc>
+    <lastmod>2026-10-11</lastmod>
   </url>
   <url>
     <loc>https://opentaskmanager.vercel.app/blog/services-explained-systemd-and-windows/</loc>
+    <lastmod>2026-10-11</lastmod>
   </url>
   <url>
     <loc>https://opentaskmanager.vercel.app/blog/how-to-end-a-stuck-process-safely/</loc>
+    <lastmod>2026-10-11</lastmod>
   </url>
   <url>
     <loc>https://opentaskmanager.vercel.app/blog/terminal-system-monitors-compared/</loc>
+    <lastmod>2026-10-11</lastmod>
   </url>
   <url>
     <loc>https://opentaskmanager.vercel.app/blog/why-your-browser-uses-so-much-memory/</loc>
+    <lastmod>2026-10-11</lastmod>
   </url>
   <url>
     <loc>https://opentaskmanager.vercel.app/blog/local-llms-and-your-ram-how-to-estimate/</loc>
+    <lastmod>2026-10-11</lastmod>
   </url>
   <url>
     <loc>https://opentaskmanager.vercel.app/blog/ebpf-and-the-future-of-observability-where-desktop-monitors-fit/</loc>
+    <lastmod>2026-10-11</lastmod>
   </url>
   <url>
     <loc>https://opentaskmanager.vercel.app/blog/how-to-check-what-an-app-sends-over-the-network/</loc>
+    <lastmod>2026-10-11</lastmod>
   </url>
   <url>
     <loc>https://opentaskmanager.vercel.app/blog/mit-license-explained-for-users/</loc>
+    <lastmod>2026-10-11</lastmod>
   </url>
   <url>
     <loc>https://opentaskmanager.vercel.app/blog/why-signed-package-repositories-matter/</loc>
+    <lastmod>2026-10-11</lastmod>
   </url>
   <url>
     <loc>https://opentaskmanager.vercel.app/blog/how-we-built-open-task-manager/</loc>
+    <lastmod>2026-10-11</lastmod>
   </url>
   <url>
     <loc>https://opentaskmanager.vercel.app/blog/find-battery-draining-apps-with-a-task-manager/</loc>
+    <lastmod>2026-10-11</lastmod>
   </url>
   <url>
     <loc>https://opentaskmanager.vercel.app/blog/zombie-and-orphan-processes-on-linux/</loc>
+    <lastmod>2026-10-11</lastmod>
+  </url>
+  <url>
+    <loc>https://opentaskmanager.vercel.app/blog/</loc>
+    <lastmod>2026-10-11</lastmod>
+  </url>
+  <url>
+    <loc>https://opentaskmanager.vercel.app/blog/introducing-open-task-manager/</loc>
+    <lastmod>2026-10-11</lastmod>
+  </url>
+  <url>
+    <loc>https://opentaskmanager.vercel.app/blog/open-task-manager-vs-windows-task-manager/</loc>
+    <lastmod>2026-10-11</lastmod>
   </url>
 </urlset>

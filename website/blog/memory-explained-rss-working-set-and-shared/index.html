@@ -1,5 +1,5 @@
 <!doctype html><html lang="en"><head>
-<title>Memory Explained: RSS, Working Set, Shared and Cached &middot; Blog</title>
+<title>Memory Explained: RSS, Working Set, Shared, Cached</title>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#F6F4EF" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#16130F" media="(prefers-color-scheme: dark)">
@@ -7,11 +7,30 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <link rel="stylesheet" href="/blog/blog.css">
 <meta name="description" content="Why the numbers in different monitors never match, why &#x27;free&#x27; memory is not a goal, and how to read a memory column without panicking.">
+<meta name="author" content="sabaoongfx">
+<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">
 <link rel="canonical" href="https://opentaskmanager.vercel.app/blog/memory-explained-rss-working-set-and-shared/">
-<meta property="og:type" content="article"><meta property="og:title" content="Memory Explained: RSS, Working Set, Shared and Cached">
+<link rel="alternate" type="application/rss+xml" title="Open Task Manager blog" href="/blog/rss.xml">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Open Task Manager">
+<meta property="og:locale" content="en_US">
+<meta property="og:title" content="Memory Explained: RSS, Working Set, Shared, Cached">
 <meta property="og:description" content="Why the numbers in different monitors never match, why &#x27;free&#x27; memory is not a goal, and how to read a memory column without panicking.">
-<meta property="og:url" content="https://opentaskmanager.vercel.app/blog/memory-explained-rss-working-set-and-shared/"><meta property="og:image" content="https://opentaskmanager.vercel.app/og.png">
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"Memory Explained: RSS, Working Set, Shared and Cached","description":"Why the numbers in different monitors never match, why 'free' memory is not a goal, and how to read a memory column without panicking.","datePublished":"2026-10-11","author":{"@type":"Person","name":"sabaoongfx","url":"https://sabaoon.dev"},"mainEntityOfPage":"https://opentaskmanager.vercel.app/blog/memory-explained-rss-working-set-and-shared/","image":"https://opentaskmanager.vercel.app/og.png"}</script>
+<meta property="og:url" content="https://opentaskmanager.vercel.app/blog/memory-explained-rss-working-set-and-shared/">
+<meta property="og:image" content="https://opentaskmanager.vercel.app/og.png">
+<meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Open Task Manager&#x27;s Processes view next to the tagline: See what your computer is actually doing.">
+<meta property="article:published_time" content="2026-10-11">
+<meta property="article:modified_time" content="2026-10-11">
+<meta property="article:author" content="https://sabaoon.dev">
+<meta property="article:section" content="Fundamentals">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Memory Explained: RSS, Working Set, Shared, Cached">
+<meta name="twitter:description" content="Why the numbers in different monitors never match, why &#x27;free&#x27; memory is not a goal, and how to read a memory column without panicking.">
+<meta name="twitter:image" content="https://opentaskmanager.vercel.app/og.png">
+<meta name="twitter:image:alt" content="Open Task Manager&#x27;s Processes view next to the tagline: See what your computer is actually doing.">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"Memory Explained: RSS, Working Set, Shared and Cached","description":"Why the numbers in different monitors never match, why 'free' memory is not a goal, and how to read a memory column without panicking.","datePublished":"2026-10-11","dateModified":"2026-10-11","inLanguage":"en","articleSection":"Fundamentals","wordCount":574,"author":{"@type":"Person","name":"sabaoongfx","url":"https://sabaoon.dev"},"publisher":{"@type":"Organization","name":"Open Task Manager","url":"https://opentaskmanager.vercel.app/"},"mainEntityOfPage":{"@type":"WebPage","@id":"https://opentaskmanager.vercel.app/blog/memory-explained-rss-working-set-and-shared/"},"image":"https://opentaskmanager.vercel.app/og.png"}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://opentaskmanager.vercel.app/"},{"@type":"ListItem","position":2,"name":"Blog","item":"https://opentaskmanager.vercel.app/blog/"},{"@type":"ListItem","position":3,"name":"Memory Explained: RSS, Working Set, Shared and Cached","item":"https://opentaskmanager.vercel.app/blog/memory-explained-rss-working-set-and-shared/"}]}</script>
 </head><body>
 <div class="topbar">
   <a class="brand" href="/" aria-label="Open Task Manager home">
@@ -22,7 +41,7 @@
     </svg>
     Open Task Manager
   </a>
-  <nav class="topnav"><a href="/#features">Features</a><a href="/#download">Download</a><a href="/blog/" aria-current="page">Blog</a><a href="https://github.com/sabaoongfx/Open-Task-Manager" target="_blank" rel="noopener">GitHub</a></nav>
+  <nav class="topnav"><a href="/#features">Features</a><a href="/#download">Download</a><a href="/blog/" aria-current="page">Blog</a><a href="/blog/rss.xml">RSS</a><a href="https://github.com/sabaoongfx/Open-Task-Manager" target="_blank" rel="noopener">GitHub</a></nav>
 </div>
 <main>
   <a class="back" href="/blog/">&larr; All posts</a>

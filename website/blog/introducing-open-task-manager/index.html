@@ -1,0 +1,85 @@
+<!doctype html><html lang="en"><head>
+<title>Introducing Open Task Manager &middot; Blog</title>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#F6F4EF" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#16130F" media="(prefers-color-scheme: dark)">
+<link rel="icon" href="/favicon.ico" sizes="any"><link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="/blog/blog.css">
+<meta name="description" content="A free, open-source take on the Windows 11 Task Manager for Linux, Windows and macOS, plus a terminal UI called otm.">
+<link rel="canonical" href="https://opentaskmanager.vercel.app/blog/introducing-open-task-manager/">
+<meta property="og:type" content="article"><meta property="og:title" content="Introducing Open Task Manager">
+<meta property="og:url" content="https://opentaskmanager.vercel.app/blog/introducing-open-task-manager/">
+<meta property="og:image" content="https://opentaskmanager.vercel.app/og.png">
+</head><body>
+<div class="topbar">
+  <a class="brand" href="/" aria-label="Open Task Manager home">
+    <svg viewBox="0 0 513 398" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <rect width="512" height="398" rx="70" fill="#E93233"/>
+      <path d="M492.818 397.869C503.914 397.941 512.948 388.966 512.948 377.87V187.414C512.948 176.368 503.994 167.414 492.948 167.414H454.616C446.258 167.414 438.781 162.216 435.869 154.382L407.167 77.1576C401.073 60.7631 378.355 59.5366 370.532 75.1798L351.027 114.182C344.098 128.036 324.73 129.095 316.333 116.079L314.235 112.827C306.08 100.186 287.412 100.735 280.014 113.835L224.686 211.807C216.254 226.738 194.173 224.83 188.427 208.673L144.755 85.8569C138.495 68.2542 113.662 68.0829 107.161 85.5975L2.38706 367.842C-2.44362 380.855 7.12634 394.711 21.0068 394.802L492.818 397.869Z" fill="#FBA806"/>
+      <path d="M492.948 398C503.994 398 512.948 389.046 512.948 378V244.321C512.948 233.275 503.994 224.321 492.948 224.321H453.201C445.586 224.321 438.632 219.996 435.264 213.166L406.591 155.02C399.769 141.185 380.516 139.954 371.988 152.808L350.108 185.783C342.768 196.847 326.882 197.818 318.249 187.731L312.676 181.221C304.35 171.493 289.154 171.986 281.476 182.234L223.26 259.935C214.222 271.997 195.596 270.107 189.166 256.476L144.021 160.784C136.922 145.738 115.627 145.431 108.098 160.267L2.19154 368.949C-4.56059 382.254 5.10628 398 20.0262 398H492.948Z" fill="#FFDB56"/>
+    </svg>
+    Open Task Manager
+  </a>
+  <nav class="topnav"><a href="/#features">Features</a><a href="/#download">Download</a><a href="/blog/" aria-current="page">Blog</a><a href="https://github.com/sabaoongfx/Open-Task-Manager" target="_blank" rel="noopener">GitHub</a></nav>
+</div>
+<main>
+  <a class="back" href="/blog/">&larr; All posts</a>
+  <article>
+    <p class="eyebrow">announcement</p>
+    <h1>Introducing Open Task Manager</h1>
+    <p class="meta">2026-10-11 &middot; sabaoongfx &middot; 6 min read</p>
+
+    <p>Almost everyone who uses a computer has opened a task manager at some point: the app froze, the fan started screaming, or the battery drained for no obvious reason. The Windows 11 Task Manager is a good answer to those moments. It groups processes by application, shows live graphs, and lets you end a stuck program in two clicks. The trouble is that it only exists on Windows, and you can&rsquo;t read, change or audit it.</p>
+
+    <p>Open Task Manager is our attempt to keep what works about that design and fix those two limits. It is a free, MIT-licensed process and performance monitor for Linux, Windows and macOS, with the layout you already know. This post covers what it is, how it is built, what it can and can&rsquo;t do today, and where it is going.</p>
+
+    <h2>The idea</h2>
+    <p>Linux has plenty of system monitors, and many are excellent, but they each have their own conventions. macOS has Activity Monitor, which looks nothing like either. Anyone who switches between operating systems, or who supports family and coworkers on different ones, ends up re-learning the same tool three times.</p>
+    <p>We wanted a single, familiar layout everywhere: a left-hand tab strip, a Processes list grouped by app, and a Performance page with CPU, memory, disk and network graphs. We also wanted it small, fast to start, and honest about what it does with your data. That last point gets its own post: <a href="/blog/open-task-manager-vs-windows-task-manager/">Open Task Manager vs. the Windows Task Manager</a>.</p>
+
+    <h2>What&rsquo;s in the app</h2>
+    <ul>
+      <li><strong>Processes.</strong> Processes are grouped by application, so a browser with thirty helper processes appears as one expandable row. You can search, sort by any column, and end a task from the right-click menu or the keyboard.</li>
+      <li><strong>Performance.</strong> Live rolling charts for CPU, memory, disk and network, updated every 1.5 seconds from real operating-system counters.</li>
+      <li><strong>App history.</strong> Cumulative CPU time per application since the app was opened.</li>
+      <li><strong>Startup apps.</strong> The programs configured to launch at login.</li>
+      <li><strong>Users.</strong> Resource usage summed per user account, which is especially useful on shared machines and servers.</li>
+      <li><strong>Details.</strong> The flat, per-process table (PID, status, user, CPU, memory) for when you want the raw list instead of the grouped one.</li>
+      <li><strong>Services.</strong> The services configured on the machine.</li>
+      <li><strong>Disk usage.</strong> A WinDirStat-style scan of a folder showing what is using the space as a treemap, a tree, a largest-files list or a breakdown by file type.</li>
+    </ul>
+
+    <h2>How it&rsquo;s built</h2>
+    <p>Open Task Manager is a Cargo workspace with three parts that share one backend.</p>
+    <ul>
+      <li><code>core/</code> (<code>otm-core</code>) holds all data collection. It uses the <a href="https://crates.io/crates/sysinfo" target="_blank" rel="noopener">sysinfo</a> crate to read processes and hardware counters straight from the operating system, and keeps the rate and history state the graphs need.</li>
+      <li><code>src-tauri/</code> is the desktop app. It is a thin layer of <a href="https://tauri.app" target="_blank" rel="noopener">Tauri</a> commands over the core, with a React and TypeScript interface drawn in your system&rsquo;s own webview.</li>
+      <li><code>tui/</code> is <code>otm</code>, the terminal version, built with ratatui. It calls the same core functions directly.</li>
+    </ul>
+    <p>Because the app uses the system webview instead of shipping its own copy of Chromium, installers stay small and memory use stays modest. A tool whose whole job is to show you what is eating your RAM shouldn&rsquo;t be one of the biggest items on the list. Release builds also enable link-time optimization and symbol stripping, which keeps the binary compact.</p>
+
+    <h2>A terminal version: otm</h2>
+    <p>The same eight tabs are available without a desktop at all. <code>otm</code> is a keyboard- and mouse-driven terminal UI meant for SSH sessions, servers, and anyone who lives in a terminal. It reads the same real data through the same backend, and it needs no Node.js and no graphical session:</p>
+    <pre><code>cargo run -p otm</code></pre>
+    <p>On Linux, every package we publish installs both programs: the desktop app in your menu and <code>otm</code> on your path.</p>
+
+    <h2>Installing it</h2>
+    <p>We publish signed <strong>apt</strong> and <strong>pacman</strong> repositories, so on Ubuntu, Debian, Mint, Pop!_OS and Arch the app updates through your normal package manager. There are also <code>.deb</code>, <code>.rpm</code> and AppImage downloads, a Windows installer (<code>.exe</code> and <code>.msi</code>), and macOS disk images for Apple Silicon and Intel. Every direct download is listed in the <a href="/#download">download section</a>, and standalone <code>otm</code> archives are attached to each release.</p>
+
+    <h2>What it can&rsquo;t do yet</h2>
+    <p>We&rsquo;d rather you hear the limits from us than discover them in the app, so here is the honest list.</p>
+    <ul>
+      <li>Ending a task is the only action that changes your system. Start/Stop on services and Enable/Disable on startup apps update the interface but don&rsquo;t touch the real service manager or autostart entries yet.</li>
+      <li>The Services and Startup tabs read real data on Linux only. On Windows and macOS they are currently empty in the installed app.</li>
+      <li>App history resets when you close the app, because nothing is saved to disk.</li>
+      <li>Windows and macOS installers are not code-signed yet, so you may see a warning the first time you open them.</li>
+    </ul>
+    <p>The <a href="/#roadmap">roadmap</a> tracks each of these, and the first two are the next priorities.</p>
+
+    <h2>Get involved</h2>
+    <p>The whole project is on <a href="https://github.com/sabaoongfx/Open-Task-Manager" target="_blank" rel="noopener">GitHub</a>. If you hit a bug, open an issue with your operating system and what you expected to see. If you want to help, the most valuable contributions right now are real service and startup control, testing on Windows and macOS, and the thread-counting fix. Since the code is open, you can also read exactly what the app does before you trust it with your machine.</p>
+</article>
+</main>
+<footer><span>Open Task Manager &middot; open source on <a href="https://github.com/sabaoongfx/Open-Task-Manager" target="_blank" rel="noopener">GitHub</a> &middot; built by <a href="https://sabaoon.dev" target="_blank" rel="noopener">sabaoon.dev</a></span></footer>
+</body></html>

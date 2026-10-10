@@ -1,0 +1,78 @@
+<!doctype html><html lang="en"><head>
+<title>top, htop, btop and otm: Choosing a Terminal System Monitor &middot; Blog</title>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#F6F4EF" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#16130F" media="(prefers-color-scheme: dark)">
+<link rel="icon" href="/favicon.ico" sizes="any"><link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="/blog/blog.css">
+<meta name="description" content="A fair comparison of the terminal monitors people actually use, when each one is the right pick, and where the newcomer falls short.">
+<link rel="canonical" href="https://opentaskmanager.vercel.app/blog/terminal-system-monitors-compared/">
+<meta property="og:type" content="article"><meta property="og:title" content="top, htop, btop and otm: Choosing a Terminal System Monitor">
+<meta property="og:description" content="A fair comparison of the terminal monitors people actually use, when each one is the right pick, and where the newcomer falls short.">
+<meta property="og:url" content="https://opentaskmanager.vercel.app/blog/terminal-system-monitors-compared/"><meta property="og:image" content="https://opentaskmanager.vercel.app/og.png">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"top, htop, btop and otm: Choosing a Terminal System Monitor","description":"A fair comparison of the terminal monitors people actually use, when each one is the right pick, and where the newcomer falls short.","datePublished":"2026-10-11","author":{"@type":"Person","name":"sabaoongfx","url":"https://sabaoon.dev"},"mainEntityOfPage":"https://opentaskmanager.vercel.app/blog/terminal-system-monitors-compared/","image":"https://opentaskmanager.vercel.app/og.png"}</script>
+</head><body>
+<div class="topbar">
+  <a class="brand" href="/" aria-label="Open Task Manager home">
+    <svg viewBox="0 0 513 398" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <rect width="512" height="398" rx="70" fill="#E93233"/>
+      <path d="M492.818 397.869C503.914 397.941 512.948 388.966 512.948 377.87V187.414C512.948 176.368 503.994 167.414 492.948 167.414H454.616C446.258 167.414 438.781 162.216 435.869 154.382L407.167 77.1576C401.073 60.7631 378.355 59.5366 370.532 75.1798L351.027 114.182C344.098 128.036 324.73 129.095 316.333 116.079L314.235 112.827C306.08 100.186 287.412 100.735 280.014 113.835L224.686 211.807C216.254 226.738 194.173 224.83 188.427 208.673L144.755 85.8569C138.495 68.2542 113.662 68.0829 107.161 85.5975L2.38706 367.842C-2.44362 380.855 7.12634 394.711 21.0068 394.802L492.818 397.869Z" fill="#FBA806"/>
+      <path d="M492.948 398C503.994 398 512.948 389.046 512.948 378V244.321C512.948 233.275 503.994 224.321 492.948 224.321H453.201C445.586 224.321 438.632 219.996 435.264 213.166L406.591 155.02C399.769 141.185 380.516 139.954 371.988 152.808L350.108 185.783C342.768 196.847 326.882 197.818 318.249 187.731L312.676 181.221C304.35 171.493 289.154 171.986 281.476 182.234L223.26 259.935C214.222 271.997 195.596 270.107 189.166 256.476L144.021 160.784C136.922 145.738 115.627 145.431 108.098 160.267L2.19154 368.949C-4.56059 382.254 5.10628 398 20.0262 398H492.948Z" fill="#FFDB56"/>
+    </svg>
+    Open Task Manager
+  </a>
+  <nav class="topnav"><a href="/#features">Features</a><a href="/#download">Download</a><a href="/blog/" aria-current="page">Blog</a><a href="https://github.com/sabaoongfx/Open-Task-Manager" target="_blank" rel="noopener">GitHub</a></nav>
+</div>
+<main>
+  <a class="back" href="/blog/">&larr; All posts</a>
+  <article>
+    <p class="eyebrow">Linux</p>
+    <h1>top, htop, btop and otm: Choosing a Terminal System Monitor</h1>
+    <p class="meta">2026-10-11 &middot; sabaoongfx &middot; 3 min read</p>
+
+<p>If you manage a server over SSH, run a machine with no desktop, or just prefer a keyboard, a terminal system monitor is the tool you will reach for most. There are several good ones, and the right choice depends on what you value. Here is how the common options compare, including our own, which is the youngest and should not be assumed to be the best.</p>
+
+<h2>top</h2>
+<p><code>top</code> ships with essentially every Unix-like system. That is its whole advantage: on a minimal server, a rescue shell or an unfamiliar machine, it is already there. It shows processes sorted by CPU, summary lines for load and memory, and a handful of interactive keys. The interface is austere and the learning curve for its commands is steeper than newer tools, but you can count on it.</p>
+
+<h2>htop</h2>
+<p><code>htop</code> is the long-time favourite upgrade. It adds colour, per-core bars, a scrollable process list, a tree view that shows parent and child relationships, mouse support and easy kill and nice commands. It is mature, widely packaged and fast. If you want one tool to learn on Linux, this is the safe pick.</p>
+
+<h2>btop</h2>
+<p><code>btop</code> leans into visuals: graphs for CPU, memory, disk and network on one dashboard, themes, and mouse control. It reads like a small control room. It tends to use more screen space and may need a modern terminal with Unicode support to look right. Its strength is giving a quick overall picture of the machine.</p>
+
+<h2>Glances</h2>
+<p>Glances, written in Python, collects a wide range of metrics and can run in a web or client-server mode, which is handy for watching remote systems. It is broader than a simple process viewer, at the cost of being heavier than the C and C++ tools above.</p>
+
+<h2>otm</h2>
+<p><code>otm</code> is Open Task Manager&rsquo;s terminal UI. Its angle is consistency: it presents the same eight tabs as the desktop app (Processes, Performance, App history, Startup apps, Users, Details, Services and Disk usage), reading from the same Rust data core. It supports keyboard and mouse input and groups processes by application. If you already use the graphical app or the Windows 11 Task Manager, the layout will be familiar. Install it with the desktop app on Linux, or download the standalone archive for your platform from the releases page.</p>
+<p>It is also the least proven. It does not yet have <code>htop</code>&rsquo;s years of polish, plugin-like flexibility or tree-style process view, and it shares the app&rsquo;s known limits: its Services and Startup controls do not yet change the system, and App history resets when it closes. (Older versions also listed Linux threads as separate processes, <a href="/blog/process-vs-thread-and-why-linux-lists-threads/">explained here</a>.)</p>
+
+<h2>Which should you pick?</h2>
+<table>
+  <thead><tr><th>You want</th><th>Try</th></tr></thead>
+  <tbody>
+    <tr><th scope="row">Something that is already installed everywhere</th><td><code>top</code></td></tr>
+    <tr><th scope="row">The best all-round interactive tool</th><td><code>htop</code></td></tr>
+    <tr><th scope="row">A dashboard with graphs</th><td><code>btop</code></td></tr>
+    <tr><th scope="row">Remote or web monitoring, many metrics</th><td>Glances</td></tr>
+    <tr><th scope="row">The same layout as a desktop task manager</th><td><code>otm</code></td></tr>
+  </tbody>
+</table>
+
+<h2>A few habits that apply to all of them</h2>
+<ul>
+  <li>Learn how to sort by memory and by CPU, and how to filter by name.</li>
+  <li>Know the difference between asking a process to quit and killing it (<a href="/blog/how-to-end-a-stuck-process-safely/">here</a>).</li>
+  <li>Read the load and memory summary before blaming one process.</li>
+  <li>Don&rsquo;t run monitors you haven&rsquo;t verified as root on production systems without reading what they do.</li>
+</ul>
+<p>There is no need to pick only one. Many administrators keep <code>top</code> as a fallback, <code>htop</code> as a daily driver and something else for dashboards. Try each for a week and keep the one that stays out of your way.</p>
+
+<h2>Keep reading</h2>
+<ul class="related"><li><a href="/blog/windows-10-ended-what-linux-newcomers-should-know/">Windows 10 Support Ended. A Task-Manager Guide for Linux Newcomers</a></li><li><a href="/blog/zombie-and-orphan-processes-on-linux/">Zombie and Orphan Processes on Linux: What They Are and What to Do</a></li><li><a href="/blog/rust-is-permanent-in-the-linux-kernel/">Rust Is Now a Permanent Part of the Linux Kernel. Here&#x27;s What That Means for System Tools</a></li></ul>
+  </article>
+</main>
+<footer><span>Open Task Manager &middot; open source on <a href="https://github.com/sabaoongfx/Open-Task-Manager" target="_blank" rel="noopener">GitHub</a> &middot; built by <a href="https://sabaoon.dev" target="_blank" rel="noopener">sabaoon.dev</a></span></footer>
+</body></html>

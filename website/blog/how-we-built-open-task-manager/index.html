@@ -1,0 +1,73 @@
+<!doctype html><html lang="en"><head>
+<title>How We Built Open Task Manager: One Rust Core, Two Interfaces &middot; Blog</title>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#F6F4EF" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#16130F" media="(prefers-color-scheme: dark)">
+<link rel="icon" href="/favicon.ico" sizes="any"><link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="/blog/blog.css">
+<meta name="description" content="A behind-the-scenes look at the architecture: a shared data core, a Tauri desktop app, a terminal UI, a mock-data path, and a few deliberate shortcuts.">
+<link rel="canonical" href="https://opentaskmanager.vercel.app/blog/how-we-built-open-task-manager/">
+<meta property="og:type" content="article"><meta property="og:title" content="How We Built Open Task Manager: One Rust Core, Two Interfaces">
+<meta property="og:description" content="A behind-the-scenes look at the architecture: a shared data core, a Tauri desktop app, a terminal UI, a mock-data path, and a few deliberate shortcuts.">
+<meta property="og:url" content="https://opentaskmanager.vercel.app/blog/how-we-built-open-task-manager/"><meta property="og:image" content="https://opentaskmanager.vercel.app/og.png">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"How We Built Open Task Manager: One Rust Core, Two Interfaces","description":"A behind-the-scenes look at the architecture: a shared data core, a Tauri desktop app, a terminal UI, a mock-data path, and a few deliberate shortcuts.","datePublished":"2026-10-11","author":{"@type":"Person","name":"sabaoongfx","url":"https://sabaoon.dev"},"mainEntityOfPage":"https://opentaskmanager.vercel.app/blog/how-we-built-open-task-manager/","image":"https://opentaskmanager.vercel.app/og.png"}</script>
+</head><body>
+<div class="topbar">
+  <a class="brand" href="/" aria-label="Open Task Manager home">
+    <svg viewBox="0 0 513 398" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <rect width="512" height="398" rx="70" fill="#E93233"/>
+      <path d="M492.818 397.869C503.914 397.941 512.948 388.966 512.948 377.87V187.414C512.948 176.368 503.994 167.414 492.948 167.414H454.616C446.258 167.414 438.781 162.216 435.869 154.382L407.167 77.1576C401.073 60.7631 378.355 59.5366 370.532 75.1798L351.027 114.182C344.098 128.036 324.73 129.095 316.333 116.079L314.235 112.827C306.08 100.186 287.412 100.735 280.014 113.835L224.686 211.807C216.254 226.738 194.173 224.83 188.427 208.673L144.755 85.8569C138.495 68.2542 113.662 68.0829 107.161 85.5975L2.38706 367.842C-2.44362 380.855 7.12634 394.711 21.0068 394.802L492.818 397.869Z" fill="#FBA806"/>
+      <path d="M492.948 398C503.994 398 512.948 389.046 512.948 378V244.321C512.948 233.275 503.994 224.321 492.948 224.321H453.201C445.586 224.321 438.632 219.996 435.264 213.166L406.591 155.02C399.769 141.185 380.516 139.954 371.988 152.808L350.108 185.783C342.768 196.847 326.882 197.818 318.249 187.731L312.676 181.221C304.35 171.493 289.154 171.986 281.476 182.234L223.26 259.935C214.222 271.997 195.596 270.107 189.166 256.476L144.021 160.784C136.922 145.738 115.627 145.431 108.098 160.267L2.19154 368.949C-4.56059 382.254 5.10628 398 20.0262 398H492.948Z" fill="#FFDB56"/>
+    </svg>
+    Open Task Manager
+  </a>
+  <nav class="topnav"><a href="/#features">Features</a><a href="/#download">Download</a><a href="/blog/" aria-current="page">Blog</a><a href="https://github.com/sabaoongfx/Open-Task-Manager" target="_blank" rel="noopener">GitHub</a></nav>
+</div>
+<main>
+  <a class="back" href="/blog/">&larr; All posts</a>
+  <article>
+    <p class="eyebrow">Engineering</p>
+    <h1>How We Built Open Task Manager: One Rust Core, Two Interfaces</h1>
+    <p class="meta">2026-10-11 &middot; sabaoongfx &middot; 3 min read</p>
+
+<p>Open Task Manager looks like a single app, but it is really three pieces that share one engine. This post explains how they fit together and why we made the choices we did. Some are standard practice and some are deliberate compromises, and we'll flag which is which.</p>
+
+<h2>A workspace with one core</h2>
+<p>The project is a Cargo workspace with three crates:</p>
+<ul>
+  <li><strong><code>core/</code> (<code>otm-core</code>).</strong> All data collection lives here. A <code>Monitor</code> struct owns the <code>sysinfo</code> handles and the state needed to compute rates, such as disk throughput and the running CPU time per app. Its <code>snapshot()</code> returns everything the interface needs in one go. It also holds the code for the Services and Startup apps tabs, the disk scanner, and the types that are sent to the interface.</li>
+  <li><strong><code>src-tauri/</code>.</strong> The desktop shell. It is mostly thin command wrappers around the core, with the monitor held in shared state behind a lock.</li>
+  <li><strong><code>tui/</code> (<code>otm</code>).</strong> The terminal UI, built with ratatui and crossterm, which calls the same core functions directly.</li>
+</ul>
+<p>The rule we follow is: put new backend logic in the core, then expose it from both front ends. That keeps the desktop and terminal versions from drifting apart, and it makes the Rust code the single place where operating-system data is read.</p>
+
+<h2>One poll loop</h2>
+<p>On the desktop side, a single timer calls <code>get_snapshot</code> every 1.5 seconds. The result feeds the Processes, Performance and App history views as props. Tabs whose data doesn&rsquo;t change quickly, namely Startup apps and Services, fetch once when they open. A single poll keeps the numbers consistent across tabs and means the OS is queried once per tick instead of once per component.</p>
+
+<h2>The mock path</h2>
+<p>Every data call in the interface branches on whether it is running inside Tauri. In a plain browser there is no backend, so the same components read generated data from a mock module instead. This has three payoffs: the frontend runs with <code>npm run dev</code> without a Rust toolchain, the end-to-end tests run against predictable data, and the live demo on our website is the real interface running on sample data rather than a mockup. The cost is discipline: every new backend feature needs a matching mock, or the tab will work in the real app and break in the browser.</p>
+
+<h2>Deliberate duplication</h2>
+<p>You will find the same table styling and right-click-menu code repeated across several tabs. That is intentional. With only a few such tabs, a shared abstraction would be more machinery than it saves, so we kept each small and independent. If the count grows, extracting a component will be the right move.</p>
+
+<h2>Two small CSS lessons</h2>
+<p>Row highlights need to reach the card&rsquo;s true edge even when a scrollbar takes space, so the app measures the real scrollbar width once and feeds it into the layout as a CSS variable. And a table needs <code>overflow-x: hidden</code> set explicitly: leaving it unset lets it quietly compute to <code>auto</code> whenever the vertical overflow is set, which brings back a subtle horizontal scrollbar.</p>
+
+<h2>The terminal screens on this site are real</h2>
+<p>The terminal screenshots on our homepage are not drawn by hand. An ignored test fills <code>otm</code> with curated demo data, never your machine&rsquo;s real processes or user names, renders its tabs into a test backend, and writes the result into the page. When the terminal UI changes, we re-run one command and the website follows.</p>
+
+<h2>What we would do differently</h2>
+<ul>
+  <li>Filter thread entries in the core from day one (<a href="/blog/process-vs-thread-and-why-linux-lists-threads/">we fixed it in 0.4.1</a>).</li>
+  <li>Make Services and Startup actions real earlier, instead of leaving them as interface-only.</li>
+  <li>Persist App history to disk.</li>
+</ul>
+<p>Everything above is in the open on <a href="https://github.com/sabaoongfx/Open-Task-Manager" target="_blank" rel="noopener">GitHub</a>. If you would like to help with any of these, they are the best places to start. For why we chose this stack, see <a href="/blog/tauri-vs-electron-what-the-numbers-say/">Tauri vs. Electron</a> and <a href="/blog/rust-is-permanent-in-the-linux-kernel/">Rust in the kernel</a>.</p>
+
+<h2>Keep reading</h2>
+<ul class="related"><li><a href="/blog/rust-is-permanent-in-the-linux-kernel/">Rust Is Now a Permanent Part of the Linux Kernel. Here&#x27;s What That Means for System Tools</a></li><li><a href="/blog/rust-most-admired-language-and-desktop-tools/">Rust Is the Most Admired Language Again. Does It Matter for Desktop Apps?</a></li><li><a href="/blog/tauri-vs-electron-what-the-numbers-say/">Tauri vs. Electron: What the Numbers Say, and What They Don&#x27;t</a></li></ul>
+  </article>
+</main>
+<footer><span>Open Task Manager &middot; open source on <a href="https://github.com/sabaoongfx/Open-Task-Manager" target="_blank" rel="noopener">GitHub</a> &middot; built by <a href="https://sabaoon.dev" target="_blank" rel="noopener">sabaoon.dev</a></span></footer>
+</body></html>

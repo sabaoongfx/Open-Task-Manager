@@ -1,0 +1,70 @@
+<!doctype html><html lang="en"><head>
+<title>Tauri vs. Electron: What the Numbers Say, and What They Don&#x27;t &middot; Blog</title>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#F6F4EF" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#16130F" media="(prefers-color-scheme: dark)">
+<link rel="icon" href="/favicon.ico" sizes="any"><link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="/blog/blog.css">
+<meta name="description" content="Everyone quotes 3 MB versus 100 MB. Here is the range of figures published in 2026, why they disagree, and how to measure your own app.">
+<link rel="canonical" href="https://opentaskmanager.vercel.app/blog/tauri-vs-electron-what-the-numbers-say/">
+<meta property="og:type" content="article"><meta property="og:title" content="Tauri vs. Electron: What the Numbers Say, and What They Don&#x27;t">
+<meta property="og:description" content="Everyone quotes 3 MB versus 100 MB. Here is the range of figures published in 2026, why they disagree, and how to measure your own app.">
+<meta property="og:url" content="https://opentaskmanager.vercel.app/blog/tauri-vs-electron-what-the-numbers-say/"><meta property="og:image" content="https://opentaskmanager.vercel.app/og.png">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"Tauri vs. Electron: What the Numbers Say, and What They Don't","description":"Everyone quotes 3 MB versus 100 MB. Here is the range of figures published in 2026, why they disagree, and how to measure your own app.","datePublished":"2026-10-11","author":{"@type":"Person","name":"sabaoongfx","url":"https://sabaoon.dev"},"mainEntityOfPage":"https://opentaskmanager.vercel.app/blog/tauri-vs-electron-what-the-numbers-say/","image":"https://opentaskmanager.vercel.app/og.png"}</script>
+</head><body>
+<div class="topbar">
+  <a class="brand" href="/" aria-label="Open Task Manager home">
+    <svg viewBox="0 0 513 398" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <rect width="512" height="398" rx="70" fill="#E93233"/>
+      <path d="M492.818 397.869C503.914 397.941 512.948 388.966 512.948 377.87V187.414C512.948 176.368 503.994 167.414 492.948 167.414H454.616C446.258 167.414 438.781 162.216 435.869 154.382L407.167 77.1576C401.073 60.7631 378.355 59.5366 370.532 75.1798L351.027 114.182C344.098 128.036 324.73 129.095 316.333 116.079L314.235 112.827C306.08 100.186 287.412 100.735 280.014 113.835L224.686 211.807C216.254 226.738 194.173 224.83 188.427 208.673L144.755 85.8569C138.495 68.2542 113.662 68.0829 107.161 85.5975L2.38706 367.842C-2.44362 380.855 7.12634 394.711 21.0068 394.802L492.818 397.869Z" fill="#FBA806"/>
+      <path d="M492.948 398C503.994 398 512.948 389.046 512.948 378V244.321C512.948 233.275 503.994 224.321 492.948 224.321H453.201C445.586 224.321 438.632 219.996 435.264 213.166L406.591 155.02C399.769 141.185 380.516 139.954 371.988 152.808L350.108 185.783C342.768 196.847 326.882 197.818 318.249 187.731L312.676 181.221C304.35 171.493 289.154 171.986 281.476 182.234L223.26 259.935C214.222 271.997 195.596 270.107 189.166 256.476L144.021 160.784C136.922 145.738 115.627 145.431 108.098 160.267L2.19154 368.949C-4.56059 382.254 5.10628 398 20.0262 398H492.948Z" fill="#FFDB56"/>
+    </svg>
+    Open Task Manager
+  </a>
+  <nav class="topnav"><a href="/#features">Features</a><a href="/#download">Download</a><a href="/blog/" aria-current="page">Blog</a><a href="https://github.com/sabaoongfx/Open-Task-Manager" target="_blank" rel="noopener">GitHub</a></nav>
+</div>
+<main>
+  <a class="back" href="/blog/">&larr; All posts</a>
+  <article>
+    <p class="eyebrow">Trends</p>
+    <h1>Tauri vs. Electron: What the Numbers Say, and What They Don&#x27;t</h1>
+    <p class="meta">2026-10-11 &middot; sabaoongfx &middot; 3 min read</p>
+
+<p>Almost every comparison of Tauri and Electron opens with a table showing Tauri winning by a wide margin. The direction is right. The exact numbers are much less reliable than they look, and it is worth knowing why before you quote them.</p>
+
+<h2>The basic difference</h2>
+<p>Electron bundles a full copy of Chromium and Node.js with every app. That gives you an identical rendering engine on every operating system, but each app carries its own browser. Tauri takes the opposite approach: the app uses the web view that already ships with the operating system (WebView2 on Windows, WebKit on macOS and Linux), and the backend is written in Rust. Less is bundled, so there is less to download and, usually, less to keep in memory.</p>
+
+<h2>What published comparisons report</h2>
+<p>A survey of 2026 articles shows a consistent direction and inconsistent figures:</p>
+<ul>
+  <li><strong>Installed size.</strong> One source reports a hello-world Tauri build near 3 MB against about 96 MB for Electron on Windows. Another gives Tauri apps 2 to 10 MB against 80 to 200 MB for Electron.</li>
+  <li><strong>Idle memory.</strong> One comparison puts a single window at around 80 MB for Tauri versus around 160 MB for Electron. Another claims 30 to 50 MB for Tauri. A third says Tauri uses roughly half as much, without naming its benchmark.</li>
+  <li><strong>Startup time.</strong> One report gives 380 ms for Tauri against 1,420 ms for Electron; another gives about 190 ms against about 640 ms on an M2 MacBook Air.</li>
+</ul>
+<p>Those memory figures differ by a factor of two or more from each other. That is not a contradiction so much as a sign that these are different apps, different operating systems, different Electron versions (the articles cite everything from 33 to 40) and different ways of counting memory. Some of the sources are also vendor-adjacent blogs rather than independent benchmarks.</p>
+
+<h2>Why memory is hard to compare</h2>
+<p>Electron runs several processes: a main process, one or more renderers, and helpers. Tauri&rsquo;s web view is also multi-process on some platforms, and part of its memory is owned by the operating system, not by your app. So &ldquo;how much does it use&rdquo; depends on whether you count shared pages, whether you add up every child process, and which tool you used. We explain the counting problem in <a href="/blog/memory-explained-rss-working-set-and-shared/">memory explained</a>. The fair method is to sum all of an app&rsquo;s processes in a single tool and compare like with like.</p>
+
+<h2>What the numbers leave out</h2>
+<p>Tauri&rsquo;s advantages come with real costs:</p>
+<ul>
+  <li><strong>Rendering differences.</strong> Because each platform uses a different web view, a layout or feature can behave differently on Windows, macOS and Linux. Electron gives you one engine everywhere.</li>
+  <li><strong>Ecosystem maturity.</strong> Electron has years more tooling, documentation and answered questions.</li>
+  <li><strong>A second language.</strong> Backend work means Rust. That is a strength for performance and safety and a barrier for teams that only know JavaScript.</li>
+</ul>
+
+<h2>Measure it yourself</h2>
+<p>If the choice matters for your project, build the same small screen both ways and compare. Launch each, wait thirty seconds for it to settle, then open a task manager, group by application and read the combined memory of every process belonging to the app. Do it on each operating system you support. Open Task Manager&rsquo;s Processes tab groups child processes under one row for exactly this kind of check.</p>
+<p>We chose Tauri for this project because a tool that reports what is using your memory should not itself be a heavy item on the list. We haven&rsquo;t published a head-to-head benchmark of our own, and we would rather say so than borrow someone else&rsquo;s numbers.</p>
+
+<h2>Sources</h2>
+<ul class="sources"><li><a href="https://reintech.io/blog/tauri-vs-electron-rust-desktop-apps" target="_blank" rel="noopener">Reintech: Tauri vs Electron</a></li><li><a href="https://dasroot.net/posts/2026/03/tauri-vs-electron-rust-cross-platform-apps/" target="_blank" rel="noopener">Das Root: Tauri vs Electron, Rust&#x27;s approach to cross-platform apps</a></li><li><a href="https://devtoolpicks.com/blog/tauri-vs-electron-indie-hackers-2026" target="_blank" rel="noopener">DevToolPicks: Tauri vs Electron for indie hackers in 2026</a></li><li><a href="https://www.pkgpulse.com/guides/electron-vs-tauri-2026" target="_blank" rel="noopener">PkgPulse: Electron vs Tauri 2026</a></li></ul>
+<h2>Keep reading</h2>
+<ul class="related"><li><a href="/blog/rust-is-permanent-in-the-linux-kernel/">Rust Is Now a Permanent Part of the Linux Kernel. Here&#x27;s What That Means for System Tools</a></li><li><a href="/blog/rust-most-admired-language-and-desktop-tools/">Rust Is the Most Admired Language Again. Does It Matter for Desktop Apps?</a></li><li><a href="/blog/ram-prices-2026-why-your-memory-matters-more/">The 2026 RAM Price Crunch: Why Knowing Where Your Memory Goes Matters</a></li></ul>
+  </article>
+</main>
+<footer><span>Open Task Manager &middot; open source on <a href="https://github.com/sabaoongfx/Open-Task-Manager" target="_blank" rel="noopener">GitHub</a> &middot; built by <a href="https://sabaoon.dev" target="_blank" rel="noopener">sabaoon.dev</a></span></footer>
+</body></html>

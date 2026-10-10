@@ -1,0 +1,99 @@
+<!doctype html><html lang="en"><head>
+<title>Open Task Manager vs. Windows Task Manager &middot; Blog</title>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#F6F4EF" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#16130F" media="(prefers-color-scheme: dark)">
+<link rel="icon" href="/favicon.ico" sizes="any"><link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="/blog/blog.css">
+<meta name="description" content="A fair comparison of Open Task Manager and the Windows Task Manager, and what open source does and does not mean for your privacy.">
+<link rel="canonical" href="https://opentaskmanager.vercel.app/blog/open-task-manager-vs-windows-task-manager/">
+<meta property="og:type" content="article"><meta property="og:title" content="Open Task Manager vs. the Windows Task Manager">
+<meta property="og:url" content="https://opentaskmanager.vercel.app/blog/open-task-manager-vs-windows-task-manager/">
+<meta property="og:image" content="https://opentaskmanager.vercel.app/og.png">
+</head><body>
+<div class="topbar">
+  <a class="brand" href="/" aria-label="Open Task Manager home">
+    <svg viewBox="0 0 513 398" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <rect width="512" height="398" rx="70" fill="#E93233"/>
+      <path d="M492.818 397.869C503.914 397.941 512.948 388.966 512.948 377.87V187.414C512.948 176.368 503.994 167.414 492.948 167.414H454.616C446.258 167.414 438.781 162.216 435.869 154.382L407.167 77.1576C401.073 60.7631 378.355 59.5366 370.532 75.1798L351.027 114.182C344.098 128.036 324.73 129.095 316.333 116.079L314.235 112.827C306.08 100.186 287.412 100.735 280.014 113.835L224.686 211.807C216.254 226.738 194.173 224.83 188.427 208.673L144.755 85.8569C138.495 68.2542 113.662 68.0829 107.161 85.5975L2.38706 367.842C-2.44362 380.855 7.12634 394.711 21.0068 394.802L492.818 397.869Z" fill="#FBA806"/>
+      <path d="M492.948 398C503.994 398 512.948 389.046 512.948 378V244.321C512.948 233.275 503.994 224.321 492.948 224.321H453.201C445.586 224.321 438.632 219.996 435.264 213.166L406.591 155.02C399.769 141.185 380.516 139.954 371.988 152.808L350.108 185.783C342.768 196.847 326.882 197.818 318.249 187.731L312.676 181.221C304.35 171.493 289.154 171.986 281.476 182.234L223.26 259.935C214.222 271.997 195.596 270.107 189.166 256.476L144.021 160.784C136.922 145.738 115.627 145.431 108.098 160.267L2.19154 368.949C-4.56059 382.254 5.10628 398 20.0262 398H492.948Z" fill="#FFDB56"/>
+    </svg>
+    Open Task Manager
+  </a>
+  <nav class="topnav"><a href="/#features">Features</a><a href="/#download">Download</a><a href="/blog/" aria-current="page">Blog</a><a href="https://github.com/sabaoongfx/Open-Task-Manager" target="_blank" rel="noopener">GitHub</a></nav>
+</div>
+<main>
+  <a class="back" href="/blog/">&larr; All posts</a>
+  <article>
+    <p class="eyebrow">comparison &amp; privacy</p>
+    <h1>Open Task Manager vs. the Windows Task Manager</h1>
+    <p class="meta">2026-10-11 &middot; sabaoongfx &middot; 8 min read</p>
+
+    <p>Open Task Manager copies the layout of the Windows 11 Task Manager on purpose. That makes the obvious question: if it looks the same, why use it? The honest answer is that for many Windows users, the built-in one is fine. This post lays out where the two differ, where the built-in one is still ahead, and what &ldquo;open source&rdquo; actually means for your privacy, without overstating it.</p>
+
+    <h2>The short version</h2>
+    <ul>
+      <li>If you only use Windows and want the deepest integration, the built-in Task Manager is hard to beat.</li>
+      <li>If you use Linux or macOS, or several systems, Open Task Manager gives you one familiar layout everywhere, and a terminal version too.</li>
+      <li>If you care about being able to check what a tool does, Open Task Manager lets you. The Windows one is closed source, so you can&rsquo;t.</li>
+    </ul>
+
+    <h2>Side by side</h2>
+    <table>
+      <thead><tr><th></th><th>Windows Task Manager</th><th>Open Task Manager</th></tr></thead>
+      <tbody>
+        <tr><th scope="row">Platforms</th><td>Windows only</td><td>Linux, Windows, macOS</td></tr>
+        <tr><th scope="row">Source code</th><td>Closed, not auditable</td><td>Open, MIT license</td></tr>
+        <tr><th scope="row">Terminal version</th><td>No (separate tools such as <code>tasklist</code>)</td><td>Yes, <code>otm</code> with the same tabs</td></tr>
+        <tr><th scope="row">Processes grouped by app</th><td>Yes</td><td>Yes</td></tr>
+        <tr><th scope="row">Live CPU, memory, disk, network graphs</th><td>Yes</td><td>Yes</td></tr>
+        <tr><th scope="row">Services and startup control</th><td>Fully working</td><td>Reads real data on Linux; start/stop and enable/disable are UI-only for now</td></tr>
+        <tr><th scope="row">Depth of Windows-specific data</th><td>Extensive, built into the OS</td><td>Cross-platform subset</td></tr>
+        <tr><th scope="row">Network use by the app itself</th><td>Not documented as sending data; can&rsquo;t be verified</td><td>None in the code; you can check</td></tr>
+        <tr><th scope="row">Install</th><td>Ships with Windows</td><td>apt, pacman, .deb, .rpm, AppImage, .exe/.msi, .dmg</td></tr>
+        <tr><th scope="row">Price</th><td>Included with Windows</td><td>Free</td></tr>
+      </tbody>
+    </table>
+
+    <h2>Where the Windows one is still better</h2>
+    <p>A fair comparison has to start here. The built-in Task Manager is part of the operating system, and it uses Windows-only interfaces that a portable tool can&rsquo;t reach with the same depth. It controls services and startup items for real, and it surfaces Windows-specific details that a cross-platform app doesn&rsquo;t attempt to match. It also needs no installation, no download and no trust decision, because it is already there.</p>
+    <p>Open Task Manager is also younger. As of version 0.4.2, Windows and macOS installers are unsigned, app history isn&rsquo;t saved between sessions, and the Services and Startup controls don&rsquo;t yet change the system. We list these on the <a href="/#roadmap">roadmap</a> because pretending otherwise would waste your time.</p>
+
+    <h2>Where Open Task Manager is different</h2>
+    <p><strong>It runs where Windows doesn&rsquo;t.</strong> On Linux and macOS the alternatives are different tools with different layouts. Here you get the same Processes, Performance, App history, Startup apps, Users, Details and Services tabs on all three.</p>
+    <p><strong>It has a terminal mode.</strong> <code>otm</code> shows the same eight tabs over SSH on a headless server, with no desktop session and no Node.js. Windows has no built-in equivalent with the same layout.</p>
+    <p><strong>It is small and native.</strong> It is built on Tauri and Rust and uses your system&rsquo;s webview rather than bundling a browser engine, so the installer is small and the monitor itself doesn&rsquo;t become the heaviest thing running.</p>
+    <p><strong>You can change it.</strong> Want another column, a different refresh rate or a bug fixed? The code is there. You can fork it, patch it and run your version.</p>
+
+    <h2>The privacy question, answered carefully</h2>
+    <p>The claim in the title of this section is easy to exaggerate in both directions, so here is exactly what we can and can&rsquo;t say.</p>
+
+    <h3>What we can say about Open Task Manager</h3>
+    <p>Open Task Manager has <strong>no telemetry and no background service</strong>. This isn&rsquo;t just a promise. You can verify it yourself:</p>
+    <ul>
+      <li>The Rust code declares only a few direct dependencies: <code>sysinfo</code> for reading the machine, <code>serde</code> for formatting data, Tauri for the window, and ratatui for the terminal UI. None of the three crates in the workspace lists an HTTP client, analytics library or crash-reporting service.</li>
+      <li>In the app&rsquo;s source, the only web address in the configuration is <code>localhost:1420</code>, the development server used when building the app. Nothing points to a remote server.</li>
+      <li>Process data is read from your operating system, shown in the window, and discarded. App history lives in memory only, which is why it resets when you close the app.</li>
+      <li>The program runs only while its window is open. There is no helper process or scheduled task left behind.</li>
+    </ul>
+    <p>If you don&rsquo;t want to take our word for it, build it from source, or watch its network activity with a firewall or a tool such as Wireshark. A tool with nothing to hide gives you nothing to find.</p>
+
+    <h3>What we can&rsquo;t say about the Windows Task Manager</h3>
+    <p>We have no evidence that the Windows Task Manager itself sends your process list anywhere, and we aren&rsquo;t claiming it does. What we can say is more modest and still important: Windows as a whole does collect diagnostic data, Microsoft documents settings that control how much, and the Task Manager is closed source, so an outside observer can&rsquo;t read what it does. You are trusting the vendor&rsquo;s description rather than checking the code.</p>
+    <p>That is the real difference. &ldquo;Open source&rdquo; doesn&rsquo;t automatically mean &ldquo;private&rdquo;. A project can be open and still be careless with your data. What it gives you is <em>verifiability</em>: anyone, including security researchers who don&rsquo;t know us, can read the code, build it, and confirm that it does what we say. If we ever added tracking, it would be visible in the repository history for everyone to see.</p>
+
+    <h3>Limits of this claim</h3>
+    <ul>
+      <li>Open Task Manager runs on top of an operating system. If that system collects data, this app doesn&rsquo;t change it.</li>
+      <li>Installing from the apt, pacman or GitHub download servers means those hosts see your download request, as with any software.</li>
+      <li>The website you are reading is a separate static site. The live demo embedded on it runs on generated sample data, not on your machine&rsquo;s processes.</li>
+    </ul>
+
+    <h2>Which should you use?</h2>
+    <p>On a single Windows PC, keep using the built-in one for services and startup management, and try Open Task Manager if you want to compare. On Linux or macOS, or across several machines, or on servers you reach over SSH, Open Task Manager gives you one consistent tool. And if auditability matters to you, it is the one whose behaviour you can check yourself.</p>
+    <p>You can try the interface right now in the <a href="/#full-demo">live demo</a>, or grab an installer from the <a href="/#download">download section</a>. The source is on <a href="https://github.com/sabaoongfx/Open-Task-Manager" target="_blank" rel="noopener">GitHub</a>. If you find a claim in this post that the code doesn&rsquo;t support, please open an issue and we&rsquo;ll correct it.</p>
+</article>
+</main>
+<footer><span>Open Task Manager &middot; open source on <a href="https://github.com/sabaoongfx/Open-Task-Manager" target="_blank" rel="noopener">GitHub</a> &middot; built by <a href="https://sabaoon.dev" target="_blank" rel="noopener">sabaoon.dev</a></span></footer>
+</body></html>

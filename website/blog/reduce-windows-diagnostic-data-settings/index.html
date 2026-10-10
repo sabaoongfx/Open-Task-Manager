@@ -1,0 +1,69 @@
+<!doctype html><html lang="en"><head>
+<title>How to Reduce Windows Diagnostic Data Collection: The Settings That Matter &middot; Blog</title>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#F6F4EF" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#16130F" media="(prefers-color-scheme: dark)">
+<link rel="icon" href="/favicon.ico" sizes="any"><link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="/blog/blog.css">
+<meta name="description" content="A short, honest walkthrough of the Windows privacy settings that control diagnostic data, what they do and don&#x27;t change, and why to re-check them after updates.">
+<link rel="canonical" href="https://opentaskmanager.vercel.app/blog/reduce-windows-diagnostic-data-settings/">
+<meta property="og:type" content="article"><meta property="og:title" content="How to Reduce Windows Diagnostic Data Collection: The Settings That Matter">
+<meta property="og:description" content="A short, honest walkthrough of the Windows privacy settings that control diagnostic data, what they do and don&#x27;t change, and why to re-check them after updates.">
+<meta property="og:url" content="https://opentaskmanager.vercel.app/blog/reduce-windows-diagnostic-data-settings/"><meta property="og:image" content="https://opentaskmanager.vercel.app/og.png">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"How to Reduce Windows Diagnostic Data Collection: The Settings That Matter","description":"A short, honest walkthrough of the Windows privacy settings that control diagnostic data, what they do and don't change, and why to re-check them after updates.","datePublished":"2026-10-11","author":{"@type":"Person","name":"sabaoongfx","url":"https://sabaoon.dev"},"mainEntityOfPage":"https://opentaskmanager.vercel.app/blog/reduce-windows-diagnostic-data-settings/","image":"https://opentaskmanager.vercel.app/og.png"}</script>
+</head><body>
+<div class="topbar">
+  <a class="brand" href="/" aria-label="Open Task Manager home">
+    <svg viewBox="0 0 513 398" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <rect width="512" height="398" rx="70" fill="#E93233"/>
+      <path d="M492.818 397.869C503.914 397.941 512.948 388.966 512.948 377.87V187.414C512.948 176.368 503.994 167.414 492.948 167.414H454.616C446.258 167.414 438.781 162.216 435.869 154.382L407.167 77.1576C401.073 60.7631 378.355 59.5366 370.532 75.1798L351.027 114.182C344.098 128.036 324.73 129.095 316.333 116.079L314.235 112.827C306.08 100.186 287.412 100.735 280.014 113.835L224.686 211.807C216.254 226.738 194.173 224.83 188.427 208.673L144.755 85.8569C138.495 68.2542 113.662 68.0829 107.161 85.5975L2.38706 367.842C-2.44362 380.855 7.12634 394.711 21.0068 394.802L492.818 397.869Z" fill="#FBA806"/>
+      <path d="M492.948 398C503.994 398 512.948 389.046 512.948 378V244.321C512.948 233.275 503.994 224.321 492.948 224.321H453.201C445.586 224.321 438.632 219.996 435.264 213.166L406.591 155.02C399.769 141.185 380.516 139.954 371.988 152.808L350.108 185.783C342.768 196.847 326.882 197.818 318.249 187.731L312.676 181.221C304.35 171.493 289.154 171.986 281.476 182.234L223.26 259.935C214.222 271.997 195.596 270.107 189.166 256.476L144.021 160.784C136.922 145.738 115.627 145.431 108.098 160.267L2.19154 368.949C-4.56059 382.254 5.10628 398 20.0262 398H492.948Z" fill="#FFDB56"/>
+    </svg>
+    Open Task Manager
+  </a>
+  <nav class="topnav"><a href="/#features">Features</a><a href="/#download">Download</a><a href="/blog/" aria-current="page">Blog</a><a href="https://github.com/sabaoongfx/Open-Task-Manager" target="_blank" rel="noopener">GitHub</a></nav>
+</div>
+<main>
+  <a class="back" href="/blog/">&larr; All posts</a>
+  <article>
+    <p class="eyebrow">Privacy</p>
+    <h1>How to Reduce Windows Diagnostic Data Collection: The Settings That Matter</h1>
+    <p class="meta">2026-10-11 &middot; sabaoongfx &middot; 3 min read</p>
+
+<p>Windows collects diagnostic data about how the system and its apps behave, and Microsoft documents that collection and lets you control part of it. This guide covers the settings most people mean when they ask how to turn telemetry down, and is upfront about what these switches can and can&rsquo;t do. We aren&rsquo;t privacy lawyers, and we aren&rsquo;t claiming that Windows is doing something sinister. The goal is to help you make informed choices.</p>
+
+<h2>The two switches to start with</h2>
+<p>Open <strong>Settings &gt; Privacy &amp; security &gt; Diagnostics &amp; feedback</strong>. Reporting from PCWorld recommends turning off two options here:</p>
+<ul>
+  <li><strong>Send optional diagnostic data.</strong> Windows separates data it describes as required from data it describes as optional. Turning the optional setting off limits what is sent to the required set.</li>
+  <li><strong>Tailored experiences.</strong> This uses your diagnostic data to personalise tips and suggestions. Turning it off stops that personalisation.</li>
+</ul>
+<p>Menu names and layout change between Windows versions, so if you don&rsquo;t see exactly these labels, look for the same terms nearby and check Microsoft&rsquo;s current documentation.</p>
+
+<h2>Things worth reviewing next</h2>
+<ul>
+  <li><strong>Activity history and advertising ID.</strong> Both sit in the Privacy &amp; security section and are easy to switch off if you don&rsquo;t use them.</li>
+  <li><strong>App permissions.</strong> The same section lists which apps can use your location, camera, microphone and files. Many people have never opened it.</li>
+  <li><strong>Optional features such as Recall.</strong> If your hardware offers them, read what they store before enabling. We discuss the reasoning in <a href="/blog/windows-recall-and-the-case-for-local-first-software/">Windows Recall and the case for software you can audit</a>.</li>
+  <li><strong>Account type.</strong> A local account sends less to a cloud account than a Microsoft account, though it also loses sync features.</li>
+</ul>
+
+<h2>What these switches don&rsquo;t do</h2>
+<p>Be realistic about the limits. Turning off optional diagnostic data reduces what is sent but does not stop all communication: Windows still checks for updates, and required diagnostic data continues. Home and Pro editions generally can&rsquo;t reduce collection below the required level through the Settings app. Third-party apps have their own data practices that these settings don&rsquo;t touch.</p>
+<p>One more caution: some users report that updates re-enable settings they had switched off. That is a user report rather than something we have confirmed, but it is cheap to guard against. Re-open the page after major feature updates and confirm your choices held.</p>
+
+<h2>See what is actually running</h2>
+<p>Settings tell you what is permitted. A task manager tells you what is running. Open the Processes view and look through the list for background items you don&rsquo;t recognise, then research a name before deciding anything. The Startup apps tab shows what launches with Windows. This won&rsquo;t reveal network traffic on its own, and for that you need the approach in <a href="/blog/how-to-check-what-an-app-sends-over-the-network/">how to check what an app sends over the network</a>.</p>
+
+<h2>A sensible stance</h2>
+<p>You don&rsquo;t have to choose between ignoring privacy and abandoning your operating system. A reasonable middle path is to switch off the optional settings, review app permissions once a quarter, prefer software you can inspect for tools that watch your activity, and keep your system updated. Privacy is made of many small decisions, and none of them needs to be dramatic.</p>
+
+<h2>Sources</h2>
+<ul class="sources"><li><a href="https://www.pcworld.com/article/2379675/ways-windows-11-collects-your-data-and-what-you-can-do-about-it.html" target="_blank" rel="noopener">PCWorld: Ways Windows 11 collects your data and what you can do about it</a></li></ul>
+<h2>Keep reading</h2>
+<ul class="related"><li><a href="/blog/windows-recall-and-the-case-for-local-first-software/">Windows Recall and the Case for Software You Can Audit</a></li><li><a href="/blog/how-to-check-what-an-app-sends-over-the-network/">How to Check What an App Sends Over the Network (Without Taking Anyone&#x27;s Word)</a></li><li><a href="/blog/rust-is-permanent-in-the-linux-kernel/">Rust Is Now a Permanent Part of the Linux Kernel. Here&#x27;s What That Means for System Tools</a></li></ul>
+  </article>
+</main>
+<footer><span>Open Task Manager &middot; open source on <a href="https://github.com/sabaoongfx/Open-Task-Manager" target="_blank" rel="noopener">GitHub</a> &middot; built by <a href="https://sabaoon.dev" target="_blank" rel="noopener">sabaoon.dev</a></span></footer>
+</body></html>

@@ -1,0 +1,69 @@
+<!doctype html><html lang="en"><head>
+<title>Disk at 100%? How to Diagnose a Slow Drive Step by Step &middot; Blog</title>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#F6F4EF" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#16130F" media="(prefers-color-scheme: dark)">
+<link rel="icon" href="/favicon.ico" sizes="any"><link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="/blog/blog.css">
+<meta name="description" content="The most frustrating slowdowns come from the disk, not the CPU. Learn to confirm it, find the cause, and decide whether you need new hardware.">
+<link rel="canonical" href="https://opentaskmanager.vercel.app/blog/disk-at-100-percent-how-to-diagnose/">
+<meta property="og:type" content="article"><meta property="og:title" content="Disk at 100%? How to Diagnose a Slow Drive Step by Step">
+<meta property="og:description" content="The most frustrating slowdowns come from the disk, not the CPU. Learn to confirm it, find the cause, and decide whether you need new hardware.">
+<meta property="og:url" content="https://opentaskmanager.vercel.app/blog/disk-at-100-percent-how-to-diagnose/"><meta property="og:image" content="https://opentaskmanager.vercel.app/og.png">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"Disk at 100%? How to Diagnose a Slow Drive Step by Step","description":"The most frustrating slowdowns come from the disk, not the CPU. Learn to confirm it, find the cause, and decide whether you need new hardware.","datePublished":"2026-10-11","author":{"@type":"Person","name":"sabaoongfx","url":"https://sabaoon.dev"},"mainEntityOfPage":"https://opentaskmanager.vercel.app/blog/disk-at-100-percent-how-to-diagnose/","image":"https://opentaskmanager.vercel.app/og.png"}</script>
+</head><body>
+<div class="topbar">
+  <a class="brand" href="/" aria-label="Open Task Manager home">
+    <svg viewBox="0 0 513 398" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <rect width="512" height="398" rx="70" fill="#E93233"/>
+      <path d="M492.818 397.869C503.914 397.941 512.948 388.966 512.948 377.87V187.414C512.948 176.368 503.994 167.414 492.948 167.414H454.616C446.258 167.414 438.781 162.216 435.869 154.382L407.167 77.1576C401.073 60.7631 378.355 59.5366 370.532 75.1798L351.027 114.182C344.098 128.036 324.73 129.095 316.333 116.079L314.235 112.827C306.08 100.186 287.412 100.735 280.014 113.835L224.686 211.807C216.254 226.738 194.173 224.83 188.427 208.673L144.755 85.8569C138.495 68.2542 113.662 68.0829 107.161 85.5975L2.38706 367.842C-2.44362 380.855 7.12634 394.711 21.0068 394.802L492.818 397.869Z" fill="#FBA806"/>
+      <path d="M492.948 398C503.994 398 512.948 389.046 512.948 378V244.321C512.948 233.275 503.994 224.321 492.948 224.321H453.201C445.586 224.321 438.632 219.996 435.264 213.166L406.591 155.02C399.769 141.185 380.516 139.954 371.988 152.808L350.108 185.783C342.768 196.847 326.882 197.818 318.249 187.731L312.676 181.221C304.35 171.493 289.154 171.986 281.476 182.234L223.26 259.935C214.222 271.997 195.596 270.107 189.166 256.476L144.021 160.784C136.922 145.738 115.627 145.431 108.098 160.267L2.19154 368.949C-4.56059 382.254 5.10628 398 20.0262 398H492.948Z" fill="#FFDB56"/>
+    </svg>
+    Open Task Manager
+  </a>
+  <nav class="topnav"><a href="/#features">Features</a><a href="/#download">Download</a><a href="/blog/" aria-current="page">Blog</a><a href="https://github.com/sabaoongfx/Open-Task-Manager" target="_blank" rel="noopener">GitHub</a></nav>
+</div>
+<main>
+  <a class="back" href="/blog/">&larr; All posts</a>
+  <article>
+    <p class="eyebrow">How-to</p>
+    <h1>Disk at 100%? How to Diagnose a Slow Drive Step by Step</h1>
+    <p class="meta">2026-10-11 &middot; sabaoongfx &middot; 3 min read</p>
+
+<p>Your computer is crawling, but the CPU chart is nearly flat and there is plenty of memory free. That pattern points to the storage drive. When a disk is saturated, everything that needs to read or write waits in line, and the whole machine feels frozen. It is a common problem on older laptops and machines with traditional hard drives.</p>
+
+<h2>Confirm it is the disk</h2>
+<p>Open the Performance view and look at the disk section. The key figure is <strong>active time</strong>: the percentage of time the drive was busy handling requests. Open Task Manager reports this from the operating system on Linux, using the kernel&rsquo;s own disk counters, alongside read and write throughput. A reading pinned near 100 percent for a long stretch, with low throughput, means the drive is spending its time on lots of small operations instead of moving big files. That is the worst case, especially on hard drives.</p>
+<p>Low throughput with high active time is the signature of a hard drive seeking, or a nearly full or failing drive. High throughput with high active time just means a large copy is running, which is fine.</p>
+
+<h2>Find the cause</h2>
+<ol>
+  <li><strong>Sort the Processes tab by Disk.</strong> The top entry is usually the answer.</li>
+  <li><strong>Check the usual suspects:</strong> search indexers, antivirus scans, backup and sync clients, update installers, and software that has just been installed.</li>
+  <li><strong>Check memory.</strong> If RAM is full, the system swaps memory to disk and the drive thrashes. In that case the real problem is memory (<a href="/blog/memory-explained-rss-working-set-and-shared/">see why</a>).</li>
+  <li><strong>Check free space.</strong> Drives slow down when almost full, especially SSDs, which need spare room to manage writes.</li>
+</ol>
+
+<h2>Find what is taking the space</h2>
+<p>If the drive is nearly full, the quickest fix is finding what is using the room. Open Task Manager has a WinDirStat-style Disk usage tab that scans a folder and shows the result as a treemap, a tree, a list of the largest files, and a breakdown by file type. A treemap makes the culprit obvious: one oversized rectangle for a forgotten download folder, a video project or a cache directory. Check the folder before deleting, and don&rsquo;t remove anything you can&rsquo;t identify.</p>
+
+<h2>What to do</h2>
+<ul>
+  <li><strong>Pause the background job.</strong> Let the indexer or scan finish, or schedule it for the night.</li>
+  <li><strong>Free space.</strong> Aim to leave at least 15 to 20 percent of the drive free.</li>
+  <li><strong>Trim startup apps.</strong> Fewer things launching at login means fewer simultaneous disk reads (<a href="/blog/clean-up-startup-apps-for-faster-boot/">guide</a>).</li>
+  <li><strong>Check drive health.</strong> A failing drive shows constant high activity and strange delays. Use the drive&rsquo;s SMART data through your operating system&rsquo;s tools, and back up first.</li>
+  <li><strong>Upgrade the drive.</strong> If you still use a hard drive as your system disk, moving to an SSD is the single biggest speed improvement available. With storage prices up this year (<a href="/blog/ram-prices-2026-why-your-memory-matters-more/">more on that</a>), compare capacities carefully.</li>
+</ul>
+
+<h2>When it is a false alarm</h2>
+<p>A brief 100 percent right after boot is normal as the system loads. A long copy of a large file legitimately saturates the drive. Only worry when the pegged reading persists while you aren&rsquo;t doing anything demanding.</p>
+<p>The habit to take away is to look at all four resources, CPU, memory, disk and network, before deciding what is wrong. A slow computer is rarely slow for the reason people first assume.</p>
+
+<h2>Keep reading</h2>
+<ul class="related"><li><a href="/blog/stretch-your-ram-practical-guide/">How to Stretch Your RAM: A Practical Guide for Any Operating System</a></li><li><a href="/blog/why-windows-task-manager-cpu-numbers-changed/">Why the Windows Task Manager&#x27;s CPU Numbers Changed in 24H2</a></li><li><a href="/blog/how-to-find-a-memory-leak-with-a-task-manager/">How to Find a Memory Leak With Just a Task Manager</a></li></ul>
+  </article>
+</main>
+<footer><span>Open Task Manager &middot; open source on <a href="https://github.com/sabaoongfx/Open-Task-Manager" target="_blank" rel="noopener">GitHub</a> &middot; built by <a href="https://sabaoon.dev" target="_blank" rel="noopener">sabaoon.dev</a></span></footer>
+</body></html>

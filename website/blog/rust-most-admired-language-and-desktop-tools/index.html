@@ -1,0 +1,61 @@
+<!doctype html><html lang="en"><head>
+<title>Rust Is the Most Admired Language Again. Does It Matter for Desktop Apps? &middot; Blog</title>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#F6F4EF" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#16130F" media="(prefers-color-scheme: dark)">
+<link rel="icon" href="/favicon.ico" sizes="any"><link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="/blog/blog.css">
+<meta name="description" content="The 2025 Stack Overflow survey put Rust on top for the tenth year running, but admiration and adoption are different things. What it means for desktop software.">
+<link rel="canonical" href="https://opentaskmanager.vercel.app/blog/rust-most-admired-language-and-desktop-tools/">
+<meta property="og:type" content="article"><meta property="og:title" content="Rust Is the Most Admired Language Again. Does It Matter for Desktop Apps?">
+<meta property="og:description" content="The 2025 Stack Overflow survey put Rust on top for the tenth year running, but admiration and adoption are different things. What it means for desktop software.">
+<meta property="og:url" content="https://opentaskmanager.vercel.app/blog/rust-most-admired-language-and-desktop-tools/"><meta property="og:image" content="https://opentaskmanager.vercel.app/og.png">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"Rust Is the Most Admired Language Again. Does It Matter for Desktop Apps?","description":"The 2025 Stack Overflow survey put Rust on top for the tenth year running, but admiration and adoption are different things. What it means for desktop software.","datePublished":"2026-10-11","author":{"@type":"Person","name":"sabaoongfx","url":"https://sabaoon.dev"},"mainEntityOfPage":"https://opentaskmanager.vercel.app/blog/rust-most-admired-language-and-desktop-tools/","image":"https://opentaskmanager.vercel.app/og.png"}</script>
+</head><body>
+<div class="topbar">
+  <a class="brand" href="/" aria-label="Open Task Manager home">
+    <svg viewBox="0 0 513 398" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <rect width="512" height="398" rx="70" fill="#E93233"/>
+      <path d="M492.818 397.869C503.914 397.941 512.948 388.966 512.948 377.87V187.414C512.948 176.368 503.994 167.414 492.948 167.414H454.616C446.258 167.414 438.781 162.216 435.869 154.382L407.167 77.1576C401.073 60.7631 378.355 59.5366 370.532 75.1798L351.027 114.182C344.098 128.036 324.73 129.095 316.333 116.079L314.235 112.827C306.08 100.186 287.412 100.735 280.014 113.835L224.686 211.807C216.254 226.738 194.173 224.83 188.427 208.673L144.755 85.8569C138.495 68.2542 113.662 68.0829 107.161 85.5975L2.38706 367.842C-2.44362 380.855 7.12634 394.711 21.0068 394.802L492.818 397.869Z" fill="#FBA806"/>
+      <path d="M492.948 398C503.994 398 512.948 389.046 512.948 378V244.321C512.948 233.275 503.994 224.321 492.948 224.321H453.201C445.586 224.321 438.632 219.996 435.264 213.166L406.591 155.02C399.769 141.185 380.516 139.954 371.988 152.808L350.108 185.783C342.768 196.847 326.882 197.818 318.249 187.731L312.676 181.221C304.35 171.493 289.154 171.986 281.476 182.234L223.26 259.935C214.222 271.997 195.596 270.107 189.166 256.476L144.021 160.784C136.922 145.738 115.627 145.431 108.098 160.267L2.19154 368.949C-4.56059 382.254 5.10628 398 20.0262 398H492.948Z" fill="#FFDB56"/>
+    </svg>
+    Open Task Manager
+  </a>
+  <nav class="topnav"><a href="/#features">Features</a><a href="/#download">Download</a><a href="/blog/" aria-current="page">Blog</a><a href="https://github.com/sabaoongfx/Open-Task-Manager" target="_blank" rel="noopener">GitHub</a></nav>
+</div>
+<main>
+  <a class="back" href="/blog/">&larr; All posts</a>
+  <article>
+    <p class="eyebrow">Trends</p>
+    <h1>Rust Is the Most Admired Language Again. Does It Matter for Desktop Apps?</h1>
+    <p class="meta">2026-10-11 &middot; sabaoongfx &middot; 3 min read</p>
+
+<p>The 2025 Stack Overflow Developer Survey, with more than 49,000 responses from 177 countries, again named Rust the most admired programming language, at 72 percent. Gleam followed at 70 percent, Elixir at 66 and Zig at 64. Cargo, Rust&rsquo;s package manager, was the most admired cloud and infrastructure tool at 71 percent, and uv, a Python package manager written in Rust, scored 74 percent in the technologies category.</p>
+<p>Numbers like these invite two lazy reactions: &ldquo;everything will be rewritten in Rust&rdquo; and &ldquo;it is just hype.&rdquo; Neither is right, and the useful answer sits in between.</p>
+
+<h2>What &ldquo;admired&rdquo; measures</h2>
+<p>The survey asks developers who have used a language whether they want to keep using it. So &ldquo;admired&rdquo; is a satisfaction score among people who already tried it. It says nothing about how many people use the language, and it is skewed toward people who chose Rust on purpose. A language that is hard to start with can score well because the people who got past the learning curve are happy.</p>
+<p>That caveat matters, but the result has been consistent for years, and it lines up with other signals: Rust&rsquo;s permanent place in the Linux kernel, the growing number of command-line tools written in it, and the wave of Python and JavaScript tooling that has moved to it for speed. The survey&rsquo;s own Cargo and uv numbers fit the same pattern.</p>
+
+<h2>Why desktop software cares</h2>
+<p>Desktop programs have a different set of pressures from web services. They start often, they run alongside dozens of other programs, and users notice every extra megabyte. Rust gives three things that suit that environment:</p>
+<ul>
+  <li><strong>Predictable performance.</strong> There is no garbage collector pausing the program, so memory use and latency stay steady.</li>
+  <li><strong>Small, self-contained binaries.</strong> A release build can be a single executable with its dependencies compiled in.</li>
+  <li><strong>Safety at the edges.</strong> Code that talks to the operating system is exactly where memory bugs hurt most.</li>
+</ul>
+<p>The cost is real too. Rust has a steep learning curve, compile times can be long, and the graphical-interface ecosystem is younger than the options in C++, C# or JavaScript. That last point is why many Rust desktop apps pair a Rust core with a web-based interface, which is the approach we took. The tradeoffs of that choice are covered in <a href="/blog/tauri-vs-electron-what-the-numbers-say/">Tauri vs. Electron: what the numbers say</a>.</p>
+
+<h2>A practical way to read the survey</h2>
+<p>If you are choosing a language for a desktop tool, treat the survey as a tiebreaker, not a decision. Ask instead: Will the people maintaining this be comfortable in it in three years? Does the library you need exist? Can you hire or attract contributors? For a system monitor, the answers favoured Rust: the <code>sysinfo</code> crate already handles the per-platform differences in reading processes and hardware, and a single Rust core can feed both a graphical app and a terminal UI.</p>
+<p>The honest summary is that Rust&rsquo;s popularity is real, well-measured among its users, and backed by serious adoption in places that are hard to fake, like the kernel. It is not a guarantee of a good product. A badly designed tool in any language is still a badly designed tool.</p>
+
+<h2>Sources</h2>
+<ul class="sources"><li><a href="https://survey.stackoverflow.co/2025/technology/" target="_blank" rel="noopener">Stack Overflow Developer Survey 2025: Technology</a></li><li><a href="https://sdtimes.com/softwaredev/report-rust-takes-the-crown-in-stack-overflow-developer-survey/" target="_blank" rel="noopener">SD Times: Rust takes the crown in Stack Overflow Developer Survey</a></li></ul>
+<h2>Keep reading</h2>
+<ul class="related"><li><a href="/blog/rust-is-permanent-in-the-linux-kernel/">Rust Is Now a Permanent Part of the Linux Kernel. Here&#x27;s What That Means for System Tools</a></li><li><a href="/blog/tauri-vs-electron-what-the-numbers-say/">Tauri vs. Electron: What the Numbers Say, and What They Don&#x27;t</a></li><li><a href="/blog/ram-prices-2026-why-your-memory-matters-more/">The 2026 RAM Price Crunch: Why Knowing Where Your Memory Goes Matters</a></li></ul>
+  </article>
+</main>
+<footer><span>Open Task Manager &middot; open source on <a href="https://github.com/sabaoongfx/Open-Task-Manager" target="_blank" rel="noopener">GitHub</a> &middot; built by <a href="https://sabaoon.dev" target="_blank" rel="noopener">sabaoon.dev</a></span></footer>
+</body></html>

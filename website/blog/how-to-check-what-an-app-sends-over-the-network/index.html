@@ -1,0 +1,69 @@
+<!doctype html><html lang="en"><head>
+<title>How to Check What an App Sends Over the Network (Without Taking Anyone&#x27;s Word) &middot; Blog</title>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#F6F4EF" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#16130F" media="(prefers-color-scheme: dark)">
+<link rel="icon" href="/favicon.ico" sizes="any"><link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="/blog/blog.css">
+<meta name="description" content="A practical, tiered guide: from a quick look at open connections to a full packet capture. Works on Windows, macOS and Linux.">
+<link rel="canonical" href="https://opentaskmanager.vercel.app/blog/how-to-check-what-an-app-sends-over-the-network/">
+<meta property="og:type" content="article"><meta property="og:title" content="How to Check What an App Sends Over the Network (Without Taking Anyone&#x27;s Word)">
+<meta property="og:description" content="A practical, tiered guide: from a quick look at open connections to a full packet capture. Works on Windows, macOS and Linux.">
+<meta property="og:url" content="https://opentaskmanager.vercel.app/blog/how-to-check-what-an-app-sends-over-the-network/"><meta property="og:image" content="https://opentaskmanager.vercel.app/og.png">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"How to Check What an App Sends Over the Network (Without Taking Anyone's Word)","description":"A practical, tiered guide: from a quick look at open connections to a full packet capture. Works on Windows, macOS and Linux.","datePublished":"2026-10-11","author":{"@type":"Person","name":"sabaoongfx","url":"https://sabaoon.dev"},"mainEntityOfPage":"https://opentaskmanager.vercel.app/blog/how-to-check-what-an-app-sends-over-the-network/","image":"https://opentaskmanager.vercel.app/og.png"}</script>
+</head><body>
+<div class="topbar">
+  <a class="brand" href="/" aria-label="Open Task Manager home">
+    <svg viewBox="0 0 513 398" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <rect width="512" height="398" rx="70" fill="#E93233"/>
+      <path d="M492.818 397.869C503.914 397.941 512.948 388.966 512.948 377.87V187.414C512.948 176.368 503.994 167.414 492.948 167.414H454.616C446.258 167.414 438.781 162.216 435.869 154.382L407.167 77.1576C401.073 60.7631 378.355 59.5366 370.532 75.1798L351.027 114.182C344.098 128.036 324.73 129.095 316.333 116.079L314.235 112.827C306.08 100.186 287.412 100.735 280.014 113.835L224.686 211.807C216.254 226.738 194.173 224.83 188.427 208.673L144.755 85.8569C138.495 68.2542 113.662 68.0829 107.161 85.5975L2.38706 367.842C-2.44362 380.855 7.12634 394.711 21.0068 394.802L492.818 397.869Z" fill="#FBA806"/>
+      <path d="M492.948 398C503.994 398 512.948 389.046 512.948 378V244.321C512.948 233.275 503.994 224.321 492.948 224.321H453.201C445.586 224.321 438.632 219.996 435.264 213.166L406.591 155.02C399.769 141.185 380.516 139.954 371.988 152.808L350.108 185.783C342.768 196.847 326.882 197.818 318.249 187.731L312.676 181.221C304.35 171.493 289.154 171.986 281.476 182.234L223.26 259.935C214.222 271.997 195.596 270.107 189.166 256.476L144.021 160.784C136.922 145.738 115.627 145.431 108.098 160.267L2.19154 368.949C-4.56059 382.254 5.10628 398 20.0262 398H492.948Z" fill="#FFDB56"/>
+    </svg>
+    Open Task Manager
+  </a>
+  <nav class="topnav"><a href="/#features">Features</a><a href="/#download">Download</a><a href="/blog/" aria-current="page">Blog</a><a href="https://github.com/sabaoongfx/Open-Task-Manager" target="_blank" rel="noopener">GitHub</a></nav>
+</div>
+<main>
+  <a class="back" href="/blog/">&larr; All posts</a>
+  <article>
+    <p class="eyebrow">Privacy</p>
+    <h1>How to Check What an App Sends Over the Network (Without Taking Anyone&#x27;s Word)</h1>
+    <p class="meta">2026-10-11 &middot; sabaoongfx &middot; 3 min read</p>
+
+<p>Every app makes claims about privacy, and most of them are impossible for a normal person to verify. But you can look. Network behaviour is one of the few things about software that can be observed from the outside, and the basic checks take minutes. This guide goes from quick to thorough. We encourage you to use it on our app, too.</p>
+
+<h2>Level 1: see open connections</h2>
+<p>The fastest check is to list which programs have network connections right now.</p>
+<ul>
+  <li><strong>Windows.</strong> Open Resource Monitor (search for it) and look at the Network tab, which lists processes with network activity and the addresses they talk to. In a terminal, <code>netstat -ano</code> lists connections with the owning process ID, which you can match to the PID column in a task manager.</li>
+  <li><strong>Linux.</strong> <code>ss -tupn</code> lists TCP and UDP sockets with the process attached, and <code>lsof -i</code> does something similar. You may need elevated rights to see other users&rsquo; processes.</li>
+  <li><strong>macOS.</strong> <code>lsof -i</code> works there too, and the built-in <code>nettop</code> shows live per-process traffic.</li>
+</ul>
+<p>Start the app you want to test, wait a minute, and run the command. Search for its name or PID. If it has no connections while idle, that is a good sign. Note that a brief check can miss traffic that happens only at certain times.</p>
+
+<h2>Level 2: watch over time</h2>
+<p>Some apps send data only occasionally, such as an update check on launch or a daily ping. Watch the machine-wide graph in your task manager with the app running and everything else closed (<a href="/blog/reading-the-network-graph-which-app-is-chatty/">how to read it</a>). Then repeat the connection check at intervals. A firewall that prompts you the first time a program tries to connect out gives you a log of each attempt. Examples include the Windows firewall in advanced mode, Little Snitch or LuLu on macOS, and OpenSnitch on Linux.</p>
+
+<h2>Level 3: capture the traffic</h2>
+<p>For a definite answer, capture the packets. <strong>Wireshark</strong> runs on all three systems. Start a capture, launch the app, use it for a while, then filter by the app&rsquo;s traffic. Even when contents are encrypted, you can see who it talks to (addresses and domain names from DNS lookups), how often and how much. Be aware that you are looking at <em>metadata</em>: with modern encryption you can see that a program sent 40 KB to an analytics domain without reading what it said.</p>
+<p>Capturing can expose your own sensitive traffic to anyone with access to the capture file, so do it on a quiet machine and delete the file afterwards.</p>
+
+<h2>How to interpret what you see</h2>
+<ul>
+  <li><strong>No traffic at all.</strong> The most believable result for a local tool. Check also during actions like opening links, which should hand off to your browser.</li>
+  <li><strong>Update checks.</strong> Usually acceptable if they are disclosed, infrequent and documented.</li>
+  <li><strong>Connections to ad, analytics or tracking domains.</strong> A red flag for a tool that has no reason to send usage data.</li>
+  <li><strong>Large upload.</strong> Worth understanding before you use the tool further.</li>
+</ul>
+
+<h2>What this can't prove</h2>
+<p>Observation shows what happened while you watched. A program could behave differently later, on another machine, or only when it detects it is being monitored. That is why source code matters alongside testing: reading or searching the code tells you what is possible, and testing tells you what is happening. For Open Task Manager, you can do both; our <a href="/blog/open-task-manager-vs-windows-task-manager/">comparison post</a> lists what the code does and doesn&rsquo;t include. If you find something we have missed, please open an issue.</p>
+<p>Taking five minutes to look turns privacy from a promise into something you checked.</p>
+
+<h2>Keep reading</h2>
+<ul class="related"><li><a href="/blog/windows-recall-and-the-case-for-local-first-software/">Windows Recall and the Case for Software You Can Audit</a></li><li><a href="/blog/reduce-windows-diagnostic-data-settings/">How to Reduce Windows Diagnostic Data Collection: The Settings That Matter</a></li><li><a href="/blog/rust-is-permanent-in-the-linux-kernel/">Rust Is Now a Permanent Part of the Linux Kernel. Here&#x27;s What That Means for System Tools</a></li></ul>
+  </article>
+</main>
+<footer><span>Open Task Manager &middot; open source on <a href="https://github.com/sabaoongfx/Open-Task-Manager" target="_blank" rel="noopener">GitHub</a> &middot; built by <a href="https://sabaoon.dev" target="_blank" rel="noopener">sabaoon.dev</a></span></footer>
+</body></html>

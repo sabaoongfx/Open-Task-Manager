@@ -184,7 +184,7 @@ at desktop and ~390px widths.
 
 SEO lives in `website/index.html`'s `<head>` (description, canonical, Open Graph/Twitter tags
 pointing at `website/og.png`, JSON-LD `SoftwareApplication`), plus `website/robots.txt` and
-`website/sitemap.xml`. All of them hardcode the production URL `https://opentaskmanager.vercel.app/`.
+`website/sitemap.xml`. All of them hardcode the production URL `https://otm.sabaoon.dev/`.
 
 `vercel.json` at the repo root deploys `website/` with no build step. Its `outputDirectory` is
 resolved relative to whatever Vercel's dashboard "Root Directory" project setting is (currently

@@ -17,7 +17,7 @@
 </p>
 
 <p align="center">
-  <a href="https://opentaskmanager.vercel.app"><strong>Website &amp; live demo</strong></a> ·
+  <a href="https://otm.sabaoon.dev"><strong>Website &amp; live demo</strong></a> ·
   <a href="#install">Install</a> ·
   <a href="#terminal-ui-otm">Terminal UI</a> ·
   <a href="#development">Development</a>
@@ -345,7 +345,7 @@ packaging/            Linux packaging: AUR PKGBUILDs, apt repo config,
                       pacman repo script, desktop entry
 .github/workflows/    release.yml (installers + otm), publish-linux.yml (apt/pacman repos)
 
-website/              The static site at opentaskmanager.vercel.app, which embeds a real
+website/              The static site at otm.sabaoon.dev, which embeds a real
                       build of the app and real otm renders
 docs/                 README screenshots
 ```

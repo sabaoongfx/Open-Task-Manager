@@ -1,99 +1,99 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://opentaskmanager.vercel.app/</loc>
+    <loc>https://otm.sabaoon.dev/</loc>
   </url>
   <url>
-    <loc>https://opentaskmanager.vercel.app/releases.html</loc>
+    <loc>https://otm.sabaoon.dev/releases.html</loc>
   </url>
   <url>
-    <loc>https://opentaskmanager.vercel.app/blog/rust-is-permanent-in-the-linux-kernel/</loc>
+    <loc>https://otm.sabaoon.dev/blog/rust-is-permanent-in-the-linux-kernel/</loc>
   </url>
   <url>
-    <loc>https://opentaskmanager.vercel.app/blog/rust-most-admired-language-and-desktop-tools/</loc>
+    <loc>https://otm.sabaoon.dev/blog/rust-most-admired-language-and-desktop-tools/</loc>
   </url>
   <url>
-    <loc>https://opentaskmanager.vercel.app/blog/tauri-vs-electron-what-the-numbers-say/</loc>
+    <loc>https://otm.sabaoon.dev/blog/tauri-vs-electron-what-the-numbers-say/</loc>
   </url>
   <url>
-    <loc>https://opentaskmanager.vercel.app/blog/windows-10-ended-what-linux-newcomers-should-know/</loc>
+    <loc>https://otm.sabaoon.dev/blog/windows-10-ended-what-linux-newcomers-should-know/</loc>
   </url>
   <url>
-    <loc>https://opentaskmanager.vercel.app/blog/ram-prices-2026-why-your-memory-matters-more/</loc>
+    <loc>https://otm.sabaoon.dev/blog/ram-prices-2026-why-your-memory-matters-more/</loc>
   </url>
   <url>
-    <loc>https://opentaskmanager.vercel.app/blog/stretch-your-ram-practical-guide/</loc>
+    <loc>https://otm.sabaoon.dev/blog/stretch-your-ram-practical-guide/</loc>
   </url>
   <url>
-    <loc>https://opentaskmanager.vercel.app/blog/windows-recall-and-the-case-for-local-first-software/</loc>
+    <loc>https://otm.sabaoon.dev/blog/windows-recall-and-the-case-for-local-first-software/</loc>
   </url>
   <url>
-    <loc>https://opentaskmanager.vercel.app/blog/reduce-windows-diagnostic-data-settings/</loc>
+    <loc>https://otm.sabaoon.dev/blog/reduce-windows-diagnostic-data-settings/</loc>
   </url>
   <url>
-    <loc>https://opentaskmanager.vercel.app/blog/why-windows-task-manager-cpu-numbers-changed/</loc>
+    <loc>https://otm.sabaoon.dev/blog/why-windows-task-manager-cpu-numbers-changed/</loc>
   </url>
   <url>
-    <loc>https://opentaskmanager.vercel.app/blog/supply-chain-attacks-and-small-dependency-trees/</loc>
+    <loc>https://otm.sabaoon.dev/blog/supply-chain-attacks-and-small-dependency-trees/</loc>
   </url>
   <url>
-    <loc>https://opentaskmanager.vercel.app/blog/what-is-a-process-a-beginners-guide/</loc>
+    <loc>https://otm.sabaoon.dev/blog/what-is-a-process-a-beginners-guide/</loc>
   </url>
   <url>
-    <loc>https://opentaskmanager.vercel.app/blog/process-vs-thread-and-why-linux-lists-threads/</loc>
+    <loc>https://otm.sabaoon.dev/blog/process-vs-thread-and-why-linux-lists-threads/</loc>
   </url>
   <url>
-    <loc>https://opentaskmanager.vercel.app/blog/memory-explained-rss-working-set-and-shared/</loc>
+    <loc>https://otm.sabaoon.dev/blog/memory-explained-rss-working-set-and-shared/</loc>
   </url>
   <url>
-    <loc>https://opentaskmanager.vercel.app/blog/how-to-find-a-memory-leak-with-a-task-manager/</loc>
+    <loc>https://otm.sabaoon.dev/blog/how-to-find-a-memory-leak-with-a-task-manager/</loc>
   </url>
   <url>
-    <loc>https://opentaskmanager.vercel.app/blog/cpu-usage-explained-cores-threads-percent/</loc>
+    <loc>https://otm.sabaoon.dev/blog/cpu-usage-explained-cores-threads-percent/</loc>
   </url>
   <url>
-    <loc>https://opentaskmanager.vercel.app/blog/disk-at-100-percent-how-to-diagnose/</loc>
+    <loc>https://otm.sabaoon.dev/blog/disk-at-100-percent-how-to-diagnose/</loc>
   </url>
   <url>
-    <loc>https://opentaskmanager.vercel.app/blog/reading-the-network-graph-which-app-is-chatty/</loc>
+    <loc>https://otm.sabaoon.dev/blog/reading-the-network-graph-which-app-is-chatty/</loc>
   </url>
   <url>
-    <loc>https://opentaskmanager.vercel.app/blog/clean-up-startup-apps-for-faster-boot/</loc>
+    <loc>https://otm.sabaoon.dev/blog/clean-up-startup-apps-for-faster-boot/</loc>
   </url>
   <url>
-    <loc>https://opentaskmanager.vercel.app/blog/services-explained-systemd-and-windows/</loc>
+    <loc>https://otm.sabaoon.dev/blog/services-explained-systemd-and-windows/</loc>
   </url>
   <url>
-    <loc>https://opentaskmanager.vercel.app/blog/how-to-end-a-stuck-process-safely/</loc>
+    <loc>https://otm.sabaoon.dev/blog/how-to-end-a-stuck-process-safely/</loc>
   </url>
   <url>
-    <loc>https://opentaskmanager.vercel.app/blog/terminal-system-monitors-compared/</loc>
+    <loc>https://otm.sabaoon.dev/blog/terminal-system-monitors-compared/</loc>
   </url>
   <url>
-    <loc>https://opentaskmanager.vercel.app/blog/why-your-browser-uses-so-much-memory/</loc>
+    <loc>https://otm.sabaoon.dev/blog/why-your-browser-uses-so-much-memory/</loc>
   </url>
   <url>
-    <loc>https://opentaskmanager.vercel.app/blog/local-llms-and-your-ram-how-to-estimate/</loc>
+    <loc>https://otm.sabaoon.dev/blog/local-llms-and-your-ram-how-to-estimate/</loc>
   </url>
   <url>
-    <loc>https://opentaskmanager.vercel.app/blog/ebpf-and-the-future-of-observability-where-desktop-monitors-fit/</loc>
+    <loc>https://otm.sabaoon.dev/blog/ebpf-and-the-future-of-observability-where-desktop-monitors-fit/</loc>
   </url>
   <url>
-    <loc>https://opentaskmanager.vercel.app/blog/how-to-check-what-an-app-sends-over-the-network/</loc>
+    <loc>https://otm.sabaoon.dev/blog/how-to-check-what-an-app-sends-over-the-network/</loc>
   </url>
   <url>
-    <loc>https://opentaskmanager.vercel.app/blog/mit-license-explained-for-users/</loc>
+    <loc>https://otm.sabaoon.dev/blog/mit-license-explained-for-users/</loc>
   </url>
   <url>
-    <loc>https://opentaskmanager.vercel.app/blog/why-signed-package-repositories-matter/</loc>
+    <loc>https://otm.sabaoon.dev/blog/why-signed-package-repositories-matter/</loc>
   </url>
   <url>
-    <loc>https://opentaskmanager.vercel.app/blog/how-we-built-open-task-manager/</loc>
+    <loc>https://otm.sabaoon.dev/blog/how-we-built-open-task-manager/</loc>
   </url>
   <url>
-    <loc>https://opentaskmanager.vercel.app/blog/find-battery-draining-apps-with-a-task-manager/</loc>
+    <loc>https://otm.sabaoon.dev/blog/find-battery-draining-apps-with-a-task-manager/</loc>
   </url>
   <url>
-    <loc>https://opentaskmanager.vercel.app/blog/zombie-and-orphan-processes-on-linux/</loc>
+    <loc>https://otm.sabaoon.dev/blog/zombie-and-orphan-processes-on-linux/</loc>
   </url>
 </urlset>

@@ -3,4 +3,4 @@ Allow: /
 # The live demo embedded on the home page; not a page of its own.
 Disallow: /app/
 
-Sitemap: https://opentaskmanager.vercel.app/sitemap.xml
+Sitemap: https://otm.sabaoon.dev/sitemap.xml

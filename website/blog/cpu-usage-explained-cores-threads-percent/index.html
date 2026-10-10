@@ -1,0 +1,73 @@
+<!doctype html><html lang="en"><head>
+<title>CPU Usage Explained: Cores, Threads and What That Percentage Means &middot; Blog</title>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#F6F4EF" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#16130F" media="(prefers-color-scheme: dark)">
+<link rel="icon" href="/favicon.ico" sizes="any"><link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="/blog/blog.css">
+<meta name="description" content="Why a program can show 400%, why 12% can mean a core is maxed, and how to tell a harmless spike from a real problem.">
+<link rel="canonical" href="https://opentaskmanager.vercel.app/blog/cpu-usage-explained-cores-threads-percent/">
+<meta property="og:type" content="article"><meta property="og:title" content="CPU Usage Explained: Cores, Threads and What That Percentage Means">
+<meta property="og:description" content="Why a program can show 400%, why 12% can mean a core is maxed, and how to tell a harmless spike from a real problem.">
+<meta property="og:url" content="https://opentaskmanager.vercel.app/blog/cpu-usage-explained-cores-threads-percent/"><meta property="og:image" content="https://opentaskmanager.vercel.app/og.png">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"CPU Usage Explained: Cores, Threads and What That Percentage Means","description":"Why a program can show 400%, why 12% can mean a core is maxed, and how to tell a harmless spike from a real problem.","datePublished":"2026-10-11","author":{"@type":"Person","name":"sabaoongfx","url":"https://sabaoon.dev"},"mainEntityOfPage":"https://opentaskmanager.vercel.app/blog/cpu-usage-explained-cores-threads-percent/","image":"https://opentaskmanager.vercel.app/og.png"}</script>
+</head><body>
+<div class="topbar">
+  <a class="brand" href="/" aria-label="Open Task Manager home">
+    <svg viewBox="0 0 513 398" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <rect width="512" height="398" rx="70" fill="#E93233"/>
+      <path d="M492.818 397.869C503.914 397.941 512.948 388.966 512.948 377.87V187.414C512.948 176.368 503.994 167.414 492.948 167.414H454.616C446.258 167.414 438.781 162.216 435.869 154.382L407.167 77.1576C401.073 60.7631 378.355 59.5366 370.532 75.1798L351.027 114.182C344.098 128.036 324.73 129.095 316.333 116.079L314.235 112.827C306.08 100.186 287.412 100.735 280.014 113.835L224.686 211.807C216.254 226.738 194.173 224.83 188.427 208.673L144.755 85.8569C138.495 68.2542 113.662 68.0829 107.161 85.5975L2.38706 367.842C-2.44362 380.855 7.12634 394.711 21.0068 394.802L492.818 397.869Z" fill="#FBA806"/>
+      <path d="M492.948 398C503.994 398 512.948 389.046 512.948 378V244.321C512.948 233.275 503.994 224.321 492.948 224.321H453.201C445.586 224.321 438.632 219.996 435.264 213.166L406.591 155.02C399.769 141.185 380.516 139.954 371.988 152.808L350.108 185.783C342.768 196.847 326.882 197.818 318.249 187.731L312.676 181.221C304.35 171.493 289.154 171.986 281.476 182.234L223.26 259.935C214.222 271.997 195.596 270.107 189.166 256.476L144.021 160.784C136.922 145.738 115.627 145.431 108.098 160.267L2.19154 368.949C-4.56059 382.254 5.10628 398 20.0262 398H492.948Z" fill="#FFDB56"/>
+    </svg>
+    Open Task Manager
+  </a>
+  <nav class="topnav"><a href="/#features">Features</a><a href="/#download">Download</a><a href="/blog/" aria-current="page">Blog</a><a href="https://github.com/sabaoongfx/Open-Task-Manager" target="_blank" rel="noopener">GitHub</a></nav>
+</div>
+<main>
+  <a class="back" href="/blog/">&larr; All posts</a>
+  <article>
+    <p class="eyebrow">Fundamentals</p>
+    <h1>CPU Usage Explained: Cores, Threads and What That Percentage Means</h1>
+    <p class="meta">2026-10-11 &middot; sabaoongfx &middot; 3 min read</p>
+
+<p>CPU percentage looks like the simplest number in a task manager. It is also one of the most misread. To use it well, you need three ideas: cores, threads and the thing the percentage is measured against.</p>
+
+<h2>Cores and logical processors</h2>
+<p>A modern processor has several <strong>cores</strong>, each able to run instructions independently. Many cores can also present themselves as two <strong>logical processors</strong> (simultaneous multithreading), so a six-core chip may appear as twelve. Your operating system schedules work across all of them. When a monitor says &ldquo;100 percent,&rdquo; the key question is: 100 percent of what?</p>
+
+<h2>Two conventions</h2>
+<ul>
+  <li><strong>Percent of the whole machine.</strong> 100 means every logical processor is saturated. A program fully using one core on a twelve-processor machine shows about 8 percent. The Windows Task Manager works this way for its main CPU figures since the 24H2 change, and so does Open Task Manager since version 0.4.2 (<a href="/blog/why-windows-task-manager-cpu-numbers-changed/">the story</a>).</li>
+  <li><strong>Percent of one core.</strong> 100 means one core is fully used, and a multi-threaded program can exceed it: 400 means about four cores&rsquo; worth of work. Many Unix-style tools follow this convention. Open Task Manager did too until version 0.4.2, when we switched to the whole-machine share so process rows add up to the total at the top, as they do in Windows.</li>
+</ul>
+<p>Neither is wrong. They answer different questions: &ldquo;how busy is the machine?&rdquo; versus &ldquo;how much of a core is this program consuming?&rdquo; Always check which one your tool is using before comparing numbers.</p>
+
+<h2>Single-threaded bottlenecks</h2>
+<p>A program that uses only one thread can use at most one core. On a twelve-core machine that is about 8 percent overall, so the system looks nearly idle even though that program is as fast as it can possibly go and still feels slow. If a program is sluggish while the overall chart is low, look at its per-core or per-process figure. One core pinned at 100 percent is the clue.</p>
+
+<h2>What &ldquo;normal&rdquo; looks like</h2>
+<ul>
+  <li><strong>Spikes.</strong> Short bursts of 50 to 100 percent when you open something are expected.</li>
+  <li><strong>Idle.</strong> A resting desktop should hover in low single digits.</li>
+  <li><strong>Sustained load.</strong> Anything above about 30 percent for minutes, when you aren&rsquo;t doing demanding work, deserves a look.</li>
+</ul>
+<p>Laptops add a wrinkle: speed changes constantly. A core at half speed running flat out reports as busy, so the same percentage can mean different amounts of work. Some tools adjust for this (Windows&rsquo;s utility-style metric does) and others don&rsquo;t.</p>
+
+<h2>Finding the culprit</h2>
+<ol>
+  <li>Open the Processes tab and sort by CPU. Let it settle for ten seconds, since it jumps around.</li>
+  <li>Identify the top entry and check whether it is an app you are using.</li>
+  <li>If it is an unfamiliar helper, look it up. Indexing, backups, antivirus scans and updates all legitimately use CPU for a while.</li>
+  <li>If it never settles, check the Performance tab for the overall pattern and restart the app, or see <a href="/blog/how-to-end-a-stuck-process-safely/">how to end a stuck process safely</a>.</li>
+</ol>
+
+<h2>Remember the refresh rate</h2>
+<p>Every monitor samples at an interval; ours refreshes every 1.5 seconds. Percentages are averages over that window, so very short bursts can fall between samples. For tracking down intermittent problems, watch the chart for a minute rather than reading one instant. And if you see many more entries than expected, see <a href="/blog/process-vs-thread-and-why-linux-lists-threads/">process versus thread</a>.</p>
+
+<h2>Keep reading</h2>
+<ul class="related"><li><a href="/blog/what-is-a-process-a-beginners-guide/">What Is a Process? A Beginner&#x27;s Guide to Reading Your Task Manager</a></li><li><a href="/blog/process-vs-thread-and-why-linux-lists-threads/">Process vs. Thread: Why Some Linux Monitors Show Thousands of Entries</a></li><li><a href="/blog/memory-explained-rss-working-set-and-shared/">Memory Explained: RSS, Working Set, Shared and Cached</a></li></ul>
+  </article>
+</main>
+<footer><span>Open Task Manager &middot; open source on <a href="https://github.com/sabaoongfx/Open-Task-Manager" target="_blank" rel="noopener">GitHub</a> &middot; built by <a href="https://sabaoon.dev" target="_blank" rel="noopener">sabaoon.dev</a></span></footer>
+</body></html>

@@ -1,0 +1,68 @@
+<!doctype html><html lang="en"><head>
+<title>Why Your Browser Uses So Much Memory, and What You Can Do About It &middot; Blog</title>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#F6F4EF" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#16130F" media="(prefers-color-scheme: dark)">
+<link rel="icon" href="/favicon.ico" sizes="any"><link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="/blog/blog.css">
+<meta name="description" content="Multi-process design, site isolation, extensions and tab habits explain the numbers. Here is how to read them and trim them.">
+<link rel="canonical" href="https://opentaskmanager.vercel.app/blog/why-your-browser-uses-so-much-memory/">
+<meta property="og:type" content="article"><meta property="og:title" content="Why Your Browser Uses So Much Memory, and What You Can Do About It">
+<meta property="og:description" content="Multi-process design, site isolation, extensions and tab habits explain the numbers. Here is how to read them and trim them.">
+<meta property="og:url" content="https://opentaskmanager.vercel.app/blog/why-your-browser-uses-so-much-memory/"><meta property="og:image" content="https://opentaskmanager.vercel.app/og.png">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"Why Your Browser Uses So Much Memory, and What You Can Do About It","description":"Multi-process design, site isolation, extensions and tab habits explain the numbers. Here is how to read them and trim them.","datePublished":"2026-10-11","author":{"@type":"Person","name":"sabaoongfx","url":"https://sabaoon.dev"},"mainEntityOfPage":"https://opentaskmanager.vercel.app/blog/why-your-browser-uses-so-much-memory/","image":"https://opentaskmanager.vercel.app/og.png"}</script>
+</head><body>
+<div class="topbar">
+  <a class="brand" href="/" aria-label="Open Task Manager home">
+    <svg viewBox="0 0 513 398" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <rect width="512" height="398" rx="70" fill="#E93233"/>
+      <path d="M492.818 397.869C503.914 397.941 512.948 388.966 512.948 377.87V187.414C512.948 176.368 503.994 167.414 492.948 167.414H454.616C446.258 167.414 438.781 162.216 435.869 154.382L407.167 77.1576C401.073 60.7631 378.355 59.5366 370.532 75.1798L351.027 114.182C344.098 128.036 324.73 129.095 316.333 116.079L314.235 112.827C306.08 100.186 287.412 100.735 280.014 113.835L224.686 211.807C216.254 226.738 194.173 224.83 188.427 208.673L144.755 85.8569C138.495 68.2542 113.662 68.0829 107.161 85.5975L2.38706 367.842C-2.44362 380.855 7.12634 394.711 21.0068 394.802L492.818 397.869Z" fill="#FBA806"/>
+      <path d="M492.948 398C503.994 398 512.948 389.046 512.948 378V244.321C512.948 233.275 503.994 224.321 492.948 224.321H453.201C445.586 224.321 438.632 219.996 435.264 213.166L406.591 155.02C399.769 141.185 380.516 139.954 371.988 152.808L350.108 185.783C342.768 196.847 326.882 197.818 318.249 187.731L312.676 181.221C304.35 171.493 289.154 171.986 281.476 182.234L223.26 259.935C214.222 271.997 195.596 270.107 189.166 256.476L144.021 160.784C136.922 145.738 115.627 145.431 108.098 160.267L2.19154 368.949C-4.56059 382.254 5.10628 398 20.0262 398H492.948Z" fill="#FFDB56"/>
+    </svg>
+    Open Task Manager
+  </a>
+  <nav class="topnav"><a href="/#features">Features</a><a href="/#download">Download</a><a href="/blog/" aria-current="page">Blog</a><a href="https://github.com/sabaoongfx/Open-Task-Manager" target="_blank" rel="noopener">GitHub</a></nav>
+</div>
+<main>
+  <a class="back" href="/blog/">&larr; All posts</a>
+  <article>
+    <p class="eyebrow">How-to</p>
+    <h1>Why Your Browser Uses So Much Memory, and What You Can Do About It</h1>
+    <p class="meta">2026-10-11 &middot; sabaoongfx &middot; 3 min read</p>
+
+<p>Open a task manager and the biggest line on your list is almost certainly your web browser. It is such a common sight that people assume something is wrong. Usually nothing is. Browsers are among the most complex programs you run, and the memory they use is largely a deliberate trade for speed, stability and security. Still, there is plenty you can control.</p>
+
+<h2>Why browsers use many processes</h2>
+<p>Modern browsers split their work across processes: a main browser process, separate processes for web pages, a GPU process, a network service, and one per extension in some designs. The reasons are good ones. A crashing tab shouldn&rsquo;t take down the others, and keeping sites in separate processes makes it harder for a malicious page to read another page&rsquo;s data. That isolation costs memory, because each process carries its own copy of some runtime data.</p>
+
+<h2>What a tab really costs</h2>
+<p>Tabs differ enormously. A static article might need a few dozen megabytes; a web app such as a spreadsheet, video editor or social feed can need hundreds. Pages hold images, scripts, a layout tree and often a large JavaScript heap. Background tabs keep most of that unless the browser discards them.</p>
+<p>Extensions add their own overhead, and some inject code into every page you visit. A dozen extensions can add more memory than a dozen idle tabs.</p>
+
+<h2>Reading the numbers correctly</h2>
+<p>Because the browser is many processes, you must look at the total, not one row. Use a grouped Processes view so all helpers add up under the browser&rsquo;s name. Be aware that resident memory counts shared pages in each process, so the sum can overstate the true cost (<a href="/blog/memory-explained-rss-working-set-and-shared/">why</a>). Browsers also include their own task manager, usually under a &ldquo;more tools&rdquo; menu, that shows memory per tab and per extension. Use it to find the heavy pages.</p>
+
+<h2>Ways to reduce it</h2>
+<ol>
+  <li><strong>Close tabs you aren&rsquo;t using.</strong> Bookmark or use a reading list instead of keeping 60 pages open as a to-do list.</li>
+  <li><strong>Turn on tab discarding.</strong> Most major browsers have an option that unloads inactive tabs and reloads them when you click. Check your browser&rsquo;s performance settings.</li>
+  <li><strong>Audit extensions.</strong> Disable them all, then re-enable only those you need. Remove the rest.</li>
+  <li><strong>Watch for heavy sites.</strong> Pages with autoplay video, live feeds and web apps are the biggest. Use the browser&rsquo;s own task manager to name them.</li>
+  <li><strong>Restart the browser occasionally.</strong> Long sessions accumulate memory. Most browsers restore your tabs.</li>
+  <li><strong>Keep it updated.</strong> Memory improvements and leak fixes arrive regularly.</li>
+</ol>
+
+<h2>When high usage is a good thing</h2>
+<p>If you have plenty of free RAM, a browser that caches aggressively is doing you a favour: pages reopen instantly. High memory use only becomes a problem when it crowds out other programs or pushes the system into swapping. Check the Performance chart before you start closing things. If memory is nowhere near full, there is nothing to fix.</p>
+
+<h2>A note on desktop apps built on browsers</h2>
+<p>Many desktop programs, including chat clients and note-taking tools, are web pages in disguise and carry their own browser engine, so each one is another full browser in memory. That is one reason we built Open Task Manager with Tauri, which uses the web view already on your system instead of bundling a new one. We compare the approaches in <a href="/blog/tauri-vs-electron-what-the-numbers-say/">Tauri vs. Electron: what the numbers say</a>.</p>
+<p>For the full set of habits, see our <a href="/blog/stretch-your-ram-practical-guide/">RAM guide</a>.</p>
+
+<h2>Keep reading</h2>
+<ul class="related"><li><a href="/blog/stretch-your-ram-practical-guide/">How to Stretch Your RAM: A Practical Guide for Any Operating System</a></li><li><a href="/blog/why-windows-task-manager-cpu-numbers-changed/">Why the Windows Task Manager&#x27;s CPU Numbers Changed in 24H2</a></li><li><a href="/blog/how-to-find-a-memory-leak-with-a-task-manager/">How to Find a Memory Leak With Just a Task Manager</a></li></ul>
+  </article>
+</main>
+<footer><span>Open Task Manager &middot; open source on <a href="https://github.com/sabaoongfx/Open-Task-Manager" target="_blank" rel="noopener">GitHub</a> &middot; built by <a href="https://sabaoon.dev" target="_blank" rel="noopener">sabaoon.dev</a></span></footer>
+</body></html>

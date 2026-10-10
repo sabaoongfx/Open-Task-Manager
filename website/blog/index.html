@@ -1,0 +1,215 @@
+<!doctype html><html lang="en"><head>
+<title>Blog &middot; Open Task Manager</title>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#F6F4EF" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#16130F" media="(prefers-color-scheme: dark)">
+<link rel="icon" href="/favicon.ico" sizes="any"><link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="/blog/blog.css">
+<meta name="description" content="Guides, comparisons and trend write-ups on task managers, system performance, privacy and open source, from the Open Task Manager project.">
+<link rel="canonical" href="https://opentaskmanager.vercel.app/blog/">
+<meta property="og:title" content="Open Task Manager blog"><meta property="og:url" content="https://opentaskmanager.vercel.app/blog/">
+<meta property="og:image" content="https://opentaskmanager.vercel.app/og.png">
+</head><body>
+<div class="topbar">
+  <a class="brand" href="/" aria-label="Open Task Manager home">
+    <svg viewBox="0 0 513 398" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <rect width="512" height="398" rx="70" fill="#E93233"/>
+      <path d="M492.818 397.869C503.914 397.941 512.948 388.966 512.948 377.87V187.414C512.948 176.368 503.994 167.414 492.948 167.414H454.616C446.258 167.414 438.781 162.216 435.869 154.382L407.167 77.1576C401.073 60.7631 378.355 59.5366 370.532 75.1798L351.027 114.182C344.098 128.036 324.73 129.095 316.333 116.079L314.235 112.827C306.08 100.186 287.412 100.735 280.014 113.835L224.686 211.807C216.254 226.738 194.173 224.83 188.427 208.673L144.755 85.8569C138.495 68.2542 113.662 68.0829 107.161 85.5975L2.38706 367.842C-2.44362 380.855 7.12634 394.711 21.0068 394.802L492.818 397.869Z" fill="#FBA806"/>
+      <path d="M492.948 398C503.994 398 512.948 389.046 512.948 378V244.321C512.948 233.275 503.994 224.321 492.948 224.321H453.201C445.586 224.321 438.632 219.996 435.264 213.166L406.591 155.02C399.769 141.185 380.516 139.954 371.988 152.808L350.108 185.783C342.768 196.847 326.882 197.818 318.249 187.731L312.676 181.221C304.35 171.493 289.154 171.986 281.476 182.234L223.26 259.935C214.222 271.997 195.596 270.107 189.166 256.476L144.021 160.784C136.922 145.738 115.627 145.431 108.098 160.267L2.19154 368.949C-4.56059 382.254 5.10628 398 20.0262 398H492.948Z" fill="#FFDB56"/>
+    </svg>
+    Open Task Manager
+  </a>
+  <nav class="topnav"><a href="/#features">Features</a><a href="/#download">Download</a><a href="/blog/" aria-current="page">Blog</a><a href="https://github.com/sabaoongfx/Open-Task-Manager" target="_blank" rel="noopener">GitHub</a></nav>
+</div>
+<main>
+  <header class="page-head">
+    <p class="eyebrow">blog</p>
+    <h1>Notes from the process table.</h1>
+    <p>Guides, comparisons and trend write-ups on system performance, privacy and open source. 32 posts.</p>
+    <nav class="tag-nav" aria-label="Topics"><a href="#trends">Trends</a><a href="#privacy">Privacy</a><a href="#security">Security</a><a href="#how-to">How-to</a><a href="#fundamentals">Fundamentals</a><a href="#linux">Linux</a><a href="#engineering">Engineering</a></nav>
+  </header>
+  <section class="tag-group" id="trends"><h2 class="tag-title">Trends <span class="count">6</span></h2>
+  <ul class="posts">
+    <li><a class="post-card" href="/blog/rust-is-permanent-in-the-linux-kernel/">
+      <span class="meta">2026-10-11 &middot; 3 min read</span>
+      <h3>Rust Is Now a Permanent Part of the Linux Kernel. Here&#x27;s What That Means for System Tools</h3>
+      <p>Kernel maintainers ended the Rust experiment in December 2025. What changed, what didn&#x27;t, and why it matters for the tools that monitor your machine.</p>
+    </a></li>
+    <li><a class="post-card" href="/blog/rust-most-admired-language-and-desktop-tools/">
+      <span class="meta">2026-10-11 &middot; 3 min read</span>
+      <h3>Rust Is the Most Admired Language Again. Does It Matter for Desktop Apps?</h3>
+      <p>The 2025 Stack Overflow survey put Rust on top for the tenth year running, but admiration and adoption are different things. What it means for desktop software.</p>
+    </a></li>
+    <li><a class="post-card" href="/blog/tauri-vs-electron-what-the-numbers-say/">
+      <span class="meta">2026-10-11 &middot; 3 min read</span>
+      <h3>Tauri vs. Electron: What the Numbers Say, and What They Don&#x27;t</h3>
+      <p>Everyone quotes 3 MB versus 100 MB. Here is the range of figures published in 2026, why they disagree, and how to measure your own app.</p>
+    </a></li>
+    <li><a class="post-card" href="/blog/ram-prices-2026-why-your-memory-matters-more/">
+      <span class="meta">2026-10-11 &middot; 3 min read</span>
+      <h3>The 2026 RAM Price Crunch: Why Knowing Where Your Memory Goes Matters</h3>
+      <p>Memory prices have jumped sharply this year as AI data centers absorb supply. Here is what is happening, and why wasting RAM is more expensive than it used to be.</p>
+    </a></li>
+    <li><a class="post-card" href="/blog/local-llms-and-your-ram-how-to-estimate/">
+      <span class="meta">2026-10-11 &middot; 3 min read</span>
+      <h3>Running AI Models Locally: How to Estimate the RAM You&#x27;ll Need</h3>
+      <p>A simple formula for the memory a local language model needs, why quantization matters, and how to watch it in a task manager.</p>
+    </a></li>
+    <li><a class="post-card" href="/blog/ebpf-and-the-future-of-observability-where-desktop-monitors-fit/">
+      <span class="meta">2026-10-11 &middot; 3 min read</span>
+      <h3>eBPF and the Future of Observability: Where a Desktop Monitor Fits</h3>
+      <p>eBPF lets programs watch the Linux kernel safely, and it is reshaping how servers are monitored. What it can do that a task manager can&#x27;t, and the reverse.</p>
+    </a></li>
+  </ul></section>
+  <section class="tag-group" id="privacy"><h2 class="tag-title">Privacy <span class="count">4</span></h2>
+  <ul class="posts">
+    <li><a class="post-card" href="/blog/open-task-manager-vs-windows-task-manager/">
+      <span class="meta">2026-10-11 &middot; 8 min read</span>
+      <h3>Open Task Manager vs. the Windows Task Manager</h3>
+      <p>A fair side-by-side comparison, where the built-in one still wins, and what open source does and doesn&#x27;t mean for your privacy.</p>
+    </a></li>
+    <li><a class="post-card" href="/blog/windows-recall-and-the-case-for-local-first-software/">
+      <span class="meta">2026-10-11 &middot; 3 min read</span>
+      <h3>Windows Recall and the Case for Software You Can Audit</h3>
+      <p>Recall&#x27;s 2024 launch became a lesson in how trust works for software that watches what you do. What changed, and what &#x27;auditable&#x27; really gives you.</p>
+    </a></li>
+    <li><a class="post-card" href="/blog/reduce-windows-diagnostic-data-settings/">
+      <span class="meta">2026-10-11 &middot; 3 min read</span>
+      <h3>How to Reduce Windows Diagnostic Data Collection: The Settings That Matter</h3>
+      <p>A short, honest walkthrough of the Windows privacy settings that control diagnostic data, what they do and don&#x27;t change, and why to re-check them after updates.</p>
+    </a></li>
+    <li><a class="post-card" href="/blog/how-to-check-what-an-app-sends-over-the-network/">
+      <span class="meta">2026-10-11 &middot; 3 min read</span>
+      <h3>How to Check What an App Sends Over the Network (Without Taking Anyone&#x27;s Word)</h3>
+      <p>A practical, tiered guide: from a quick look at open connections to a full packet capture. Works on Windows, macOS and Linux.</p>
+    </a></li>
+  </ul></section>
+  <section class="tag-group" id="security"><h2 class="tag-title">Security <span class="count">2</span></h2>
+  <ul class="posts">
+    <li><a class="post-card" href="/blog/supply-chain-attacks-and-small-dependency-trees/">
+      <span class="meta">2026-10-11 &middot; 3 min read</span>
+      <h3>Shai-Hulud and the Case for Small Dependency Trees</h3>
+      <p>The 2025 npm worm showed how one compromised package can spread. What happened, what it means for any app you install, and the habits that reduce your exposure.</p>
+    </a></li>
+    <li><a class="post-card" href="/blog/why-signed-package-repositories-matter/">
+      <span class="meta">2026-10-11 &middot; 3 min read</span>
+      <h3>Why Signed Package Repositories Matter (and What They Don&#x27;t Protect)</h3>
+      <p>How apt and pacman verify what you install, what a signature does and doesn&#x27;t prove, and why we publish our own signed repositories.</p>
+    </a></li>
+  </ul></section>
+  <section class="tag-group" id="how-to"><h2 class="tag-title">How-to <span class="count">9</span></h2>
+  <ul class="posts">
+    <li><a class="post-card" href="/blog/stretch-your-ram-practical-guide/">
+      <span class="meta">2026-10-11 &middot; 3 min read</span>
+      <h3>How to Stretch Your RAM: A Practical Guide for Any Operating System</h3>
+      <p>Eight habits that reduce memory use on Windows, Linux and macOS, with how to check that each one actually helped.</p>
+    </a></li>
+    <li><a class="post-card" href="/blog/why-windows-task-manager-cpu-numbers-changed/">
+      <span class="meta">2026-10-11 &middot; 3 min read</span>
+      <h3>Why the Windows Task Manager&#x27;s CPU Numbers Changed in 24H2</h3>
+      <p>For years the Processes tab and the Performance tab disagreed about CPU usage. Here is why, what Microsoft changed in 2025, and how to read CPU numbers in any tool.</p>
+    </a></li>
+    <li><a class="post-card" href="/blog/how-to-find-a-memory-leak-with-a-task-manager/">
+      <span class="meta">2026-10-11 &middot; 3 min read</span>
+      <h3>How to Find a Memory Leak With Just a Task Manager</h3>
+      <p>A step-by-step method to confirm whether a program is leaking memory, and what to do about it, without any developer tools.</p>
+    </a></li>
+    <li><a class="post-card" href="/blog/disk-at-100-percent-how-to-diagnose/">
+      <span class="meta">2026-10-11 &middot; 3 min read</span>
+      <h3>Disk at 100%? How to Diagnose a Slow Drive Step by Step</h3>
+      <p>The most frustrating slowdowns come from the disk, not the CPU. Learn to confirm it, find the cause, and decide whether you need new hardware.</p>
+    </a></li>
+    <li><a class="post-card" href="/blog/reading-the-network-graph-which-app-is-chatty/">
+      <span class="meta">2026-10-11 &middot; 2 min read</span>
+      <h3>Reading the Network Graph: Which App Is Using Your Bandwidth?</h3>
+      <p>How to read throughput numbers, find the application behind a spike, and tell normal background traffic from something worth investigating.</p>
+    </a></li>
+    <li><a class="post-card" href="/blog/clean-up-startup-apps-for-faster-boot/">
+      <span class="meta">2026-10-11 &middot; 2 min read</span>
+      <h3>How to Clean Up Startup Apps for a Faster Boot (and Keep It That Way)</h3>
+      <p>A decision rule for which startup items to disable, how to measure the difference, and what to leave alone.</p>
+    </a></li>
+    <li><a class="post-card" href="/blog/how-to-end-a-stuck-process-safely/">
+      <span class="meta">2026-10-11 &middot; 3 min read</span>
+      <h3>How to End a Stuck Process Safely: SIGTERM, SIGKILL and End Task</h3>
+      <p>The difference between asking a program to quit and forcing it, what each risks, and how to do it on Windows, Linux and macOS.</p>
+    </a></li>
+    <li><a class="post-card" href="/blog/why-your-browser-uses-so-much-memory/">
+      <span class="meta">2026-10-11 &middot; 3 min read</span>
+      <h3>Why Your Browser Uses So Much Memory, and What You Can Do About It</h3>
+      <p>Multi-process design, site isolation, extensions and tab habits explain the numbers. Here is how to read them and trim them.</p>
+    </a></li>
+    <li><a class="post-card" href="/blog/find-battery-draining-apps-with-a-task-manager/">
+      <span class="meta">2026-10-11 &middot; 3 min read</span>
+      <h3>Find the Apps Draining Your Laptop Battery</h3>
+      <p>A step-by-step way to track down background drains, what a task manager can and can&#x27;t tell you about power, and the fixes that work.</p>
+    </a></li>
+  </ul></section>
+  <section class="tag-group" id="fundamentals"><h2 class="tag-title">Fundamentals <span class="count">6</span></h2>
+  <ul class="posts">
+    <li><a class="post-card" href="/blog/what-is-a-process-a-beginners-guide/">
+      <span class="meta">2026-10-11 &middot; 3 min read</span>
+      <h3>What Is a Process? A Beginner&#x27;s Guide to Reading Your Task Manager</h3>
+      <p>Every program you run becomes one or more processes. Learn what they are, what the columns mean, and which ones are safe to ignore.</p>
+    </a></li>
+    <li><a class="post-card" href="/blog/process-vs-thread-and-why-linux-lists-threads/">
+      <span class="meta">2026-10-11 &middot; 3 min read</span>
+      <h3>Process vs. Thread: Why Some Linux Monitors Show Thousands of Entries</h3>
+      <p>Threads share a process&#x27;s memory, but some Linux tools list each as its own row. Here is the difference, and why it can inflate counts and memory totals.</p>
+    </a></li>
+    <li><a class="post-card" href="/blog/memory-explained-rss-working-set-and-shared/">
+      <span class="meta">2026-10-11 &middot; 3 min read</span>
+      <h3>Memory Explained: RSS, Working Set, Shared and Cached</h3>
+      <p>Why the numbers in different monitors never match, why &#x27;free&#x27; memory is not a goal, and how to read a memory column without panicking.</p>
+    </a></li>
+    <li><a class="post-card" href="/blog/cpu-usage-explained-cores-threads-percent/">
+      <span class="meta">2026-10-11 &middot; 3 min read</span>
+      <h3>CPU Usage Explained: Cores, Threads and What That Percentage Means</h3>
+      <p>Why a program can show 400%, why 12% can mean a core is maxed, and how to tell a harmless spike from a real problem.</p>
+    </a></li>
+    <li><a class="post-card" href="/blog/services-explained-systemd-and-windows/">
+      <span class="meta">2026-10-11 &middot; 3 min read</span>
+      <h3>Services Explained: What Runs in the Background on Linux and Windows</h3>
+      <p>What a service is, how systemd and the Windows Services manager differ, and why you should look before you stop one.</p>
+    </a></li>
+    <li><a class="post-card" href="/blog/mit-license-explained-for-users/">
+      <span class="meta">2026-10-11 &middot; 3 min read</span>
+      <h3>The MIT License, Explained for People Who Just Want to Use the Software</h3>
+      <p>What the license lets you do, what it asks of you, what it doesn&#x27;t promise, and why it matters if you ever want to fork a tool.</p>
+    </a></li>
+  </ul></section>
+  <section class="tag-group" id="linux"><h2 class="tag-title">Linux <span class="count">3</span></h2>
+  <ul class="posts">
+    <li><a class="post-card" href="/blog/windows-10-ended-what-linux-newcomers-should-know/">
+      <span class="meta">2026-10-11 &middot; 3 min read</span>
+      <h3>Windows 10 Support Ended. A Task-Manager Guide for Linux Newcomers</h3>
+      <p>Windows 10 reached end of support on October 14, 2025. If you are curious about Linux, here is how to find what you are used to finding.</p>
+    </a></li>
+    <li><a class="post-card" href="/blog/terminal-system-monitors-compared/">
+      <span class="meta">2026-10-11 &middot; 3 min read</span>
+      <h3>top, htop, btop and otm: Choosing a Terminal System Monitor</h3>
+      <p>A fair comparison of the terminal monitors people actually use, when each one is the right pick, and where the newcomer falls short.</p>
+    </a></li>
+    <li><a class="post-card" href="/blog/zombie-and-orphan-processes-on-linux/">
+      <span class="meta">2026-10-11 &middot; 3 min read</span>
+      <h3>Zombie and Orphan Processes on Linux: What They Are and What to Do</h3>
+      <p>Why you can&#x27;t kill a zombie, why it usually doesn&#x27;t matter, and the one situation where it does.</p>
+    </a></li>
+  </ul></section>
+  <section class="tag-group" id="engineering"><h2 class="tag-title">Engineering <span class="count">2</span></h2>
+  <ul class="posts">
+    <li><a class="post-card" href="/blog/introducing-open-task-manager/">
+      <span class="meta">2026-10-11 &middot; 6 min read</span>
+      <h3>Introducing Open Task Manager</h3>
+      <p>A free, open-source take on the Windows 11 Task Manager for Linux, Windows and macOS, plus a terminal UI called otm.</p>
+    </a></li>
+    <li><a class="post-card" href="/blog/how-we-built-open-task-manager/">
+      <span class="meta">2026-10-11 &middot; 3 min read</span>
+      <h3>How We Built Open Task Manager: One Rust Core, Two Interfaces</h3>
+      <p>A behind-the-scenes look at the architecture: a shared data core, a Tauri desktop app, a terminal UI, a mock-data path, and a few deliberate shortcuts.</p>
+    </a></li>
+  </ul></section>
+</main>
+<footer><span>Open Task Manager &middot; open source on <a href="https://github.com/sabaoongfx/Open-Task-Manager" target="_blank" rel="noopener">GitHub</a> &middot; built by <a href="https://sabaoon.dev" target="_blank" rel="noopener">sabaoon.dev</a></span></footer>
+</body></html>

@@ -1,0 +1,66 @@
+<!doctype html><html lang="en"><head>
+<title>Reading the Network Graph: Which App Is Using Your Bandwidth? &middot; Blog</title>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#F6F4EF" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#16130F" media="(prefers-color-scheme: dark)">
+<link rel="icon" href="/favicon.ico" sizes="any"><link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="/blog/blog.css">
+<meta name="description" content="How to read throughput numbers, find the application behind a spike, and tell normal background traffic from something worth investigating.">
+<link rel="canonical" href="https://opentaskmanager.vercel.app/blog/reading-the-network-graph-which-app-is-chatty/">
+<meta property="og:type" content="article"><meta property="og:title" content="Reading the Network Graph: Which App Is Using Your Bandwidth?">
+<meta property="og:description" content="How to read throughput numbers, find the application behind a spike, and tell normal background traffic from something worth investigating.">
+<meta property="og:url" content="https://opentaskmanager.vercel.app/blog/reading-the-network-graph-which-app-is-chatty/"><meta property="og:image" content="https://opentaskmanager.vercel.app/og.png">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"Reading the Network Graph: Which App Is Using Your Bandwidth?","description":"How to read throughput numbers, find the application behind a spike, and tell normal background traffic from something worth investigating.","datePublished":"2026-10-11","author":{"@type":"Person","name":"sabaoongfx","url":"https://sabaoon.dev"},"mainEntityOfPage":"https://opentaskmanager.vercel.app/blog/reading-the-network-graph-which-app-is-chatty/","image":"https://opentaskmanager.vercel.app/og.png"}</script>
+</head><body>
+<div class="topbar">
+  <a class="brand" href="/" aria-label="Open Task Manager home">
+    <svg viewBox="0 0 513 398" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <rect width="512" height="398" rx="70" fill="#E93233"/>
+      <path d="M492.818 397.869C503.914 397.941 512.948 388.966 512.948 377.87V187.414C512.948 176.368 503.994 167.414 492.948 167.414H454.616C446.258 167.414 438.781 162.216 435.869 154.382L407.167 77.1576C401.073 60.7631 378.355 59.5366 370.532 75.1798L351.027 114.182C344.098 128.036 324.73 129.095 316.333 116.079L314.235 112.827C306.08 100.186 287.412 100.735 280.014 113.835L224.686 211.807C216.254 226.738 194.173 224.83 188.427 208.673L144.755 85.8569C138.495 68.2542 113.662 68.0829 107.161 85.5975L2.38706 367.842C-2.44362 380.855 7.12634 394.711 21.0068 394.802L492.818 397.869Z" fill="#FBA806"/>
+      <path d="M492.948 398C503.994 398 512.948 389.046 512.948 378V244.321C512.948 233.275 503.994 224.321 492.948 224.321H453.201C445.586 224.321 438.632 219.996 435.264 213.166L406.591 155.02C399.769 141.185 380.516 139.954 371.988 152.808L350.108 185.783C342.768 196.847 326.882 197.818 318.249 187.731L312.676 181.221C304.35 171.493 289.154 171.986 281.476 182.234L223.26 259.935C214.222 271.997 195.596 270.107 189.166 256.476L144.021 160.784C136.922 145.738 115.627 145.431 108.098 160.267L2.19154 368.949C-4.56059 382.254 5.10628 398 20.0262 398H492.948Z" fill="#FFDB56"/>
+    </svg>
+    Open Task Manager
+  </a>
+  <nav class="topnav"><a href="/#features">Features</a><a href="/#download">Download</a><a href="/blog/" aria-current="page">Blog</a><a href="https://github.com/sabaoongfx/Open-Task-Manager" target="_blank" rel="noopener">GitHub</a></nav>
+</div>
+<main>
+  <a class="back" href="/blog/">&larr; All posts</a>
+  <article>
+    <p class="eyebrow">How-to</p>
+    <h1>Reading the Network Graph: Which App Is Using Your Bandwidth?</h1>
+    <p class="meta">2026-10-11 &middot; sabaoongfx &middot; 2 min read</p>
+
+<p>A slow video call, a download that stalls, a data cap that vanishes: all of these start with the question &ldquo;what is using my network?&rdquo; A task manager can answer part of it quickly. This guide explains what the numbers mean, what they can't tell you, and where to go for the rest.</p>
+
+<h2>What the graph shows</h2>
+<p>The network section of the Performance view plots the data your machine is receiving and sending, summed across all of its network interfaces: Wi-Fi, Ethernet, virtual adapters. In Open Task Manager, the rates come from the operating system&rsquo;s interface counters and are reported as bytes per second, refreshed every 1.5 seconds. You will usually see two lines: receive (download) and transmit (upload).</p>
+<p>A few reading tips:</p>
+<ul>
+  <li><strong>Bytes versus bits.</strong> Internet plans are advertised in bits per second; monitors often show bytes. Multiply by eight to compare. 10 MB/s is about 80 Mbit/s.</li>
+  <li><strong>Download and upload are separate.</strong> A cloud backup shows as sustained upload. A video stream shows as sustained download.</li>
+  <li><strong>Virtual interfaces count.</strong> VPNs, containers and virtual machines add interfaces, and traffic can be counted on more than one. If numbers look doubled, check the interface list.</li>
+</ul>
+
+<h2>Finding the application</h2>
+<p>The machine-wide graph tells you <em>that</em> something is using the network. Finding <em>what</em> is more variable. Some operating systems report network use per process; others, and some monitors, show only the totals. Windows Task Manager and Resource Monitor include a per-process network column. On Linux, per-process bandwidth generally needs a dedicated tool such as <code>nethogs</code>, which watches traffic by process. We don&rsquo;t claim Open Task Manager attributes network use to individual processes; it shows interface totals, so use it to confirm a spike and another tool to name the culprit.</p>
+<p>A practical routine:</p>
+<ol>
+  <li>Watch the graph while you close apps one at a time. When the line drops, you found the source.</li>
+  <li>Pause cloud sync, backups and updates first; they are the usual offenders.</li>
+  <li>Check your browser: video, a stuck page, or a background tab can stream continuously.</li>
+  <li>If the traffic continues with everything closed, a different device on your network may be responsible, so check your router&rsquo;s client list.</li>
+</ol>
+
+<h2>Normal versus suspicious</h2>
+<p>Small, regular bursts are normal: time sync, update checks, notifications. What deserves a closer look is large, sustained <em>upload</em> from something that shouldn&rsquo;t have a reason to send data, or steady traffic at night from an app you never use. Those patterns are worth investigating with the methods in <a href="/blog/how-to-check-what-an-app-sends-over-the-network/">how to check what an app sends over the network</a>.</p>
+
+<h2>Limits of a task manager here</h2>
+<p>A throughput graph shows volume, not content or destination. It can&rsquo;t tell you whether traffic is encrypted, where it is going, or whether it is wanted. Treat it as a smoke detector: it says there is something worth looking at, and the other tools say what. That is also why we make no claim about network contents on this site beyond what our code does, which is open for you to read.</p>
+
+<h2>Keep reading</h2>
+<ul class="related"><li><a href="/blog/stretch-your-ram-practical-guide/">How to Stretch Your RAM: A Practical Guide for Any Operating System</a></li><li><a href="/blog/why-windows-task-manager-cpu-numbers-changed/">Why the Windows Task Manager&#x27;s CPU Numbers Changed in 24H2</a></li><li><a href="/blog/how-to-find-a-memory-leak-with-a-task-manager/">How to Find a Memory Leak With Just a Task Manager</a></li></ul>
+  </article>
+</main>
+<footer><span>Open Task Manager &middot; open source on <a href="https://github.com/sabaoongfx/Open-Task-Manager" target="_blank" rel="noopener">GitHub</a> &middot; built by <a href="https://sabaoon.dev" target="_blank" rel="noopener">sabaoon.dev</a></span></footer>
+</body></html>

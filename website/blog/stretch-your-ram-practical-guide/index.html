@@ -1,0 +1,67 @@
+<!doctype html><html lang="en"><head>
+<title>How to Stretch Your RAM: A Practical Guide for Any Operating System &middot; Blog</title>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#F6F4EF" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#16130F" media="(prefers-color-scheme: dark)">
+<link rel="icon" href="/favicon.ico" sizes="any"><link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="/blog/blog.css">
+<meta name="description" content="Eight habits that reduce memory use on Windows, Linux and macOS, with how to check that each one actually helped.">
+<link rel="canonical" href="https://opentaskmanager.vercel.app/blog/stretch-your-ram-practical-guide/">
+<meta property="og:type" content="article"><meta property="og:title" content="How to Stretch Your RAM: A Practical Guide for Any Operating System">
+<meta property="og:description" content="Eight habits that reduce memory use on Windows, Linux and macOS, with how to check that each one actually helped.">
+<meta property="og:url" content="https://opentaskmanager.vercel.app/blog/stretch-your-ram-practical-guide/"><meta property="og:image" content="https://opentaskmanager.vercel.app/og.png">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"How to Stretch Your RAM: A Practical Guide for Any Operating System","description":"Eight habits that reduce memory use on Windows, Linux and macOS, with how to check that each one actually helped.","datePublished":"2026-10-11","author":{"@type":"Person","name":"sabaoongfx","url":"https://sabaoon.dev"},"mainEntityOfPage":"https://opentaskmanager.vercel.app/blog/stretch-your-ram-practical-guide/","image":"https://opentaskmanager.vercel.app/og.png"}</script>
+</head><body>
+<div class="topbar">
+  <a class="brand" href="/" aria-label="Open Task Manager home">
+    <svg viewBox="0 0 513 398" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <rect width="512" height="398" rx="70" fill="#E93233"/>
+      <path d="M492.818 397.869C503.914 397.941 512.948 388.966 512.948 377.87V187.414C512.948 176.368 503.994 167.414 492.948 167.414H454.616C446.258 167.414 438.781 162.216 435.869 154.382L407.167 77.1576C401.073 60.7631 378.355 59.5366 370.532 75.1798L351.027 114.182C344.098 128.036 324.73 129.095 316.333 116.079L314.235 112.827C306.08 100.186 287.412 100.735 280.014 113.835L224.686 211.807C216.254 226.738 194.173 224.83 188.427 208.673L144.755 85.8569C138.495 68.2542 113.662 68.0829 107.161 85.5975L2.38706 367.842C-2.44362 380.855 7.12634 394.711 21.0068 394.802L492.818 397.869Z" fill="#FBA806"/>
+      <path d="M492.948 398C503.994 398 512.948 389.046 512.948 378V244.321C512.948 233.275 503.994 224.321 492.948 224.321H453.201C445.586 224.321 438.632 219.996 435.264 213.166L406.591 155.02C399.769 141.185 380.516 139.954 371.988 152.808L350.108 185.783C342.768 196.847 326.882 197.818 318.249 187.731L312.676 181.221C304.35 171.493 289.154 171.986 281.476 182.234L223.26 259.935C214.222 271.997 195.596 270.107 189.166 256.476L144.021 160.784C136.922 145.738 115.627 145.431 108.098 160.267L2.19154 368.949C-4.56059 382.254 5.10628 398 20.0262 398H492.948Z" fill="#FFDB56"/>
+    </svg>
+    Open Task Manager
+  </a>
+  <nav class="topnav"><a href="/#features">Features</a><a href="/#download">Download</a><a href="/blog/" aria-current="page">Blog</a><a href="https://github.com/sabaoongfx/Open-Task-Manager" target="_blank" rel="noopener">GitHub</a></nav>
+</div>
+<main>
+  <a class="back" href="/blog/">&larr; All posts</a>
+  <article>
+    <p class="eyebrow">How-to</p>
+    <h1>How to Stretch Your RAM: A Practical Guide for Any Operating System</h1>
+    <p class="meta">2026-10-11 &middot; sabaoongfx &middot; 3 min read</p>
+
+<p>With memory prices up, the cheapest upgrade is the one you don&rsquo;t buy. Most computers waste a surprising amount of RAM on things nobody asked for. This guide gives you eight habits that work on any operating system, and, importantly, a way to confirm each one actually helped, so you don&rsquo;t spend an afternoon on a change that did nothing.</p>
+
+<h2>First, take a baseline</h2>
+<p>Restart the machine, open nothing, and wait two minutes. Open a task manager and write down total memory in use from the Performance tab. This is your floor. Everything above it is something you opened or something that started on its own. Without this number, you can&rsquo;t tell later whether you improved anything.</p>
+
+<h2>The eight habits</h2>
+<ol>
+  <li><strong>Sort by memory and read the top five.</strong> Use the grouped Processes view so an app and its helpers show as one row. Most people find one or two surprises.</li>
+  <li><strong>Trim startup apps.</strong> Chat clients, updaters, cloud-sync tools and launchers often start with the system and stay resident. Disable the ones you open only occasionally. Our <a href="/blog/clean-up-startup-apps-for-faster-boot/">startup guide</a> has a decision rule.</li>
+  <li><strong>Tame the browser.</strong> Browsers use a separate process per tab or site, and each costs memory. Close tabs you aren&rsquo;t using, use the browser&rsquo;s built-in tab-sleeping option if it has one, and watch which extensions are large. See <a href="/blog/why-your-browser-uses-so-much-memory/">why browsers use so much memory</a>.</li>
+  <li><strong>Quit, don&rsquo;t just close.</strong> On macOS and Linux, closing a window often leaves the program running. On Windows, many apps sit in the system tray. A task manager shows what is still alive.</li>
+  <li><strong>Prefer lighter alternatives for always-on tools.</strong> A chat app that bundles its own browser engine can use hundreds of megabytes while idle. A native or web-view-based alternative may use far less. Measure, don&rsquo;t assume.</li>
+  <li><strong>Restart long-running apps.</strong> Some programs slowly grow over days. Restarting the worst one weekly costs nothing.</li>
+  <li><strong>Watch for leaks.</strong> If one process only ever grows, that is a bug, not a feature. <a href="/blog/how-to-find-a-memory-leak-with-a-task-manager/">Here is how to confirm it</a>.</li>
+  <li><strong>Only then consider hardware.</strong> If the memory chart is pinned and disk activity is high even after the above, you are genuinely short of RAM.</li>
+</ol>
+
+<h2>What not to do</h2>
+<ul>
+  <li><strong>Don&rsquo;t use &ldquo;RAM cleaner&rdquo; utilities.</strong> They mostly force the system to drop its cache, which makes everything reload from disk and feel slower. See <a href="/blog/memory-explained-rss-working-set-and-shared/">memory explained</a> for why free memory is not a goal.</li>
+  <li><strong>Don&rsquo;t end processes you can&rsquo;t identify.</strong> Search the name first. Ending a system process can log you out or freeze the desktop.</li>
+  <li><strong>Don&rsquo;t judge by one reading.</strong> Memory moves. Watch a minute of the chart, not a single instant.</li>
+</ul>
+
+<h2>Check that it worked</h2>
+<p>After your changes, restart, wait the same two minutes, and read the same number. If your idle baseline dropped, the startup changes helped. Then open your usual set of apps and compare again. A drop of a few hundred megabytes is normal; a drop of a gigabyte means you found something big.</p>
+<p>All of this works with the tool that ships with your OS. We suggest <a href="/#download">Open Task Manager</a> mainly because it gives you the same view on every system, which helps if you use more than one computer.</p>
+
+<h2>Keep reading</h2>
+<ul class="related"><li><a href="/blog/why-windows-task-manager-cpu-numbers-changed/">Why the Windows Task Manager&#x27;s CPU Numbers Changed in 24H2</a></li><li><a href="/blog/how-to-find-a-memory-leak-with-a-task-manager/">How to Find a Memory Leak With Just a Task Manager</a></li><li><a href="/blog/disk-at-100-percent-how-to-diagnose/">Disk at 100%? How to Diagnose a Slow Drive Step by Step</a></li></ul>
+  </article>
+</main>
+<footer><span>Open Task Manager &middot; open source on <a href="https://github.com/sabaoongfx/Open-Task-Manager" target="_blank" rel="noopener">GitHub</a> &middot; built by <a href="https://sabaoon.dev" target="_blank" rel="noopener">sabaoon.dev</a></span></footer>
+</body></html>

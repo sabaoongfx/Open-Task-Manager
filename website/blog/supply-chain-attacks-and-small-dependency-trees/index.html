@@ -1,0 +1,69 @@
+<!doctype html><html lang="en"><head>
+<title>Shai-Hulud and the Case for Small Dependency Trees &middot; Blog</title>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#F6F4EF" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#16130F" media="(prefers-color-scheme: dark)">
+<link rel="icon" href="/favicon.ico" sizes="any"><link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="/blog/blog.css">
+<meta name="description" content="The 2025 npm worm showed how one compromised package can spread. What happened, what it means for any app you install, and the habits that reduce your exposure.">
+<link rel="canonical" href="https://opentaskmanager.vercel.app/blog/supply-chain-attacks-and-small-dependency-trees/">
+<meta property="og:type" content="article"><meta property="og:title" content="Shai-Hulud and the Case for Small Dependency Trees">
+<meta property="og:description" content="The 2025 npm worm showed how one compromised package can spread. What happened, what it means for any app you install, and the habits that reduce your exposure.">
+<meta property="og:url" content="https://opentaskmanager.vercel.app/blog/supply-chain-attacks-and-small-dependency-trees/"><meta property="og:image" content="https://opentaskmanager.vercel.app/og.png">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"Shai-Hulud and the Case for Small Dependency Trees","description":"The 2025 npm worm showed how one compromised package can spread. What happened, what it means for any app you install, and the habits that reduce your exposure.","datePublished":"2026-10-11","author":{"@type":"Person","name":"sabaoongfx","url":"https://sabaoon.dev"},"mainEntityOfPage":"https://opentaskmanager.vercel.app/blog/supply-chain-attacks-and-small-dependency-trees/","image":"https://opentaskmanager.vercel.app/og.png"}</script>
+</head><body>
+<div class="topbar">
+  <a class="brand" href="/" aria-label="Open Task Manager home">
+    <svg viewBox="0 0 513 398" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <rect width="512" height="398" rx="70" fill="#E93233"/>
+      <path d="M492.818 397.869C503.914 397.941 512.948 388.966 512.948 377.87V187.414C512.948 176.368 503.994 167.414 492.948 167.414H454.616C446.258 167.414 438.781 162.216 435.869 154.382L407.167 77.1576C401.073 60.7631 378.355 59.5366 370.532 75.1798L351.027 114.182C344.098 128.036 324.73 129.095 316.333 116.079L314.235 112.827C306.08 100.186 287.412 100.735 280.014 113.835L224.686 211.807C216.254 226.738 194.173 224.83 188.427 208.673L144.755 85.8569C138.495 68.2542 113.662 68.0829 107.161 85.5975L2.38706 367.842C-2.44362 380.855 7.12634 394.711 21.0068 394.802L492.818 397.869Z" fill="#FBA806"/>
+      <path d="M492.948 398C503.994 398 512.948 389.046 512.948 378V244.321C512.948 233.275 503.994 224.321 492.948 224.321H453.201C445.586 224.321 438.632 219.996 435.264 213.166L406.591 155.02C399.769 141.185 380.516 139.954 371.988 152.808L350.108 185.783C342.768 196.847 326.882 197.818 318.249 187.731L312.676 181.221C304.35 171.493 289.154 171.986 281.476 182.234L223.26 259.935C214.222 271.997 195.596 270.107 189.166 256.476L144.021 160.784C136.922 145.738 115.627 145.431 108.098 160.267L2.19154 368.949C-4.56059 382.254 5.10628 398 20.0262 398H492.948Z" fill="#FFDB56"/>
+    </svg>
+    Open Task Manager
+  </a>
+  <nav class="topnav"><a href="/#features">Features</a><a href="/#download">Download</a><a href="/blog/" aria-current="page">Blog</a><a href="https://github.com/sabaoongfx/Open-Task-Manager" target="_blank" rel="noopener">GitHub</a></nav>
+</div>
+<main>
+  <a class="back" href="/blog/">&larr; All posts</a>
+  <article>
+    <p class="eyebrow">Security</p>
+    <h1>Shai-Hulud and the Case for Small Dependency Trees</h1>
+    <p class="meta">2026-10-11 &middot; sabaoongfx &middot; 3 min read</p>
+
+<p>In September 2025, attackers compromised the accounts of maintainers of popular npm packages, including well-known utilities such as <code>debug</code> and <code>chalk</code>, and published tainted versions. A related campaign, nicknamed Shai-Hulud after the sandworms of <em>Dune</em>, went further: its install script stole developer credentials and used them to republish infected versions of the victims&rsquo; own packages, reportedly reaching more than 180 packages. Security firms described it as among the first self-replicating supply chain attacks.</p>
+<p>In November 2025 a second wave, usually called Shai-Hulud 2.0, moved the malicious code to the preinstall stage, widened its reach to Linux, macOS and Windows, and added further spreading mechanisms. Packages uploaded between November 21 and 23 reportedly affected projects from companies including Zapier, PostHog and Postman. Counts and details vary between security vendors, so treat exact numbers as approximate.</p>
+
+<h2>Why this matters even if you never use npm</h2>
+<p>Most modern software is assembled from hundreds of third-party packages, in every language. When you install an app, you inherit trust in every one of them. A compromised package doesn&rsquo;t have to be famous; it only has to be somewhere in the chain. And for a developer, the first thing a malicious install script reaches is the credentials on the machine that is building the software you will later download.</p>
+
+<h2>Where a system monitor stands</h2>
+<p>A system monitor is a sensitive kind of program: it reads every process on your machine. That is a strong argument for it to have few moving parts. In Open Task Manager&rsquo;s case, the Rust workspace declares only a few direct dependencies: <code>sysinfo</code>, <code>serde</code>, Tauri and ratatui. The web interface lists six runtime packages (React, ReactDOM, the Tauri API and opener plugin, an Inter font package and an icon set), with the build tools kept separate as development dependencies. Lockfiles for both ecosystems are committed to the repository.</p>
+<p>We should be careful about what that does and doesn&rsquo;t prove. Every direct dependency brings its own dependencies, and the full tree is much larger than six or four. A short list is easier to review and gives an attacker fewer doors, but it is not immunity.</p>
+
+<h2>Habits that reduce your exposure</h2>
+<h3>If you build software</h3>
+<ul>
+  <li><strong>Commit and use lockfiles</strong> so installs are repeatable, and review dependency updates instead of accepting them automatically.</li>
+  <li><strong>Prefer fewer, well-maintained dependencies.</strong> Before adding a package for one small function, consider writing the function.</li>
+  <li><strong>Avoid running install scripts you don&rsquo;t need.</strong> Package managers let you disable lifecycle scripts, which blocks the mechanism these worms used.</li>
+  <li><strong>Protect maintainer accounts</strong> with hardware-backed two-factor authentication and short-lived tokens.</li>
+</ul>
+<h3>If you only install apps</h3>
+<ul>
+  <li>Prefer software from signed repositories or official releases over random download sites.</li>
+  <li>Keep the system updated, since many incidents are caught and fixed quickly.</li>
+  <li>Notice what new software does after install. A tool that has no reason to use the network but does is worth investigating (<a href="/blog/how-to-check-what-an-app-sends-over-the-network/">here is how</a>).</li>
+</ul>
+
+<h2>The bigger point</h2>
+<p>Open source is not a defence against supply chain attacks; the affected packages were open source. What it does provide is visibility, because the malicious versions were found and analysed by outsiders reading public code and registries. Combine that visibility with small dependency trees and careful installs, and you reduce the odds that you are the one who finds out the hard way. We say more about why signed repositories matter in <a href="/blog/why-signed-package-repositories-matter/">why signed package repositories matter</a>.</p>
+
+<h2>Sources</h2>
+<ul class="sources"><li><a href="https://vaadin.com/security/2025-09-26" target="_blank" rel="noopener">Vaadin: Vulnerability reports, npm supply chain attack of September 2025</a></li><li><a href="https://checkmarx.com/zero-post/npm-hit-by-shai-hulud-the-self-replicating-supply-chain-attack/" target="_blank" rel="noopener">Checkmarx Zero: npm hit by Shai-Hulud, the self-replicating supply chain attack</a></li><li><a href="https://vulert.com/blog/cyber-security-news-sha1-hulud-npm-attack/" target="_blank" rel="noopener">Vulert: Shai-Hulud 2.0 npm attack</a></li><li><a href="https://www.reflectiz.com/blog/npm-supply-chain-attack/" target="_blank" rel="noopener">Reflectiz: The Shai-Hulud npm supply chain attack, what we know</a></li></ul>
+<h2>Keep reading</h2>
+<ul class="related"><li><a href="/blog/why-signed-package-repositories-matter/">Why Signed Package Repositories Matter (and What They Don&#x27;t Protect)</a></li><li><a href="/blog/rust-is-permanent-in-the-linux-kernel/">Rust Is Now a Permanent Part of the Linux Kernel. Here&#x27;s What That Means for System Tools</a></li><li><a href="/blog/rust-most-admired-language-and-desktop-tools/">Rust Is the Most Admired Language Again. Does It Matter for Desktop Apps?</a></li></ul>
+  </article>
+</main>
+<footer><span>Open Task Manager &middot; open source on <a href="https://github.com/sabaoongfx/Open-Task-Manager" target="_blank" rel="noopener">GitHub</a> &middot; built by <a href="https://sabaoon.dev" target="_blank" rel="noopener">sabaoon.dev</a></span></footer>
+</body></html>

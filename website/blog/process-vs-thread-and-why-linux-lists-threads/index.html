@@ -1,0 +1,64 @@
+<!doctype html><html lang="en"><head>
+<title>Process vs. Thread: Why Some Linux Monitors Show Thousands of Entries &middot; Blog</title>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#F6F4EF" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#16130F" media="(prefers-color-scheme: dark)">
+<link rel="icon" href="/favicon.ico" sizes="any"><link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="/blog/blog.css">
+<meta name="description" content="Threads share a process&#x27;s memory, but some Linux tools list each as its own row. Here is the difference, and why it can inflate counts and memory totals.">
+<link rel="canonical" href="https://opentaskmanager.vercel.app/blog/process-vs-thread-and-why-linux-lists-threads/">
+<meta property="og:type" content="article"><meta property="og:title" content="Process vs. Thread: Why Some Linux Monitors Show Thousands of Entries">
+<meta property="og:description" content="Threads share a process&#x27;s memory, but some Linux tools list each as its own row. Here is the difference, and why it can inflate counts and memory totals.">
+<meta property="og:url" content="https://opentaskmanager.vercel.app/blog/process-vs-thread-and-why-linux-lists-threads/"><meta property="og:image" content="https://opentaskmanager.vercel.app/og.png">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"Process vs. Thread: Why Some Linux Monitors Show Thousands of Entries","description":"Threads share a process's memory, but some Linux tools list each as its own row. Here is the difference, and why it can inflate counts and memory totals.","datePublished":"2026-10-11","author":{"@type":"Person","name":"sabaoongfx","url":"https://sabaoon.dev"},"mainEntityOfPage":"https://opentaskmanager.vercel.app/blog/process-vs-thread-and-why-linux-lists-threads/","image":"https://opentaskmanager.vercel.app/og.png"}</script>
+</head><body>
+<div class="topbar">
+  <a class="brand" href="/" aria-label="Open Task Manager home">
+    <svg viewBox="0 0 513 398" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <rect width="512" height="398" rx="70" fill="#E93233"/>
+      <path d="M492.818 397.869C503.914 397.941 512.948 388.966 512.948 377.87V187.414C512.948 176.368 503.994 167.414 492.948 167.414H454.616C446.258 167.414 438.781 162.216 435.869 154.382L407.167 77.1576C401.073 60.7631 378.355 59.5366 370.532 75.1798L351.027 114.182C344.098 128.036 324.73 129.095 316.333 116.079L314.235 112.827C306.08 100.186 287.412 100.735 280.014 113.835L224.686 211.807C216.254 226.738 194.173 224.83 188.427 208.673L144.755 85.8569C138.495 68.2542 113.662 68.0829 107.161 85.5975L2.38706 367.842C-2.44362 380.855 7.12634 394.711 21.0068 394.802L492.818 397.869Z" fill="#FBA806"/>
+      <path d="M492.948 398C503.994 398 512.948 389.046 512.948 378V244.321C512.948 233.275 503.994 224.321 492.948 224.321H453.201C445.586 224.321 438.632 219.996 435.264 213.166L406.591 155.02C399.769 141.185 380.516 139.954 371.988 152.808L350.108 185.783C342.768 196.847 326.882 197.818 318.249 187.731L312.676 181.221C304.35 171.493 289.154 171.986 281.476 182.234L223.26 259.935C214.222 271.997 195.596 270.107 189.166 256.476L144.021 160.784C136.922 145.738 115.627 145.431 108.098 160.267L2.19154 368.949C-4.56059 382.254 5.10628 398 20.0262 398H492.948Z" fill="#FFDB56"/>
+    </svg>
+    Open Task Manager
+  </a>
+  <nav class="topnav"><a href="/#features">Features</a><a href="/#download">Download</a><a href="/blog/" aria-current="page">Blog</a><a href="https://github.com/sabaoongfx/Open-Task-Manager" target="_blank" rel="noopener">GitHub</a></nav>
+</div>
+<main>
+  <a class="back" href="/blog/">&larr; All posts</a>
+  <article>
+    <p class="eyebrow">Fundamentals</p>
+    <h1>Process vs. Thread: Why Some Linux Monitors Show Thousands of Entries</h1>
+    <p class="meta">2026-10-11 &middot; sabaoongfx &middot; 3 min read</p>
+
+<p>If you have used a monitor on Linux and wondered why it listed thousands of entries and more memory than your machine has, you may have met the process-versus-thread problem. It is a good example of how the same data can be read two ways. We hit it ourselves: versions of Open Task Manager before 0.4.1 showed exactly this on Linux.</p>
+
+<h2>Two ways to do more than one thing</h2>
+<p>A <strong>process</strong> is an isolated running program with its own private memory. A <strong>thread</strong> is a path of execution <em>inside</em> a process. Threads of the same process share its memory, which makes them cheap to create and lets them cooperate easily, but also means a bug in one can affect the others.</p>
+<p>A single-threaded program can only do one thing at a time. A multi-threaded program can, for example, keep its interface responsive while downloading a file on another thread. Modern apps routinely have dozens of threads, and a browser or game may have hundreds.</p>
+
+<h2>How Linux represents them</h2>
+<p>Linux treats both as &ldquo;tasks&rdquo; internally. Each thread gets its own ID in the kernel, and the first thread of a process is the one whose ID is shown as the process&rsquo;s PID. In the <code>/proc</code> filesystem, threads appear in a per-process folder. Some libraries that list processes on Linux walk that data in a way that surfaces each thread as an entry of its own.</p>
+<p>Open Task Manager reads its data through the <code>sysinfo</code> crate, and on Linux that library can list every thread as a separate process. Before version 0.4.1 we passed all of them through. The catch is what each entry reports: because threads share memory, each one reports the memory of the <em>whole</em> process. Add them up and you count the same memory many times.</p>
+
+<h2>What goes wrong</h2>
+<ul>
+  <li><strong>Inflated process counts.</strong> A machine with 300 real processes can show over a thousand rows.</li>
+  <li><strong>Impossible memory totals.</strong> Summing per-row memory, as a Users view does, can exceed the physical RAM installed.</li>
+  <li><strong>Misleading sorting.</strong> A process with many threads can appear many times near the top.</li>
+</ul>
+<p>The fix was straightforward: skip entries that the library identifies as threads when building the snapshot, which version 0.4.1 does. Process counts and memory totals dropped as a result and now line up with what the machine really has. It is worth knowing about because other tools still make the same mistake.</p>
+
+<h2>How to tell if a tool is doing this</h2>
+<p>Compare the monitor&rsquo;s total against the machine. Add the memory of the largest groups and see whether it plausibly fits in your RAM. Compare the process count with the output of a basic command such as <code>ps -e | wc -l</code>, which counts processes rather than threads. Large mismatches suggest threads are being listed. Some tools offer a toggle to show or hide threads, and <code>htop</code>, for example, can show them as a tree you can switch off.</p>
+
+<h2>Why you might want threads anyway</h2>
+<p>Showing threads is not wrong; it answers a different question. If you are debugging why one program is slow, a per-thread view can show that a single thread is pegging a core while the others idle. That is invaluable for developers. For everyday use, though, a process-level view with accurate totals is what people expect from a task manager.</p>
+<p>For the related question of what a percentage of CPU means across threads and cores, see <a href="/blog/cpu-usage-explained-cores-threads-percent/">CPU usage explained</a>. If you are new to the vocabulary, <a href="/blog/what-is-a-process-a-beginners-guide/">start with what a process is</a>.</p>
+
+<h2>Keep reading</h2>
+<ul class="related"><li><a href="/blog/what-is-a-process-a-beginners-guide/">What Is a Process? A Beginner&#x27;s Guide to Reading Your Task Manager</a></li><li><a href="/blog/memory-explained-rss-working-set-and-shared/">Memory Explained: RSS, Working Set, Shared and Cached</a></li><li><a href="/blog/cpu-usage-explained-cores-threads-percent/">CPU Usage Explained: Cores, Threads and What That Percentage Means</a></li></ul>
+  </article>
+</main>
+<footer><span>Open Task Manager &middot; open source on <a href="https://github.com/sabaoongfx/Open-Task-Manager" target="_blank" rel="noopener">GitHub</a> &middot; built by <a href="https://sabaoon.dev" target="_blank" rel="noopener">sabaoon.dev</a></span></footer>
+</body></html>

@@ -1,0 +1,76 @@
+<!doctype html><html lang="en"><head>
+<title>Running AI Models Locally: How to Estimate the RAM You&#x27;ll Need &middot; Blog</title>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#F6F4EF" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#16130F" media="(prefers-color-scheme: dark)">
+<link rel="icon" href="/favicon.ico" sizes="any"><link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="/blog/blog.css">
+<meta name="description" content="A simple formula for the memory a local language model needs, why quantization matters, and how to watch it in a task manager.">
+<link rel="canonical" href="https://opentaskmanager.vercel.app/blog/local-llms-and-your-ram-how-to-estimate/">
+<meta property="og:type" content="article"><meta property="og:title" content="Running AI Models Locally: How to Estimate the RAM You&#x27;ll Need">
+<meta property="og:description" content="A simple formula for the memory a local language model needs, why quantization matters, and how to watch it in a task manager.">
+<meta property="og:url" content="https://opentaskmanager.vercel.app/blog/local-llms-and-your-ram-how-to-estimate/"><meta property="og:image" content="https://opentaskmanager.vercel.app/og.png">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"Running AI Models Locally: How to Estimate the RAM You'll Need","description":"A simple formula for the memory a local language model needs, why quantization matters, and how to watch it in a task manager.","datePublished":"2026-10-11","author":{"@type":"Person","name":"sabaoongfx","url":"https://sabaoon.dev"},"mainEntityOfPage":"https://opentaskmanager.vercel.app/blog/local-llms-and-your-ram-how-to-estimate/","image":"https://opentaskmanager.vercel.app/og.png"}</script>
+</head><body>
+<div class="topbar">
+  <a class="brand" href="/" aria-label="Open Task Manager home">
+    <svg viewBox="0 0 513 398" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <rect width="512" height="398" rx="70" fill="#E93233"/>
+      <path d="M492.818 397.869C503.914 397.941 512.948 388.966 512.948 377.87V187.414C512.948 176.368 503.994 167.414 492.948 167.414H454.616C446.258 167.414 438.781 162.216 435.869 154.382L407.167 77.1576C401.073 60.7631 378.355 59.5366 370.532 75.1798L351.027 114.182C344.098 128.036 324.73 129.095 316.333 116.079L314.235 112.827C306.08 100.186 287.412 100.735 280.014 113.835L224.686 211.807C216.254 226.738 194.173 224.83 188.427 208.673L144.755 85.8569C138.495 68.2542 113.662 68.0829 107.161 85.5975L2.38706 367.842C-2.44362 380.855 7.12634 394.711 21.0068 394.802L492.818 397.869Z" fill="#FBA806"/>
+      <path d="M492.948 398C503.994 398 512.948 389.046 512.948 378V244.321C512.948 233.275 503.994 224.321 492.948 224.321H453.201C445.586 224.321 438.632 219.996 435.264 213.166L406.591 155.02C399.769 141.185 380.516 139.954 371.988 152.808L350.108 185.783C342.768 196.847 326.882 197.818 318.249 187.731L312.676 181.221C304.35 171.493 289.154 171.986 281.476 182.234L223.26 259.935C214.222 271.997 195.596 270.107 189.166 256.476L144.021 160.784C136.922 145.738 115.627 145.431 108.098 160.267L2.19154 368.949C-4.56059 382.254 5.10628 398 20.0262 398H492.948Z" fill="#FFDB56"/>
+    </svg>
+    Open Task Manager
+  </a>
+  <nav class="topnav"><a href="/#features">Features</a><a href="/#download">Download</a><a href="/blog/" aria-current="page">Blog</a><a href="https://github.com/sabaoongfx/Open-Task-Manager" target="_blank" rel="noopener">GitHub</a></nav>
+</div>
+<main>
+  <a class="back" href="/blog/">&larr; All posts</a>
+  <article>
+    <p class="eyebrow">Trends</p>
+    <h1>Running AI Models Locally: How to Estimate the RAM You&#x27;ll Need</h1>
+    <p class="meta">2026-10-11 &middot; sabaoongfx &middot; 3 min read</p>
+
+<p>Running a language model on your own computer has become popular for privacy, cost and offline use. The first practical question is always the same: will it fit in memory? The honest answer is that you can estimate it with some arithmetic, then confirm it with a task manager. Be wary of web pages that give specific hardware tables without showing their working; many of those we found while researching this were generic or unreliable.</p>
+
+<h2>The rule of thumb</h2>
+<p>A model&rsquo;s weights are a long list of numbers, and each number takes a fixed amount of space. So:</p>
+<pre><code>weights memory (GB) ~= parameters (billions) x bits per weight / 8</code></pre>
+<p>A model with 7 billion parameters stored at 16 bits per weight needs about 14 GB. The same model compressed to 8 bits needs about 7 GB, and at 4 bits about 3.5 GB. That compression is called <strong>quantization</strong>: it trades a small loss in quality for a large saving in memory.</p>
+
+<h2>What gets added on top</h2>
+<ul>
+  <li><strong>The context cache.</strong> While generating, the model stores intermediate values (the key-value cache) for every token in the conversation. It grows with context length, and for long contexts it can reach gigabytes.</li>
+  <li><strong>Runtime overhead.</strong> The inference program itself, buffers and the operating system need room too.</li>
+  <li><strong>Everything else you have open.</strong> Your browser does not shrink because a model is loaded.</li>
+</ul>
+<p>A reasonable planning approach is to take the weights figure and add 20 to 30 percent for the cache and overhead, more if you use very long contexts. Treat it as a rough estimate; actual numbers depend on the model architecture and the software.</p>
+
+<h2>Where the memory has to be</h2>
+<p>Speed depends on where the weights live. On a computer with a dedicated graphics card, the weights ideally fit in the card&rsquo;s own memory (VRAM), which is fast but limited. On machines with unified memory, such as many recent laptops, the processor and graphics share one pool, so total RAM is the limit. Models that don&rsquo;t fit can spill into ordinary RAM or even onto disk, which works but can be many times slower.</p>
+<p>This is why memory prices matter for this use case in particular (<a href="/blog/ram-prices-2026-why-your-memory-matters-more/">the 2026 crunch</a>): the capacity you need is set by the model, and it is the part of the machine you can&rsquo;t easily trade away.</p>
+
+<h2>Check it in a task manager</h2>
+<ol>
+  <li>Close what you can and note your baseline memory on the Performance tab.</li>
+  <li>Load the model and watch the memory chart. The difference is its real footprint.</li>
+  <li>Start a long conversation and watch it grow. That slope is the cache.</li>
+  <li>If memory approaches the limit and disk activity jumps, the system is swapping and generation will crawl (<a href="/blog/disk-at-100-percent-how-to-diagnose/">diagnosing a busy disk</a>).</li>
+  <li>Check the CPU view. On machines without a suitable graphics card, inference uses the processor heavily, so expect sustained high load on many cores.</li>
+</ol>
+<p>Remember that one program may appear as several processes, so look at the grouped total. And since resident memory counts shared pages, a memory-mapped model file may show differently in different tools (<a href="/blog/memory-explained-rss-working-set-and-shared/">why</a>).</p>
+
+<h2>Practical choices</h2>
+<ul>
+  <li>If memory is tight, choose a smaller model or a more aggressive quantization before buying hardware.</li>
+  <li>Shorten the context you actually need.</li>
+  <li>Close memory-hungry programs such as browsers while the model runs.</li>
+</ul>
+<p>The core idea is simple: the model&rsquo;s size is a number you can compute, and the task manager is how you verify it. Do both before you spend money.</p>
+
+<h2>Keep reading</h2>
+<ul class="related"><li><a href="/blog/rust-is-permanent-in-the-linux-kernel/">Rust Is Now a Permanent Part of the Linux Kernel. Here&#x27;s What That Means for System Tools</a></li><li><a href="/blog/rust-most-admired-language-and-desktop-tools/">Rust Is the Most Admired Language Again. Does It Matter for Desktop Apps?</a></li><li><a href="/blog/tauri-vs-electron-what-the-numbers-say/">Tauri vs. Electron: What the Numbers Say, and What They Don&#x27;t</a></li></ul>
+  </article>
+</main>
+<footer><span>Open Task Manager &middot; open source on <a href="https://github.com/sabaoongfx/Open-Task-Manager" target="_blank" rel="noopener">GitHub</a> &middot; built by <a href="https://sabaoon.dev" target="_blank" rel="noopener">sabaoon.dev</a></span></footer>
+</body></html>

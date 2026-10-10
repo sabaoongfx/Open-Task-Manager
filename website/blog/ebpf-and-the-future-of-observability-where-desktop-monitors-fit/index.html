@@ -1,0 +1,71 @@
+<!doctype html><html lang="en"><head>
+<title>eBPF and the Future of Observability: Where a Desktop Monitor Fits &middot; Blog</title>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#F6F4EF" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#16130F" media="(prefers-color-scheme: dark)">
+<link rel="icon" href="/favicon.ico" sizes="any"><link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="/blog/blog.css">
+<meta name="description" content="eBPF lets programs watch the Linux kernel safely, and it is reshaping how servers are monitored. What it can do that a task manager can&#x27;t, and the reverse.">
+<link rel="canonical" href="https://opentaskmanager.vercel.app/blog/ebpf-and-the-future-of-observability-where-desktop-monitors-fit/">
+<meta property="og:type" content="article"><meta property="og:title" content="eBPF and the Future of Observability: Where a Desktop Monitor Fits">
+<meta property="og:description" content="eBPF lets programs watch the Linux kernel safely, and it is reshaping how servers are monitored. What it can do that a task manager can&#x27;t, and the reverse.">
+<meta property="og:url" content="https://opentaskmanager.vercel.app/blog/ebpf-and-the-future-of-observability-where-desktop-monitors-fit/"><meta property="og:image" content="https://opentaskmanager.vercel.app/og.png">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"eBPF and the Future of Observability: Where a Desktop Monitor Fits","description":"eBPF lets programs watch the Linux kernel safely, and it is reshaping how servers are monitored. What it can do that a task manager can't, and the reverse.","datePublished":"2026-10-11","author":{"@type":"Person","name":"sabaoongfx","url":"https://sabaoon.dev"},"mainEntityOfPage":"https://opentaskmanager.vercel.app/blog/ebpf-and-the-future-of-observability-where-desktop-monitors-fit/","image":"https://opentaskmanager.vercel.app/og.png"}</script>
+</head><body>
+<div class="topbar">
+  <a class="brand" href="/" aria-label="Open Task Manager home">
+    <svg viewBox="0 0 513 398" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <rect width="512" height="398" rx="70" fill="#E93233"/>
+      <path d="M492.818 397.869C503.914 397.941 512.948 388.966 512.948 377.87V187.414C512.948 176.368 503.994 167.414 492.948 167.414H454.616C446.258 167.414 438.781 162.216 435.869 154.382L407.167 77.1576C401.073 60.7631 378.355 59.5366 370.532 75.1798L351.027 114.182C344.098 128.036 324.73 129.095 316.333 116.079L314.235 112.827C306.08 100.186 287.412 100.735 280.014 113.835L224.686 211.807C216.254 226.738 194.173 224.83 188.427 208.673L144.755 85.8569C138.495 68.2542 113.662 68.0829 107.161 85.5975L2.38706 367.842C-2.44362 380.855 7.12634 394.711 21.0068 394.802L492.818 397.869Z" fill="#FBA806"/>
+      <path d="M492.948 398C503.994 398 512.948 389.046 512.948 378V244.321C512.948 233.275 503.994 224.321 492.948 224.321H453.201C445.586 224.321 438.632 219.996 435.264 213.166L406.591 155.02C399.769 141.185 380.516 139.954 371.988 152.808L350.108 185.783C342.768 196.847 326.882 197.818 318.249 187.731L312.676 181.221C304.35 171.493 289.154 171.986 281.476 182.234L223.26 259.935C214.222 271.997 195.596 270.107 189.166 256.476L144.021 160.784C136.922 145.738 115.627 145.431 108.098 160.267L2.19154 368.949C-4.56059 382.254 5.10628 398 20.0262 398H492.948Z" fill="#FFDB56"/>
+    </svg>
+    Open Task Manager
+  </a>
+  <nav class="topnav"><a href="/#features">Features</a><a href="/#download">Download</a><a href="/blog/" aria-current="page">Blog</a><a href="https://github.com/sabaoongfx/Open-Task-Manager" target="_blank" rel="noopener">GitHub</a></nav>
+</div>
+<main>
+  <a class="back" href="/blog/">&larr; All posts</a>
+  <article>
+    <p class="eyebrow">Trends</p>
+    <h1>eBPF and the Future of Observability: Where a Desktop Monitor Fits</h1>
+    <p class="meta">2026-10-11 &middot; sabaoongfx &middot; 3 min read</p>
+
+<p>If you follow infrastructure news, you have seen the term eBPF more and more. A recent industry study described it as reshaping categories from observability and network security to runtime security, cost management (FinOps), LLM observability and virtualised networking. That is a big claim for a kernel feature, and it is worth understanding what it is before deciding what it means for the humble task manager.</p>
+
+<h2>What eBPF is</h2>
+<p>eBPF lets you load small, verified programs into the Linux kernel that run when certain events happen: a system call, a network packet, a function being entered. The kernel checks each program for safety before running it, so it can&rsquo;t crash the system the way a poorly written kernel module could. The programs can record what they see and hand it to tools in user space.</p>
+<p>The effect is a view into the system that previously required modifying the kernel or the application. Observability systems can capture detailed events at the kernel boundary without changing the software being watched. The same study describes this as especially useful for AI workloads, where teams want a detailed picture without extensive code changes. Vendors also position it as complementary to OpenTelemetry, which collects application-level data: eBPF fills in the kernel-to-application picture.</p>
+
+<h2>What a task manager does differently</h2>
+<p>A desktop or terminal monitor like Open Task Manager works on a much simpler model. Every 1.5 seconds it asks the operating system for a snapshot of processes, memory, disk and network counters, using the <code>sysinfo</code> library, and draws the result. On Linux that mostly means reading files under <code>/proc</code>. It does not install anything in the kernel, doesn&rsquo;t need special privileges for the basics and doesn&rsquo;t record continuously.</p>
+<table>
+  <thead><tr><th></th><th>eBPF-based tools</th><th>Task manager</th></tr></thead>
+  <tbody>
+    <tr><th scope="row">Granularity</th><td>Individual events (every call, packet)</td><td>Samples every second or so</td></tr>
+    <tr><th scope="row">Setup</th><td>Needs kernel support and elevated privileges</td><td>Run it; no setup</td></tr>
+    <tr><th scope="row">Platform</th><td>Linux (with growing efforts elsewhere)</td><td>Linux, Windows, macOS</td></tr>
+    <tr><th scope="row">Best for</th><td>Production tracing, security, deep debugging</td><td>Seeing what is using resources right now</td></tr>
+    <tr><th scope="row">Learning curve</th><td>Steep</td><td>Minimal</td></tr>
+  </tbody>
+</table>
+
+<h2>Why the simple tool still matters</h2>
+<p>For most people, most of the time, the question is basic: what is using my CPU, and can I close it? Answering that needs a sample of current state, not a trace of every event. A tool that needs a kernel program and root access is the wrong shape for that job. The two layers complement each other, and a task manager is often the first step: it tells you which process to look at, then you reach for deeper tooling if the answer isn&rsquo;t obvious.</p>
+
+<h2>Where this is heading</h2>
+<ul>
+  <li><strong>More depth, more safety.</strong> eBPF&rsquo;s verifier model is a good example of getting power without sacrificing stability.</li>
+  <li><strong>Privacy implications.</strong> Tools that can see every event raise real questions about what they capture and who can read it. The principles in <a href="/blog/windows-recall-and-the-case-for-local-first-software/">our piece on auditable software</a> apply.</li>
+  <li><strong>Interfaces on top.</strong> Rich kernel data is only useful when someone can read it. Expect more friendly front ends.</li>
+</ul>
+<p>We are not planning to rebuild Open Task Manager around eBPF. Its job is to be simple, cross-platform and honest, and for that, polling is the right tool. We would welcome contributors who want to explore optional deeper data on Linux, though, and the project is open on <a href="https://github.com/sabaoongfx/Open-Task-Manager" target="_blank" rel="noopener">GitHub</a>.</p>
+
+<h2>Sources</h2>
+<ul class="sources"><li><a href="https://itbrief.com.au/story/ebpf-research-shows-kernel-tech-powering-modern-ai" target="_blank" rel="noopener">IT Brief: eBPF research shows kernel tech powering modern AI</a></li><li><a href="https://datacentrenews.uk/story/ebpf-research-shows-kernel-tech-powering-modern-ai" target="_blank" rel="noopener">DataCentreNews: eBPF research shows kernel tech powering modern AI</a></li><li><a href="https://rootly.com/sre/top-ai-observability-trends-shaping-2026-ops-teams" target="_blank" rel="noopener">Rootly: Top AI observability trends shaping 2026 ops teams</a></li></ul>
+<h2>Keep reading</h2>
+<ul class="related"><li><a href="/blog/rust-is-permanent-in-the-linux-kernel/">Rust Is Now a Permanent Part of the Linux Kernel. Here&#x27;s What That Means for System Tools</a></li><li><a href="/blog/rust-most-admired-language-and-desktop-tools/">Rust Is the Most Admired Language Again. Does It Matter for Desktop Apps?</a></li><li><a href="/blog/tauri-vs-electron-what-the-numbers-say/">Tauri vs. Electron: What the Numbers Say, and What They Don&#x27;t</a></li></ul>
+  </article>
+</main>
+<footer><span>Open Task Manager &middot; open source on <a href="https://github.com/sabaoongfx/Open-Task-Manager" target="_blank" rel="noopener">GitHub</a> &middot; built by <a href="https://sabaoon.dev" target="_blank" rel="noopener">sabaoon.dev</a></span></footer>
+</body></html>

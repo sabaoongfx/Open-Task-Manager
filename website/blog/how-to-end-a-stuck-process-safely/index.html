@@ -1,0 +1,72 @@
+<!doctype html><html lang="en"><head>
+<title>How to End a Stuck Process Safely: SIGTERM, SIGKILL and End Task &middot; Blog</title>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#F6F4EF" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#16130F" media="(prefers-color-scheme: dark)">
+<link rel="icon" href="/favicon.ico" sizes="any"><link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="/blog/blog.css">
+<meta name="description" content="The difference between asking a program to quit and forcing it, what each risks, and how to do it on Windows, Linux and macOS.">
+<link rel="canonical" href="https://opentaskmanager.vercel.app/blog/how-to-end-a-stuck-process-safely/">
+<meta property="og:type" content="article"><meta property="og:title" content="How to End a Stuck Process Safely: SIGTERM, SIGKILL and End Task">
+<meta property="og:description" content="The difference between asking a program to quit and forcing it, what each risks, and how to do it on Windows, Linux and macOS.">
+<meta property="og:url" content="https://opentaskmanager.vercel.app/blog/how-to-end-a-stuck-process-safely/"><meta property="og:image" content="https://opentaskmanager.vercel.app/og.png">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"How to End a Stuck Process Safely: SIGTERM, SIGKILL and End Task","description":"The difference between asking a program to quit and forcing it, what each risks, and how to do it on Windows, Linux and macOS.","datePublished":"2026-10-11","author":{"@type":"Person","name":"sabaoongfx","url":"https://sabaoon.dev"},"mainEntityOfPage":"https://opentaskmanager.vercel.app/blog/how-to-end-a-stuck-process-safely/","image":"https://opentaskmanager.vercel.app/og.png"}</script>
+</head><body>
+<div class="topbar">
+  <a class="brand" href="/" aria-label="Open Task Manager home">
+    <svg viewBox="0 0 513 398" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <rect width="512" height="398" rx="70" fill="#E93233"/>
+      <path d="M492.818 397.869C503.914 397.941 512.948 388.966 512.948 377.87V187.414C512.948 176.368 503.994 167.414 492.948 167.414H454.616C446.258 167.414 438.781 162.216 435.869 154.382L407.167 77.1576C401.073 60.7631 378.355 59.5366 370.532 75.1798L351.027 114.182C344.098 128.036 324.73 129.095 316.333 116.079L314.235 112.827C306.08 100.186 287.412 100.735 280.014 113.835L224.686 211.807C216.254 226.738 194.173 224.83 188.427 208.673L144.755 85.8569C138.495 68.2542 113.662 68.0829 107.161 85.5975L2.38706 367.842C-2.44362 380.855 7.12634 394.711 21.0068 394.802L492.818 397.869Z" fill="#FBA806"/>
+      <path d="M492.948 398C503.994 398 512.948 389.046 512.948 378V244.321C512.948 233.275 503.994 224.321 492.948 224.321H453.201C445.586 224.321 438.632 219.996 435.264 213.166L406.591 155.02C399.769 141.185 380.516 139.954 371.988 152.808L350.108 185.783C342.768 196.847 326.882 197.818 318.249 187.731L312.676 181.221C304.35 171.493 289.154 171.986 281.476 182.234L223.26 259.935C214.222 271.997 195.596 270.107 189.166 256.476L144.021 160.784C136.922 145.738 115.627 145.431 108.098 160.267L2.19154 368.949C-4.56059 382.254 5.10628 398 20.0262 398H492.948Z" fill="#FFDB56"/>
+    </svg>
+    Open Task Manager
+  </a>
+  <nav class="topnav"><a href="/#features">Features</a><a href="/#download">Download</a><a href="/blog/" aria-current="page">Blog</a><a href="https://github.com/sabaoongfx/Open-Task-Manager" target="_blank" rel="noopener">GitHub</a></nav>
+</div>
+<main>
+  <a class="back" href="/blog/">&larr; All posts</a>
+  <article>
+    <p class="eyebrow">How-to</p>
+    <h1>How to End a Stuck Process Safely: SIGTERM, SIGKILL and End Task</h1>
+    <p class="meta">2026-10-11 &middot; sabaoongfx &middot; 3 min read</p>
+
+<p>Every computer user meets a frozen program eventually. The window won&rsquo;t respond, the spinner never stops, and closing it does nothing. Ending its process is the standard fix. Done right it is safe; done carelessly it can lose unsaved work or destabilise your session. Here is how to do it well.</p>
+
+<h2>Ask first, force second</h2>
+<p>There are two levels of ending a process, and the difference matters.</p>
+<ul>
+  <li><strong>A polite request.</strong> On Unix-like systems this is the <code>SIGTERM</code> signal. It tells the program &ldquo;please shut down,&rdquo; and a well-behaved program saves state, closes files and exits. Windows&rsquo;s equivalent is closing the main window.</li>
+  <li><strong>A forced kill.</strong> <code>SIGKILL</code> on Unix, or forced termination on Windows. The operating system removes the process immediately, with no chance to clean up. It always works on a process you own, but unsaved data is lost, and temporary files may be left behind.</li>
+</ul>
+<p>The sensible order is to wait a minute (some programs are busy, not frozen), try to close the window normally, then ask politely, and only then force. In practice, Open Task Manager&rsquo;s End task action is a forced kill of the selected process; it is the one real action on your system that the app performs, so use it knowingly.</p>
+
+<h2>Steps in a task manager</h2>
+<ol>
+  <li><strong>Find the right row.</strong> Use search to filter by name. If the app is grouped, expand it to see its helpers.</li>
+  <li><strong>Check the details.</strong> Confirm the name and that it is owned by you. The Details tab shows PID and user.</li>
+  <li><strong>Right-click and choose End task.</strong> In the terminal UI, select the row and use its kill prompt, which asks you to confirm.</li>
+  <li><strong>Confirm the result.</strong> The row should disappear on the next refresh. If it comes back immediately, something is restarting it; look at the Services and Startup tabs.</li>
+</ol>
+
+<h2>Ending a whole app versus one helper</h2>
+<p>Ending the main process of a grouped app usually closes the rest. Ending a single helper can make the app show an error page or restart that part. If an app is partly broken, such as one browser tab that has crashed, ending just that helper is a gentler fix.</p>
+
+<h2>What not to end</h2>
+<ul>
+  <li><strong>System processes.</strong> On Windows, entries running as System that you can&rsquo;t identify; on Linux, <code>systemd</code>, your display server or session manager. Ending these can log you out or freeze the machine.</li>
+  <li><strong>Anything you don&rsquo;t recognise.</strong> Search the name before acting.</li>
+  <li><strong>Processes with unsaved work.</strong> If you can, copy the content out first.</li>
+</ul>
+<p>The operating system will often refuse if you lack permission, such as ending another user&rsquo;s process or a protected one. That refusal is a safety feature, not a bug. Don&rsquo;t reach for administrator rights unless you understand why you need them.</p>
+
+<h2>If it keeps getting stuck</h2>
+<p>Repeated hangs deserve diagnosis, not repeated killing. Watch the process in the monitor first. Does it use a lot of CPU (a loop), steadily grow in memory (<a href="/blog/how-to-find-a-memory-leak-with-a-task-manager/">a leak</a>), or sit at zero while the disk is busy (<a href="/blog/disk-at-100-percent-how-to-diagnose/">a disk problem</a>)? Update the software, disable add-ons, and note what you were doing when it froze. That detail is what a bug report needs.</p>
+<p>New to the vocabulary? <a href="/blog/what-is-a-process-a-beginners-guide/">Start with what a process is</a>.</p>
+
+<h2>Keep reading</h2>
+<ul class="related"><li><a href="/blog/stretch-your-ram-practical-guide/">How to Stretch Your RAM: A Practical Guide for Any Operating System</a></li><li><a href="/blog/why-windows-task-manager-cpu-numbers-changed/">Why the Windows Task Manager&#x27;s CPU Numbers Changed in 24H2</a></li><li><a href="/blog/how-to-find-a-memory-leak-with-a-task-manager/">How to Find a Memory Leak With Just a Task Manager</a></li></ul>
+  </article>
+</main>
+<footer><span>Open Task Manager &middot; open source on <a href="https://github.com/sabaoongfx/Open-Task-Manager" target="_blank" rel="noopener">GitHub</a> &middot; built by <a href="https://sabaoon.dev" target="_blank" rel="noopener">sabaoon.dev</a></span></footer>
+</body></html>

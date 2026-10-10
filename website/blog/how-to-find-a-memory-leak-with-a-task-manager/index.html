@@ -1,0 +1,73 @@
+<!doctype html><html lang="en"><head>
+<title>How to Find a Memory Leak With Just a Task Manager &middot; Blog</title>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#F6F4EF" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#16130F" media="(prefers-color-scheme: dark)">
+<link rel="icon" href="/favicon.ico" sizes="any"><link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="/blog/blog.css">
+<meta name="description" content="A step-by-step method to confirm whether a program is leaking memory, and what to do about it, without any developer tools.">
+<link rel="canonical" href="https://opentaskmanager.vercel.app/blog/how-to-find-a-memory-leak-with-a-task-manager/">
+<meta property="og:type" content="article"><meta property="og:title" content="How to Find a Memory Leak With Just a Task Manager">
+<meta property="og:description" content="A step-by-step method to confirm whether a program is leaking memory, and what to do about it, without any developer tools.">
+<meta property="og:url" content="https://opentaskmanager.vercel.app/blog/how-to-find-a-memory-leak-with-a-task-manager/"><meta property="og:image" content="https://opentaskmanager.vercel.app/og.png">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"How to Find a Memory Leak With Just a Task Manager","description":"A step-by-step method to confirm whether a program is leaking memory, and what to do about it, without any developer tools.","datePublished":"2026-10-11","author":{"@type":"Person","name":"sabaoongfx","url":"https://sabaoon.dev"},"mainEntityOfPage":"https://opentaskmanager.vercel.app/blog/how-to-find-a-memory-leak-with-a-task-manager/","image":"https://opentaskmanager.vercel.app/og.png"}</script>
+</head><body>
+<div class="topbar">
+  <a class="brand" href="/" aria-label="Open Task Manager home">
+    <svg viewBox="0 0 513 398" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <rect width="512" height="398" rx="70" fill="#E93233"/>
+      <path d="M492.818 397.869C503.914 397.941 512.948 388.966 512.948 377.87V187.414C512.948 176.368 503.994 167.414 492.948 167.414H454.616C446.258 167.414 438.781 162.216 435.869 154.382L407.167 77.1576C401.073 60.7631 378.355 59.5366 370.532 75.1798L351.027 114.182C344.098 128.036 324.73 129.095 316.333 116.079L314.235 112.827C306.08 100.186 287.412 100.735 280.014 113.835L224.686 211.807C216.254 226.738 194.173 224.83 188.427 208.673L144.755 85.8569C138.495 68.2542 113.662 68.0829 107.161 85.5975L2.38706 367.842C-2.44362 380.855 7.12634 394.711 21.0068 394.802L492.818 397.869Z" fill="#FBA806"/>
+      <path d="M492.948 398C503.994 398 512.948 389.046 512.948 378V244.321C512.948 233.275 503.994 224.321 492.948 224.321H453.201C445.586 224.321 438.632 219.996 435.264 213.166L406.591 155.02C399.769 141.185 380.516 139.954 371.988 152.808L350.108 185.783C342.768 196.847 326.882 197.818 318.249 187.731L312.676 181.221C304.35 171.493 289.154 171.986 281.476 182.234L223.26 259.935C214.222 271.997 195.596 270.107 189.166 256.476L144.021 160.784C136.922 145.738 115.627 145.431 108.098 160.267L2.19154 368.949C-4.56059 382.254 5.10628 398 20.0262 398H492.948Z" fill="#FFDB56"/>
+    </svg>
+    Open Task Manager
+  </a>
+  <nav class="topnav"><a href="/#features">Features</a><a href="/#download">Download</a><a href="/blog/" aria-current="page">Blog</a><a href="https://github.com/sabaoongfx/Open-Task-Manager" target="_blank" rel="noopener">GitHub</a></nav>
+</div>
+<main>
+  <a class="back" href="/blog/">&larr; All posts</a>
+  <article>
+    <p class="eyebrow">How-to</p>
+    <h1>How to Find a Memory Leak With Just a Task Manager</h1>
+    <p class="meta">2026-10-11 &middot; sabaoongfx &middot; 3 min read</p>
+
+<p>A memory leak is a program that keeps asking for memory and never gives it back. Left running, it grows until the system slows, other programs are killed, or the machine runs out. You don&rsquo;t need a debugger to spot one. A task manager and a bit of patience are enough to tell a leak from normal behaviour.</p>
+
+<h2>Leak or just busy?</h2>
+<p>Memory use rising is not proof of a leak. A browser grows as you open pages. An editor grows as you open files. Caches deliberately fill up. The distinguishing feature of a leak is that memory keeps climbing <em>when the workload isn&rsquo;t changing</em> and doesn&rsquo;t come back down when the work is done.</p>
+
+<h2>The method</h2>
+<ol>
+  <li><strong>Pick a suspect.</strong> Sort the Processes tab by memory. Look for the process you suspect, usually something you leave open for days.</li>
+  <li><strong>Record a start value.</strong> Note its memory, and the time. Group by app so helpers add into one total.</li>
+  <li><strong>Hold the workload steady.</strong> Don&rsquo;t open new files or pages. Let it idle or repeat one simple action.</li>
+  <li><strong>Check at intervals.</strong> Look again after ten minutes, an hour, a day. A steady upward slope with nothing changing is the signature.</li>
+  <li><strong>Test the reset.</strong> Close the work inside the program (the document, the tab). If memory doesn&rsquo;t fall, that is more evidence. Then restart the program; if it drops to the baseline and begins climbing again, the leak is in that program.</li>
+</ol>
+<p>The Performance tab helps with the machine-wide picture. If total memory climbs in step with one process, you have found your suspect. Open Task Manager&rsquo;s App history tab, which accumulates CPU time per app since launch, adds a second clue: a leaking program that is also spinning will stand out.</p>
+
+<h2>Common false alarms</h2>
+<ul>
+  <li><strong>Caching.</strong> Programs that cache aggressively look like leaks until they hit their cap. Watch for a plateau.</li>
+  <li><strong>Garbage-collected runtimes.</strong> Languages that clean up periodically show a sawtooth: climb, drop, climb. That is normal; a rising baseline across the drops is not.</li>
+  <li><strong>Shared pages.</strong> Resident memory counts shared libraries. A jump when another program loads the same library isn&rsquo;t a leak (see <a href="/blog/memory-explained-rss-working-set-and-shared/">memory explained</a>).</li>
+</ul>
+
+<h2>What to do once you&rsquo;re sure</h2>
+<ul>
+  <li><strong>Update.</strong> Leaks are common bugs and often fixed in newer releases. Check the changelog.</li>
+  <li><strong>Disable extensions or plugins.</strong> In browsers and editors, extensions are a frequent cause. Disable them one at a time and repeat the test.</li>
+  <li><strong>Work around it.</strong> Restart the program on a schedule, or on a lightly used machine, when it passes a threshold.</li>
+  <li><strong>Report it.</strong> Include your operating system, version, and the numbers from your test. A reproducible report with a slope and time is far more useful than &ldquo;it uses too much RAM.&rdquo;</li>
+</ul>
+
+<h2>Be careful about ending the wrong thing</h2>
+<p>If the leaking program is something you started, restarting it is safe. If it is a system process, don&rsquo;t force-end it; restart the machine and report the issue. Our guide to <a href="/blog/how-to-end-a-stuck-process-safely/">ending processes safely</a> covers the difference between asking a program to quit and forcing it.</p>
+<p>The method works in any task manager. It&rsquo;s slow, but it separates real defects from ordinary growth, and that saves you from chasing the wrong program.</p>
+
+<h2>Keep reading</h2>
+<ul class="related"><li><a href="/blog/stretch-your-ram-practical-guide/">How to Stretch Your RAM: A Practical Guide for Any Operating System</a></li><li><a href="/blog/why-windows-task-manager-cpu-numbers-changed/">Why the Windows Task Manager&#x27;s CPU Numbers Changed in 24H2</a></li><li><a href="/blog/disk-at-100-percent-how-to-diagnose/">Disk at 100%? How to Diagnose a Slow Drive Step by Step</a></li></ul>
+  </article>
+</main>
+<footer><span>Open Task Manager &middot; open source on <a href="https://github.com/sabaoongfx/Open-Task-Manager" target="_blank" rel="noopener">GitHub</a> &middot; built by <a href="https://sabaoon.dev" target="_blank" rel="noopener">sabaoon.dev</a></span></footer>
+</body></html>

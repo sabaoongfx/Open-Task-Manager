@@ -1,0 +1,66 @@
+<!doctype html><html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Unix Timestamp Converter: Epoch to Date and Back</title>
+<meta name="description" content="Convert Unix timestamps (seconds or milliseconds) to readable dates and back. See UTC, local time and relative time, with a live current epoch.">
+<link rel="canonical" href="https://otm.sabaoon.dev/tools/unix-timestamp-converter/">
+<meta name="robots" content="index,follow,max-image-preview:large">
+<meta name="theme-color" content="#F6F4EF" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#16130F" media="(prefers-color-scheme: dark)">
+<meta property="og:type" content="website"><meta property="og:site_name" content="Open Task Manager">
+<meta property="og:title" content="Unix Timestamp Converter: Epoch to Date and Back"><meta property="og:description" content="Convert Unix timestamps (seconds or milliseconds) to readable dates and back. See UTC, local time and relative time, with a live current epoch.">
+<meta property="og:url" content="https://otm.sabaoon.dev/tools/unix-timestamp-converter/"><meta property="og:image" content="https://otm.sabaoon.dev/og.png">
+<meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="Unix Timestamp Converter: Epoch to Date and Back"><meta name="twitter:description" content="Convert Unix timestamps (seconds or milliseconds) to readable dates and back. See UTC, local time and relative time, with a live current epoch."><meta name="twitter:image" content="https://otm.sabaoon.dev/og.png">
+<link rel="icon" href="/favicon.ico" sizes="any"><link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;900&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>:root{color-scheme:light;box-sizing:border-box}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}[hidden]:not([hidden=until-found i]){display:none!important}</style>
+<link rel="stylesheet" href="/site.css"><link rel="stylesheet" href="/tools/tools.css">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Unix Timestamp Converter","url":"https://otm.sabaoon.dev/tools/unix-timestamp-converter/","description":"Convert Unix timestamps (seconds or milliseconds) to readable dates and back. See UTC, local time and relative time, with a live current epoch.","applicationCategory":"DeveloperApplication","operatingSystem":"Any (runs in a web browser)","browserRequirements":"Requires JavaScript","isAccessibleForFree":true,"offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"isPartOf":{"@type":"WebSite","name":"Open Task Manager","url":"https://otm.sabaoon.dev/"},"author":{"@type":"Person","name":"sabaoongfx","url":"https://sabaoon.dev"}}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://otm.sabaoon.dev/"},{"@type":"ListItem","position":2,"name":"Tools","item":"https://otm.sabaoon.dev/tools/"},{"@type":"ListItem","position":3,"name":"Unix Timestamp Converter","item":"https://otm.sabaoon.dev/tools/unix-timestamp-converter/"}]}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is a Unix timestamp?","acceptedAnswer":{"@type":"Answer","text":"The number of seconds since 1 January 1970 00:00:00 UTC, also called epoch time. Many systems use milliseconds instead."}},{"@type":"Question","name":"How does it tell seconds from milliseconds?","acceptedAnswer":{"@type":"Answer","text":"Values of 100 billion or more are treated as milliseconds, since that would be a date far in the future in seconds. Smaller values are seconds."}},{"@type":"Question","name":"Which time zone is used?","acceptedAnswer":{"@type":"Answer","text":"UTC and your own browser time zone are both shown, so you can compare them."}},{"@type":"Question","name":"What is the year 2038 problem?","acceptedAnswer":{"@type":"Answer","text":"Systems that store the timestamp as a signed 32-bit integer overflow on 19 January 2038. Modern systems use 64-bit values and are unaffected."}}]}</script>
+</head>
+<body data-tool="timestamp-converter">
+<div class="topbar">
+  <a class="brand" href="/" aria-label="Open Task Manager home">
+    <svg viewBox="0 0 513 398" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <rect width="512" height="398" rx="70" fill="#E93233"/>
+      <path d="M492.818 397.869C503.914 397.941 512.948 388.966 512.948 377.87V187.414C512.948 176.368 503.994 167.414 492.948 167.414H454.616C446.258 167.414 438.781 162.216 435.869 154.382L407.167 77.1576C401.073 60.7631 378.355 59.5366 370.532 75.1798L351.027 114.182C344.098 128.036 324.73 129.095 316.333 116.079L314.235 112.827C306.08 100.186 287.412 100.735 280.014 113.835L224.686 211.807C216.254 226.738 194.173 224.83 188.427 208.673L144.755 85.8569C138.495 68.2542 113.662 68.0829 107.161 85.5975L2.38706 367.842C-2.44362 380.855 7.12634 394.711 21.0068 394.802L492.818 397.869Z" fill="#FBA806"/>
+      <path d="M492.948 398C503.994 398 512.948 389.046 512.948 378V244.321C512.948 233.275 503.994 224.321 492.948 224.321H453.201C445.586 224.321 438.632 219.996 435.264 213.166L406.591 155.02C399.769 141.185 380.516 139.954 371.988 152.808L350.108 185.783C342.768 196.847 326.882 197.818 318.249 187.731L312.676 181.221C304.35 171.493 289.154 171.986 281.476 182.234L223.26 259.935C214.222 271.997 195.596 270.107 189.166 256.476L144.021 160.784C136.922 145.738 115.627 145.431 108.098 160.267L2.19154 368.949C-4.56059 382.254 5.10628 398 20.0262 398H492.948Z" fill="#FFDB56"/>
+    </svg>
+    Open Task Manager
+  </a>
+  <nav class="topnav"><a href="/#full-demo">Live demo</a><a href="/#features">Features</a><a href="/#terminal">Terminal</a><a href="/#install">Install</a><a href="/#download">Download</a><a href="/#specs">Specs</a><a href="/#roadmap">Roadmap</a><a href="/releases.html">What&#x27;s new</a><a href="/tools/" aria-current="page">Tools</a><a href="/blog/">Blog</a><a class="gh" href="https://github.com/sabaoongfx/Open-Task-Manager" target="_blank" rel="noopener"><svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0016 8c0-4.42-3.58-8-8-8z"/></svg> GitHub</a></nav>
+</div>
+<nav class="crumbs" aria-label="Breadcrumb"><a href="/">Home</a> / <a href="/tools/">Tools</a> / Unix Timestamp Converter</nav>
+<header class="hero tool-hero">
+  <p class="eyebrow">free online tool</p>
+  <h1>Unix <em>timestamp</em> converter</h1>
+  <p class="lede">Turn an epoch timestamp into a human-readable date, or pick a date and get its timestamp. Seconds and milliseconds are detected automatically, and results are shown in UTC and your own time zone.</p>
+</header>
+
+<main class="tools">
+  <section class="tool-ui" id="app" aria-label="Unix Timestamp Converter"><div class="msg">Current Unix time: <b id="live" style="color:var(--ink)"></b></div>
+<div class="grid2"><label class="fld">Timestamp or date<input type="text" id="ts" class="mono" spellcheck="false"></label><label class="fld">Or pick a date and time (your time zone)<input type="datetime-local" id="dt"></label></div>
+<div class="bar"><button class="btn btn-primary" id="now" type="button">Use current time</button></div><div class="msg" id="msg" aria-live="polite"></div><div id="res"></div></section>
+  <noscript><p class="hero-note">This tool needs JavaScript. It runs entirely in your browser; nothing is sent to a server.</p></noscript>
+
+  <div class="prose">
+    <h2>How to use the Unix Timestamp Converter</h2>
+    <ol><li>Paste a Unix timestamp in seconds or milliseconds, or click <strong>Use current time</strong>.</li><li>Or choose a date and time with the picker to get its timestamp.</li><li>Read the UTC, local and relative results below.</li></ol>
+    <h2>What it is good for</h2>
+    <ul><li>Reading timestamps in logs, databases and API responses.</li><li>Working out when a token or cache entry expires.</li><li>Converting a date to epoch time for a query or script.</li><li>Checking the time difference between two events.</li></ul>
+    <h2>Frequently asked questions</h2>
+    <details><summary>What is a Unix timestamp?</summary><p>The number of seconds since 1 January 1970 00:00:00 UTC, also called epoch time. Many systems use milliseconds instead.</p></details><details><summary>How does it tell seconds from milliseconds?</summary><p>Values of 100 billion or more are treated as milliseconds, since that would be a date far in the future in seconds. Smaller values are seconds.</p></details><details><summary>Which time zone is used?</summary><p>UTC and your own browser time zone are both shown, so you can compare them.</p></details><details><summary>What is the year 2038 problem?</summary><p>Systems that store the timestamp as a signed 32-bit integer overflow on 19 January 2038. Modern systems use 64-bit values and are unaffected.</p></details>
+  </div>
+
+  <section class="others">
+    <h2>More free tools</h2>
+    <div class="cards"><a class="card" href="/tools/json-formatter/"><h3>JSON Formatter and Validator</h3><p>Pretty-print, validate and minify JSON with error positions. Nothing is uploaded.</p><span class="go">Open tool &rarr;</span></a><a class="card" href="/tools/base64-encoder-decoder/"><h3>Base64 Encoder and Decoder</h3><p>Encode and decode Base64 with UTF-8 and URL-safe support.</p><span class="go">Open tool &rarr;</span></a><a class="card" href="/tools/url-encoder-decoder/"><h3>URL Encoder and Decoder</h3><p>Percent-encode and decode URLs and query values.</p><span class="go">Open tool &rarr;</span></a></div>
+  </section>
+</main>
+
+<footer>
+  <span>Open Task Manager &middot; open source on <a href="https://github.com/sabaoongfx/Open-Task-Manager" target="_blank" rel="noopener">GitHub</a> &middot; built by <a href="https://sabaoon.dev" target="_blank" rel="noopener">sabaoon.dev</a></span>
+  <span><a href="/tools/">All tools</a> &middot; <a href="/">Home</a></span>
+</footer>
+<script src="/tools/utils.js" defer></script>
+</body></html>

@@ -1,0 +1,68 @@
+<!doctype html><html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Color Converter: HEX, RGB, HSL, HSV and CMYK</title>
+<meta name="description" content="Convert colors between HEX, RGB, HSL, HSV and CMYK, with a color picker and WCAG contrast check. Accepts color names too. Free, runs in your browser.">
+<link rel="canonical" href="https://otm.sabaoon.dev/tools/color-converter/">
+<meta name="robots" content="index,follow,max-image-preview:large">
+<meta name="theme-color" content="#F6F4EF" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#16130F" media="(prefers-color-scheme: dark)">
+<meta property="og:type" content="website"><meta property="og:site_name" content="Open Task Manager">
+<meta property="og:title" content="Color Converter: HEX, RGB, HSL, HSV and CMYK"><meta property="og:description" content="Convert colors between HEX, RGB, HSL, HSV and CMYK, with a color picker and WCAG contrast check. Accepts color names too. Free, runs in your browser.">
+<meta property="og:url" content="https://otm.sabaoon.dev/tools/color-converter/"><meta property="og:image" content="https://otm.sabaoon.dev/og.png">
+<meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="Color Converter: HEX, RGB, HSL, HSV and CMYK"><meta name="twitter:description" content="Convert colors between HEX, RGB, HSL, HSV and CMYK, with a color picker and WCAG contrast check. Accepts color names too. Free, runs in your browser."><meta name="twitter:image" content="https://otm.sabaoon.dev/og.png">
+<link rel="icon" href="/favicon.ico" sizes="any"><link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;900&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>:root{color-scheme:light;box-sizing:border-box}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}[hidden]:not([hidden=until-found i]){display:none!important}</style>
+<link rel="stylesheet" href="/site.css"><link rel="stylesheet" href="/tools/tools.css">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Color Converter","url":"https://otm.sabaoon.dev/tools/color-converter/","description":"Convert colors between HEX, RGB, HSL, HSV and CMYK, with a color picker and WCAG contrast check. Accepts color names too. Free, runs in your browser.","applicationCategory":"DesignApplication","operatingSystem":"Any (runs in a web browser)","browserRequirements":"Requires JavaScript","isAccessibleForFree":true,"offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"isPartOf":{"@type":"WebSite","name":"Open Task Manager","url":"https://otm.sabaoon.dev/"},"author":{"@type":"Person","name":"sabaoongfx","url":"https://sabaoon.dev"}}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://otm.sabaoon.dev/"},{"@type":"ListItem","position":2,"name":"Tools","item":"https://otm.sabaoon.dev/tools/"},{"@type":"ListItem","position":3,"name":"Color Converter","item":"https://otm.sabaoon.dev/tools/color-converter/"}]}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Which formats can I type in?","acceptedAnswer":{"@type":"Answer","text":"HEX (3, 4, 6 or 8 digits), rgb() and rgba(), hsl() and hsla(), and CSS color names such as rebeccapurple. Your browser does the parsing."}},{"@type":"Question","name":"Is the CMYK value exact?","acceptedAnswer":{"@type":"Answer","text":"No. CMYK here is a simple mathematical conversion from RGB, useful as a starting point. Print profiles use colour management, so check printed results with your printer."}},{"@type":"Question","name":"What do the contrast ratios mean?","acceptedAnswer":{"@type":"Answer","text":"WCAG asks for at least 4.5:1 for normal text (AA) and 7:1 for the stricter AAA level. Large text needs 3:1 for AA."}},{"@type":"Question","name":"Does it keep transparency?","acceptedAnswer":{"@type":"Answer","text":"Yes. If you enter an alpha value, the HEX output gains two extra digits and the RGB output becomes rgba()."}}]}</script>
+</head>
+<body data-tool="color-converter">
+<div class="topbar">
+  <a class="brand" href="/" aria-label="Open Task Manager home">
+    <svg viewBox="0 0 513 398" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <rect width="512" height="398" rx="70" fill="#E93233"/>
+      <path d="M492.818 397.869C503.914 397.941 512.948 388.966 512.948 377.87V187.414C512.948 176.368 503.994 167.414 492.948 167.414H454.616C446.258 167.414 438.781 162.216 435.869 154.382L407.167 77.1576C401.073 60.7631 378.355 59.5366 370.532 75.1798L351.027 114.182C344.098 128.036 324.73 129.095 316.333 116.079L314.235 112.827C306.08 100.186 287.412 100.735 280.014 113.835L224.686 211.807C216.254 226.738 194.173 224.83 188.427 208.673L144.755 85.8569C138.495 68.2542 113.662 68.0829 107.161 85.5975L2.38706 367.842C-2.44362 380.855 7.12634 394.711 21.0068 394.802L492.818 397.869Z" fill="#FBA806"/>
+      <path d="M492.948 398C503.994 398 512.948 389.046 512.948 378V244.321C512.948 233.275 503.994 224.321 492.948 224.321H453.201C445.586 224.321 438.632 219.996 435.264 213.166L406.591 155.02C399.769 141.185 380.516 139.954 371.988 152.808L350.108 185.783C342.768 196.847 326.882 197.818 318.249 187.731L312.676 181.221C304.35 171.493 289.154 171.986 281.476 182.234L223.26 259.935C214.222 271.997 195.596 270.107 189.166 256.476L144.021 160.784C136.922 145.738 115.627 145.431 108.098 160.267L2.19154 368.949C-4.56059 382.254 5.10628 398 20.0262 398H492.948Z" fill="#FFDB56"/>
+    </svg>
+    Open Task Manager
+  </a>
+  <nav class="topnav"><a href="/#full-demo">Live demo</a><a href="/#features">Features</a><a href="/#terminal">Terminal</a><a href="/#install">Install</a><a href="/#download">Download</a><a href="/#specs">Specs</a><a href="/#roadmap">Roadmap</a><a href="/releases.html">What&#x27;s new</a><a href="/tools/" aria-current="page">Tools</a><a href="/blog/">Blog</a><a class="gh" href="https://github.com/sabaoongfx/Open-Task-Manager" target="_blank" rel="noopener"><svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0016 8c0-4.42-3.58-8-8-8z"/></svg> GitHub</a></nav>
+</div>
+<nav class="crumbs" aria-label="Breadcrumb"><a href="/">Home</a> / <a href="/tools/">Tools</a> / Color Converter</nav>
+<header class="hero tool-hero">
+  <p class="eyebrow">free online tool</p>
+  <h1>Color <em>converter</em></h1>
+  <p class="lede">Type a color in any common format, or pick one, and get every other format instantly. It also checks the contrast against white and black text so you know whether it is readable.</p>
+</header>
+
+<main class="tools">
+  <section class="tool-ui" id="app" aria-label="Color Converter"><div class="grid2"><div style="display:grid;gap:14px;align-content:start">
+<label class="fld">Color (HEX, RGB, HSL or name)<div class="colorbar"><input type="color" id="pick" value="#e93233" aria-label="Pick a color"><input type="text" id="in" class="mono" spellcheck="false"></div></label>
+<div class="bar"><button class="btn btn-ghost" id="rand" type="button">Random color</button></div><div class="msg" id="msg" aria-live="polite"></div><div class="big-sw" id="sw"></div></div>
+<div><div class="copyrow"><span class="lbl">HEX</span><input type="text" id="o-hex" readonly><button class="btn btn-ghost" data-copy="o-hex" type="button">Copy</button></div><div class="copyrow"><span class="lbl">RGB</span><input type="text" id="o-rgb" readonly><button class="btn btn-ghost" data-copy="o-rgb" type="button">Copy</button></div><div class="copyrow"><span class="lbl">HSL</span><input type="text" id="o-hsl" readonly><button class="btn btn-ghost" data-copy="o-hsl" type="button">Copy</button></div><div class="copyrow"><span class="lbl">HSV</span><input type="text" id="o-hsv" readonly><button class="btn btn-ghost" data-copy="o-hsv" type="button">Copy</button></div><div class="copyrow"><span class="lbl">CMYK</span><input type="text" id="o-cmyk" readonly><button class="btn btn-ghost" data-copy="o-cmyk" type="button">Copy</button></div>
+<table class="kv" style="margin-top:14px"><tr><th>White text</th><td id="cw"></td></tr><tr><th>Black text</th><td id="cb"></td></tr></table></div></div></section>
+  <noscript><p class="hero-note">This tool needs JavaScript. It runs entirely in your browser; nothing is sent to a server.</p></noscript>
+
+  <div class="prose">
+    <h2>How to use the Color Converter</h2>
+    <ol><li>Type or paste a color such as <span class="mono">#1a73e8</span>, <span class="mono">rgb(26 115 232)</span> or <span class="mono">tomato</span>, or use the picker.</li><li>Read the HEX, RGB, HSL, HSV and CMYK values and click <strong>Copy</strong> next to the one you need.</li><li>Check the contrast rows: WCAG AA needs at least 4.5:1 for normal text.</li></ol>
+    <h2>What it is good for</h2>
+    <ul><li>Moving a brand color between design tools and CSS.</li><li>Finding the HSL values to build lighter and darker shades.</li><li>Checking whether text on a background meets accessibility guidelines.</li><li>Turning a named CSS color into HEX.</li></ul>
+    <h2>Frequently asked questions</h2>
+    <details><summary>Which formats can I type in?</summary><p>HEX (3, 4, 6 or 8 digits), rgb() and rgba(), hsl() and hsla(), and CSS color names such as rebeccapurple. Your browser does the parsing.</p></details><details><summary>Is the CMYK value exact?</summary><p>No. CMYK here is a simple mathematical conversion from RGB, useful as a starting point. Print profiles use colour management, so check printed results with your printer.</p></details><details><summary>What do the contrast ratios mean?</summary><p>WCAG asks for at least 4.5:1 for normal text (AA) and 7:1 for the stricter AAA level. Large text needs 3:1 for AA.</p></details><details><summary>Does it keep transparency?</summary><p>Yes. If you enter an alpha value, the HEX output gains two extra digits and the RGB output becomes rgba().</p></details>
+  </div>
+
+  <section class="others">
+    <h2>More free tools</h2>
+    <div class="cards"><a class="card" href="/tools/color-palette-generator/"><h3>Color Palette Generator</h3><p>Build five-color palettes from a base color using classic harmony rules.</p><span class="go">Open tool &rarr;</span></a><a class="card" href="/tools/css-gradient-generator/"><h3>CSS Gradient Generator</h3><p>Visual builder for linear, radial and conic CSS gradients with copy-ready code.</p><span class="go">Open tool &rarr;</span></a><a class="card" href="/tools/box-shadow-generator/"><h3>CSS Box Shadow Generator</h3><p>Visual box-shadow builder with presets, inset support and copy-ready CSS.</p><span class="go">Open tool &rarr;</span></a></div>
+  </section>
+</main>
+
+<footer>
+  <span>Open Task Manager &middot; open source on <a href="https://github.com/sabaoongfx/Open-Task-Manager" target="_blank" rel="noopener">GitHub</a> &middot; built by <a href="https://sabaoon.dev" target="_blank" rel="noopener">sabaoon.dev</a></span>
+  <span><a href="/tools/">All tools</a> &middot; <a href="/">Home</a></span>
+</footer>
+<script src="/tools/utils.js" defer></script>
+</body></html>

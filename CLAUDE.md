@@ -182,9 +182,30 @@ Firefox can't tell). Every download link is a versionless `releases/latest/downl
 (see Releasing). The site has no tests: preview it with a static server and check it in a browser
 at desktop and ~390px widths.
 
+`website/tools/` holds the free browser-only tools: a hub (`tools/index.html`) plus one static page per
+tool (23 of them, grouped on the hub as SVG/images, color/CSS, developer, everyday). The pages are
+**generated**: edit `tools/catalog.py` (copy, FAQs and each tool's form markup) or the templates in
+`tools/build.py`, then run `python website/tools/build.py`, which rewrites every page and the tools
+entries in `sitemap.xml`. Commit the generated HTML; the site itself still has no build step. Each page
+carries its own head, JSON-LD (WebApplication, BreadcrumbList, FAQPage), how-to text and FAQ.
+
+Two scripts drive the pages, selected by `<body data-tool="...">`: `tools/tools.js` runs the three seeded
+SVG generators (random shapes, wallpaper, animation, including PNG export and canvas video recording), and
+`tools/utils.js` holds the 20 utility tools as `T["<tool>"]` init functions that wire up ids from the page
+markup (so a catalog `ui` snippet and its `utils.js` function must agree on element ids). QR codes use the
+vendored MIT `tools/vendor/qrcode.js` (qrcode-generator 1.4.4). Everything runs client-side; nothing is
+uploaded. A new tool means a `catalog.py` entry, a function in `utils.js` and a rebuild. Don't reuse a
+class name from `site.css` (it already defines `.panel`) and don't name a form control `length`
+(it collides with `form.elements.length`).
+
 SEO lives in `website/index.html`'s `<head>` (description, canonical, Open Graph/Twitter tags
 pointing at `website/og.png`, JSON-LD `SoftwareApplication`), plus `website/robots.txt` and
-`website/sitemap.xml`. All of them hardcode the production URL `https://otm.sabaoon.dev/`.
+`website/sitemap.xml`. All of them hardcode the production URL `https://otm.sabaoon.dev/`, also
+used in the blog pages, `README.md` and the AppStream file. The old
+`opentaskmanager.vercel.app` host now 307-redirects there, so never put it in the sitemap: Search
+Console rejects a sitemap whose `<loc>` URLs are on a different host than the sitemap itself
+("URL not allowed"). If the domain changes again, replace it everywhere with one repo-wide
+search-and-replace, then resubmit the sitemap in the matching Search Console property.
 
 `vercel.json` at the repo root deploys `website/` with no build step. Its `outputDirectory` is
 resolved relative to whatever Vercel's dashboard "Root Directory" project setting is (currently

@@ -1,0 +1,318 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Open Clipboard Manager: free clipboard history for Windows, Linux &amp; macOS</title>
+<meta name="description" content="Free, open-source clipboard history manager for Windows, Linux and macOS. Text and images, a Win+V hotkey, search, regex-matched actions. Local only, no account, no telemetry.">
+<link rel="canonical" href="https://otm.sabaoon.dev/ocm/">
+<meta name="theme-color" content="#F6F4EF" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#16130F" media="(prefers-color-scheme: dark)">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Clipboard Manager">
+<meta property="og:title" content="Open Clipboard Manager: everything you copied, one hotkey away">
+<meta property="og:description" content="Free, open-source clipboard history for Windows, Linux and macOS. Press Win+V, pick an earlier entry, and it is pasted. Local only.">
+<meta property="og:url" content="https://otm.sabaoon.dev/ocm/">
+<meta property="og:image" content="https://otm.sabaoon.dev/ocm/screenshot-history.png">
+<meta property="og:image:width" content="980">
+<meta property="og:image:height" content="660">
+<meta property="og:image:alt" content="Open Clipboard Manager's History tab: a searchable list of copied text and images with a preview pane.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Open Clipboard Manager: everything you copied, one hotkey away">
+<meta name="twitter:description" content="Free, open-source clipboard history for Windows, Linux and macOS. Local only.">
+<meta name="twitter:image" content="https://otm.sabaoon.dev/ocm/screenshot-history.png">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "Open Clipboard Manager",
+  "description": "Free, open-source clipboard history manager with a global hotkey, text and image history, search and regex-matched actions. Built with Python and Tk.",
+  "applicationCategory": "UtilitiesApplication",
+  "operatingSystem": "Windows, Linux, macOS",
+  "url": "https://otm.sabaoon.dev/ocm/",
+  "downloadUrl": "https://github.com/sabaoongfx/open-clipboard-manager/releases/latest",
+  "image": "https://otm.sabaoon.dev/ocm/screenshot-history.png",
+  "screenshot": "https://otm.sabaoon.dev/ocm/screenshot-history.png",
+  "license": "https://opensource.org/licenses/MIT",
+  "isAccessibleForFree": true,
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+  "author": { "@type": "Person", "name": "Sabaoon", "url": "https://sabaoon.dev" },
+  "sameAs": ["https://github.com/sabaoongfx/open-clipboard-manager"],
+  "featureList": [
+    "Clipboard history for text and images",
+    "Win+V popup on Windows, Super+V on Linux, Ctrl+Cmd+V on macOS",
+    "Search as you type, preview pane, pause and clear",
+    "Regex-matched actions on right-click",
+    "Light and dark mode",
+    "Everything stays on your computer"
+  ]
+}
+</script>
+<link rel="icon" type="image/svg+xml" href="logo.svg">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;900&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>:root{color-scheme:light;box-sizing:border-box}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style>
+</head><body>
+<link rel="stylesheet" href="/site.css">
+<style>
+/* Accent follows the app icon's blue (#3c78c8) instead of Open Task Manager's red. */
+:root{--red:#3c78c8}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--red:#5b94e0}}
+:root[data-theme="dark"]{--red:#5b94e0}
+.btn-primary:hover{background:#2f64ac}
+.brand img{width:22px;height:22px;flex-shrink:0}
+.shots{max-width:1120px;margin-inline:auto}
+.shot{display:block;width:100%;height:auto;border:1px solid var(--border);border-radius:12px;box-shadow:var(--shadow);background:var(--surface)}
+.shot-dark{display:none}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .shot-light{display:none}:root:not([data-theme="light"]) .shot-dark{display:block}}
+:root[data-theme="dark"] .shot-light{display:none}
+:root[data-theme="dark"] .shot-dark{display:block}
+.shot-2{margin-top:20px}
+</style>
+
+<div class="topbar">
+  <a class="brand" href="/ocm/" aria-label="Open Clipboard Manager home">
+    <img src="logo.svg" alt="">
+    Open Clipboard Manager
+  </a>
+  <nav class="topnav">
+    <a href="#features">Features</a>
+    <a href="#install">Install</a>
+    <a href="#download">Download</a>
+    <a href="#specs">Specs</a>
+    <a href="#roadmap">Roadmap</a>
+    <a href="/">Open Task Manager</a>
+    <a class="gh" href="https://github.com/sabaoongfx/open-clipboard-manager" target="_blank" rel="noopener">
+      <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+      GitHub
+    </a>
+  </nav>
+</div>
+
+<div class="hero">
+  <p class="eyebrow">ctrl+c &middot; clipboard history</p>
+  <h1>Everything you copied,<br><em>one hotkey</em> away.</h1>
+  <p class="lede">Press <kbd>Win</kbd> + <kbd>V</kbd>, pick an earlier entry, and it is pasted into the window you were in. A free, open-source clipboard history for Windows, Linux and macOS, for text and images. Everything stays on your computer: no account, no telemetry, no network access.</p>
+  <div class="cta-row">
+    <a class="btn btn-primary" id="hero-download" href="#download"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg><span>Download</span></a>
+    <a class="btn btn-ghost" href="#install">Install</a>
+    <a class="btn btn-ghost" href="https://github.com/sabaoongfx/open-clipboard-manager" target="_blank" rel="noopener">Star on GitHub</a>
+  </div>
+  <p class="hero-note" id="hero-download-note" hidden></p>
+</div>
+
+<div class="shots">
+  <img class="shot shot-light" src="screenshot-history.png" width="980" height="660" alt="History tab: searchable list of copied text and images with a preview pane">
+  <img class="shot shot-dark" src="screenshot-history-dark.png" width="980" height="660" alt="History tab in dark mode">
+  <img class="shot shot-2" src="screenshot-settings.png" width="980" height="660" loading="lazy" alt="Settings tab: hotkey, history size, paste behaviour, start at login">
+</div>
+
+<section id="features" style="margin-top:56px">
+  <div class="section-head">
+    <div>
+      <p class="eyebrow">features</p>
+      <h2>A small tool that does one thing well.</h2>
+    </div>
+    <p>It follows the look of Open Task Manager: a navigation rail, a card, a flat table and rounded controls.</p>
+  </div>
+  <div class="flist">
+    <div class="frow">
+      <div class="ficon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="6" y="5" width="12" height="16" rx="2"/><path d="M9 3h6v4H9zM9 12h6M9 16h6"/></svg></div>
+      <div class="ftitle">Text and images</div>
+      <div class="fdesc">Screenshots and copied pictures are kept as thumbnails; text shows its length. A preview pane shows the full entry.</div>
+      <div class="ftag">history</div>
+    </div>
+    <div class="frow">
+      <div class="ficon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg></div>
+      <div class="ftitle">Search as you type</div>
+      <div class="fdesc">The search box is focused when the window opens. Type <code class="mono">image</code> to find pictures. There is an Images tab too.</div>
+      <div class="ftag">history</div>
+    </div>
+    <div class="frow">
+      <div class="ficon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="18" height="12" rx="2"/><path d="M7 10h.01M11 10h.01M15 10h.01M8 14h8"/></svg></div>
+      <div class="ftitle">Win+V on every OS</div>
+      <div class="fdesc">Win+V on Windows (replacing the built-in panel while the app runs), Super+V on Linux, Ctrl+Cmd+V on macOS. Change it in Settings.</div>
+      <div class="ftag">hotkey</div>
+    </div>
+    <div class="frow">
+      <div class="ficon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div>
+      <div class="ftitle">Pick and paste</div>
+      <div class="fdesc">Enter or double-click copies the entry back and pastes it into the window you came from. Opened from the tray, it only copies.</div>
+      <div class="ftag">core</div>
+    </div>
+    <div class="frow">
+      <div class="ficon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h10M4 18h7"/></svg></div>
+      <div class="ftitle">Regex-matched actions</div>
+      <div class="fdesc">Right-click an entry to open a URL, look up a bug number or show a file in Explorer or Finder. Edit the rules in <code class="mono">actions.json</code>.</div>
+      <div class="ftag">actions</div>
+    </div>
+    <div class="frow">
+      <div class="ficon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 018 0v3"/></svg></div>
+      <div class="ftitle">Local only</div>
+      <div class="fdesc">No telemetry, no account, no network access. History is a JSON file plus PNGs in your data folder, and you can turn saving off.</div>
+      <div class="ftag">privacy</div>
+    </div>
+  </div>
+</section>
+
+<section id="install">
+  <div class="section-head">
+    <div>
+      <p class="eyebrow">install</p>
+      <h2>Install it in a minute.</h2>
+    </div>
+    <p>Single-file downloads for each system. They are not code-signed yet, so your OS may warn you the first time.</p>
+  </div>
+
+  <div class="tabs" role="tablist" aria-label="Choose your system">
+    <button type="button" role="tab" aria-selected="true" aria-controls="i-win" data-os="win">Windows</button>
+    <button type="button" role="tab" aria-selected="false" aria-controls="i-linux" data-os="linux">Linux</button>
+    <button type="button" role="tab" aria-selected="false" aria-controls="i-mac" data-os="mac">macOS</button>
+    <button type="button" role="tab" aria-selected="false" aria-controls="i-src" data-os="src">From source</button>
+  </div>
+
+  <div class="panel" id="i-win" role="tabpanel">
+    <h3 class="ftitle">Windows 10 and 11</h3>
+    <p>Download <a href="https://github.com/sabaoongfx/open-clipboard-manager/releases/latest/download/Open-Clipboard-Manager-x64.exe" style="text-decoration:underline;text-underline-offset:2px;">Open-Clipboard-Manager-x64.exe</a> and run it. It is one portable file; the first launch takes a few seconds while it unpacks. If SmartScreen warns you, choose <em>More info &rarr; Run anyway</em>. A <code class="mono">SHA256SUMS.txt</code> is attached to every release.</p>
+    <p>The app lives in the system tray. Turn on <em>Settings &rarr; Start at login</em> to launch it with Windows.</p>
+  </div>
+
+  <div class="panel" id="i-linux" role="tabpanel" hidden>
+    <h3 class="ftitle">Linux (x86_64)</h3>
+    <p>Download the binary, make it executable and run it:</p>
+    <div class="code"><button class="copy" type="button">Copy</button><pre>chmod +x Open-Clipboard-Manager-x86_64
+./Open-Clipboard-Manager-x86_64</pre></div>
+    <p>It needs helper programs from your package manager: <code class="mono">xclip</code> (X11) or <code class="mono">wl-clipboard</code> (Wayland) for the clipboard, and <code class="mono">xdotool</code> or <code class="mono">wtype</code> to paste. The Super+V hotkey works on X11 only. On <strong>Wayland</strong> no app can grab a global key, so bind a desktop shortcut to <code class="mono">Open-Clipboard-Manager-x86_64 --show</code>. On GNOME the tray icon needs the AppIndicator extension.</p>
+  </div>
+
+  <div class="panel" id="i-mac" role="tabpanel" hidden>
+    <h3 class="ftitle">macOS (Apple Silicon)</h3>
+    <p>Download <a href="https://github.com/sabaoongfx/open-clipboard-manager/releases/latest/download/Open-Clipboard-Manager-macos-arm64.zip" style="text-decoration:underline;text-underline-offset:2px;">Open-Clipboard-Manager-macos-arm64.zip</a>, unzip it and drag the app to Applications. It is not signed or notarized, so the first time, right-click the app and choose <em>Open</em>. Auto-paste needs the Accessibility permission under <em>System Settings &rarr; Privacy &amp; Security</em>. The hotkey is Ctrl+Cmd+V.</p>
+    <p>The macOS build is started and tested by CI on a real Mac, but nobody has used the clipboard, hotkey and paste on one yet. Expect rough edges and please report them.</p>
+  </div>
+
+  <div class="panel" id="i-src" role="tabpanel" hidden>
+    <h3 class="ftitle">From source (any of the three)</h3>
+    <p>Needs Python 3 with Tk (the python.org installers include it).</p>
+    <div class="code"><button class="copy" type="button">Copy</button><pre>git clone https://github.com/sabaoongfx/open-clipboard-manager
+cd open-clipboard-manager
+pip install -r requirements.txt
+python winclipman.py</pre></div>
+    <p>Running the app again, or <code class="mono">python winclipman.py --show</code>, opens the window of the copy that is already running.</p>
+  </div>
+</section>
+
+<section id="download">
+  <div class="section-head">
+    <div>
+      <p class="eyebrow">download</p>
+      <h2>Every download, one click.</h2>
+    </div>
+    <p>Direct links to the latest release, free and open source.</p>
+  </div>
+  <div class="dl-grid">
+    <div class="dl-card" data-platform="win">
+      <h3>Windows <span class="yours-tag">Your system</span></h3>
+      <ul>
+        <li><a href="https://github.com/sabaoongfx/open-clipboard-manager/releases/latest/download/Open-Clipboard-Manager-x64.exe"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>Portable app<span class="ext">exe</span></a></li>
+      </ul>
+    </div>
+    <div class="dl-card" data-platform="mac">
+      <h3>macOS <span class="yours-tag">Your system</span></h3>
+      <ul>
+        <li><a href="https://github.com/sabaoongfx/open-clipboard-manager/releases/latest/download/Open-Clipboard-Manager-macos-arm64.zip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>Apple Silicon<span class="ext">zip</span></a></li>
+      </ul>
+    </div>
+    <div class="dl-card" data-platform="linux">
+      <h3>Linux <span class="yours-tag">Your system</span></h3>
+      <ul>
+        <li><a href="https://github.com/sabaoongfx/open-clipboard-manager/releases/latest/download/Open-Clipboard-Manager-x86_64"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>x86_64 binary<span class="ext">bin</span></a></li>
+      </ul>
+    </div>
+    <div class="dl-card">
+      <h3>Verify</h3>
+      <ul>
+        <li><a href="https://github.com/sabaoongfx/open-clipboard-manager/releases/latest/download/SHA256SUMS.txt"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>Checksums<span class="ext">txt</span></a></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section id="specs">
+  <div class="section-head">
+    <div>
+      <p class="eyebrow">specs</p>
+      <h2>What's actually running under the hood.</h2>
+    </div>
+  </div>
+  <div class="specs">
+    <div class="spec"><div class="l">Language</div><div class="v">Python 3</div></div>
+    <div class="spec"><div class="l">UI</div><div class="v">Tk &middot; ttk</div></div>
+    <div class="spec"><div class="l">Clipboard poll</div><div class="v">300 ms</div></div>
+    <div class="spec"><div class="l">History size</div><div class="v">1&ndash;1000</div></div>
+    <div class="spec"><div class="l">Tray icon</div><div class="v">pystray</div></div>
+    <div class="spec"><div class="l">Platforms</div><div class="v">Win &middot; Linux &middot; macOS</div></div>
+    <div class="spec"><div class="l">Packaging</div><div class="v">PyInstaller</div></div>
+    <div class="spec"><div class="l">License</div><div class="v">MIT</div></div>
+  </div>
+</section>
+
+<section id="roadmap">
+  <div class="section-head">
+    <div>
+      <p class="eyebrow">roadmap</p>
+      <h2>What's still ahead.</h2>
+    </div>
+  </div>
+  <div class="roadmap">
+    <div class="rm-head"><span class="mono">▾</span> Not started (5)</div>
+    <div class="rm-grid">
+      <div class="rm-item"><div class="name">Real-world macOS and Linux testing</div><div class="status">Fixing what that turns up</div></div>
+      <div class="rm-item"><div class="name">Intel macOS and ARM Linux builds</div><div class="status">Apple Silicon and x86_64 only today</div></div>
+      <div class="rm-item"><div class="name">Signed builds</div><div class="status">Windows exe and macOS app are unsigned</div></div>
+      <div class="rm-item"><div class="name">Actions editor</div><div class="status">Edit actions.json by hand today</div></div>
+      <div class="rm-item"><div class="name">High-DPI rendering</div><div class="status">Sharper text and icons</div></div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <span>Open Clipboard Manager &middot; open source on <a href="https://github.com/sabaoongfx/open-clipboard-manager" target="_blank" rel="noopener">GitHub</a> &middot; part of <a href="/">Open Task Manager</a> &middot; built by <a href="https://sabaoon.dev" target="_blank" rel="noopener">sabaoon.dev</a></span>
+</footer>
+
+<script>
+(function(){
+  var list = document.querySelector('#install .tabs');
+  var buttons = list.querySelectorAll('[role="tab"]');
+  function select(active){
+    buttons.forEach(function(b){ b.setAttribute('aria-selected', b === active ? 'true' : 'false'); });
+    document.querySelectorAll('#install [role="tabpanel"]').forEach(function(p){
+      p.hidden = p.id !== active.getAttribute('aria-controls');
+    });
+  }
+  buttons.forEach(function(b){ b.addEventListener('click', function(){ select(b); }); });
+
+  var ua = navigator.userAgent;
+  var platform = /Windows/.test(ua) ? 'win' : /Mac OS X|Macintosh/.test(ua) && !/iPhone|iPad/.test(ua) ? 'mac'
+               : /Linux|X11/.test(ua) && !/Android/.test(ua) ? 'linux' : null;
+  if (platform) {
+    select(list.querySelector('[data-os="' + platform + '"]'));
+    document.querySelector('.dl-card[data-platform="' + platform + '"]').classList.add('yours');
+    var BASE = 'https://github.com/sabaoongfx/open-clipboard-manager/releases/latest/download/';
+    var files = {win: ['Windows', 'Open-Clipboard-Manager-x64.exe', 'Portable app, Windows 10 and 11'],
+                 mac: ['Mac', 'Open-Clipboard-Manager-macos-arm64.zip', 'For Apple Silicon Macs'],
+                 linux: ['Linux', 'Open-Clipboard-Manager-x86_64', 'x86_64 binary; needs xclip or wl-clipboard']};
+    var f = files[platform];
+    var hero = document.getElementById('hero-download'), note = document.getElementById('hero-download-note');
+    hero.href = BASE + f[1];
+    hero.querySelector('span').textContent = 'Download for ' + f[0];
+    note.innerHTML = f[2] + ' &middot; <a href="#download">Other platforms</a>';
+    note.hidden = false;
+  }
+
+  document.querySelectorAll('.copy').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      navigator.clipboard.writeText(btn.nextElementSibling.textContent).then(function(){
+        btn.textContent = 'Copied';
+        setTimeout(function(){ btn.textContent = 'Copy'; }, 1500);
+      });
+    });
+  });
+})();
+</script>
+</body></html>

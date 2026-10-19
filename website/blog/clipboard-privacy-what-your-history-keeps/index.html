@@ -1,0 +1,77 @@
+<!doctype html><html lang="en"><head>
+<title>Clipboard Privacy: What Your History Keeps and How to Control It &middot; Blog</title>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#F6F4EF" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#16130F" media="(prefers-color-scheme: dark)">
+<link rel="icon" href="/favicon.ico" sizes="any"><link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="/blog/blog.css">
+<meta name="description" content="A clipboard history records everything you copy, including passwords and private text. What that means, and the settings that keep it under your control.">
+<link rel="canonical" href="https://otm.sabaoon.dev/blog/clipboard-privacy-what-your-history-keeps/">
+<meta property="og:type" content="article"><meta property="og:title" content="Clipboard Privacy: What Your History Keeps and How to Control It">
+<meta property="og:url" content="https://otm.sabaoon.dev/blog/clipboard-privacy-what-your-history-keeps/">
+<meta property="og:image" content="https://otm.sabaoon.dev/ocm/screenshot-history.png">
+</head><body>
+<div class="topbar">
+  <a class="brand" href="/" aria-label="Open Task Manager home">
+    <svg viewBox="0 0 513 398" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <rect width="512" height="398" rx="70" fill="#E93233"/>
+      <path d="M492.818 397.869C503.914 397.941 512.948 388.966 512.948 377.87V187.414C512.948 176.368 503.994 167.414 492.948 167.414H454.616C446.258 167.414 438.781 162.216 435.869 154.382L407.167 77.1576C401.073 60.7631 378.355 59.5366 370.532 75.1798L351.027 114.182C344.098 128.036 324.73 129.095 316.333 116.079L314.235 112.827C306.08 100.186 287.412 100.735 280.014 113.835L224.686 211.807C216.254 226.738 194.173 224.83 188.427 208.673L144.755 85.8569C138.495 68.2542 113.662 68.0829 107.161 85.5975L2.38706 367.842C-2.44362 380.855 7.12634 394.711 21.0068 394.802L492.818 397.869Z" fill="#FBA806"/>
+      <path d="M492.948 398C503.994 398 512.948 389.046 512.948 378V244.321C512.948 233.275 503.994 224.321 492.948 224.321H453.201C445.586 224.321 438.632 219.996 435.264 213.166L406.591 155.02C399.769 141.185 380.516 139.954 371.988 152.808L350.108 185.783C342.768 196.847 326.882 197.818 318.249 187.731L312.676 181.221C304.35 171.493 289.154 171.986 281.476 182.234L223.26 259.935C214.222 271.997 195.596 270.107 189.166 256.476L144.021 160.784C136.922 145.738 115.627 145.431 108.098 160.267L2.19154 368.949C-4.56059 382.254 5.10628 398 20.0262 398H492.948Z" fill="#FFDB56"/>
+    </svg>
+    Open Task Manager
+  </a>
+  <nav class="topnav"><a href="/#features">Features</a><a href="/#download">Download</a><a href="/blog/" aria-current="page">Blog</a><a href="/ocm/">Clipboard manager</a><a href="https://github.com/sabaoongfx/Open-Task-Manager" target="_blank" rel="noopener">GitHub</a></nav>
+</div>
+<main>
+  <a class="back" href="/blog/">&larr; All posts</a>
+  <article>
+    <p class="eyebrow">privacy</p>
+    <h1>Clipboard Privacy: What Your History Keeps and How to Control It</h1>
+    <p class="meta">2026-10-19 &middot; sabaoongfx &middot; 6 min read</p>
+
+    <p>The clipboard is where sensitive things pass through. You copy a password from a password manager, a one-time code from a message, an address, a bank reference, a private paragraph. Normally the next copy overwrites it and it is gone. A clipboard history changes that on purpose: it keeps what you copied so you can use it again. That is exactly what makes it useful, and exactly why it deserves a few minutes of thought before you install any such tool, ours included.</p>
+    <aside class="cta">
+      <div><strong>Open Clipboard Manager</strong><span>Free and open source for Windows, Linux and macOS. No account, no telemetry.</span></div>
+      <div class="cta-links"><a class="cta-primary" href="/ocm/#download">Download</a><a href="/ocm/">See the app</a></div>
+    </aside>
+
+    <h2>What a clipboard history actually stores</h2>
+    <p>Anything you copy while the manager is running. Text, including text you did not mean to keep. Images, including screenshots of private windows. If history is saved between sessions, that record sits on your disk until you remove it. In Open Clipboard Manager it is a JSON file plus PNG files in your per-user data folder, so anyone who can read your user profile can read it, and it is as safe as the rest of that folder and no safer. There is no encryption layer, and we would rather say so than imply one.</p>
+
+    <h2>Settings that matter</h2>
+    <table>
+      <tr><th>Setting</th><th>What it does</th><th>Why you might change it</th></tr>
+      <tr><td>Remember history between sessions</td><td>Writes entries to disk so they survive a restart.</td><td>Turn it off to keep history in memory only; quitting the app discards it.</td></tr>
+      <tr><td>Record images</td><td>Keeps copied pictures and screenshots.</td><td>Turn it off if you screenshot sensitive windows.</td></tr>
+      <tr><td>History size (1&ndash;1000)</td><td>How many entries are kept before the oldest is dropped.</td><td>A smaller number means a secret ages out sooner.</td></tr>
+      <tr><td>Pause</td><td>Stops recording until you resume.</td><td>Use it right before copying something you do not want kept.</td></tr>
+    </table>
+    <p>Two toolbar actions complement these. <em>Remove</em> (or the <code>Delete</code> key) deletes the selected entry, and <em>Clear</em> empties the whole history. If you copied a password by mistake, removing that one entry takes a second.</p>
+
+    <h2>Password managers and the clipboard</h2>
+    <p>Many password managers clear the clipboard after a short delay for exactly the reason above. A history tool that has already recorded the value defeats that protection, because the manager can only clear the live clipboard, not another program&rsquo;s copy. If you use a password manager that copies passwords, the safest habits are to pause the history first, or to delete the entry afterwards. Better still, use the manager&rsquo;s auto-type or browser integration, which never touches the clipboard at all.</p>
+
+    <h2>What stays local</h2>
+    <p>Open Clipboard Manager has no telemetry, no account and no network access. It does not sync history between devices, upload anything, or check for updates in the background. The trade-off is that you do not get cross-device history; the benefit is that there is nowhere for your clipboard to leak to. You can check this yourself: the code is MIT-licensed and public, and the app&rsquo;s own <a href="/blog/how-a-clipboard-manager-works/">internals post</a> lists every moving part.</p>
+
+    <h2>Actions are shell commands</h2>
+    <p>There is one more thing to know. The right-click <em>actions</em> feature runs a command that includes the text you copied. Before the text is placed in a command it is stripped of quotes, backslashes and line breaks (and, on macOS, <code>$</code> and backticks), which blocks the usual tricks for sneaking in extra commands. Even so, an action is a shell command, so only add actions you wrote or trust, and be careful with ones that pass the clipboard to programs that interpret it.</p>
+
+    <h2>A sensible setup</h2>
+    <ol>
+      <li>Decide whether you need history across restarts. If not, turn off <em>remember history between sessions</em>.</li>
+      <li>Set the history size to what you actually use. Fifty entries covers most days.</li>
+      <li>Turn off image recording if you take screenshots of private pages.</li>
+      <li>Pause before copying anything secret, or delete the entry right after.</li>
+      <li>Keep your disk encrypted, since the history file is only as private as your profile.</li>
+    </ol>
+    <p>None of this makes a clipboard history risky to use. It makes it a tool whose behaviour you should understand, which is easier when it is small, local and open source. You can read how it works in the <a href="https://github.com/sabaoongfx/open-clipboard-manager" target="_blank" rel="noopener">repository</a>, or see the full feature list on the <a href="/ocm/">Open Clipboard Manager page</a>.</p>
+    <aside class="cta">
+      <div><strong>Try Open Clipboard Manager</strong><span>One file to download. Press Win+V and pick anything you copied earlier.</span></div>
+      <div class="cta-links"><a class="cta-primary" href="/ocm/#download">Download</a><a href="/ocm/">See the app</a></div>
+    </aside>
+  </article>
+</main>
+<footer><span>Open Task Manager &middot; open source on <a href="https://github.com/sabaoongfx/Open-Task-Manager" target="_blank" rel="noopener">GitHub</a> &middot; built by <a href="https://sabaoon.dev" target="_blank" rel="noopener">sabaoon.dev</a></span></footer>
+</body></html>

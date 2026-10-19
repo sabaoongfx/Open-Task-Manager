@@ -7,6 +7,9 @@
     <loc>https://otm.sabaoon.dev/releases.html</loc>
   </url>
   <url>
+    <loc>https://otm.sabaoon.dev/ocm/</loc>
+  </url>
+  <url>
     <loc>https://otm.sabaoon.dev/tools/</loc>
   </url>
   <url>
@@ -77,6 +80,15 @@
   </url>
   <url>
     <loc>https://otm.sabaoon.dev/tools/lorem-ipsum-generator/</loc>
+  </url>
+  <url>
+    <loc>https://otm.sabaoon.dev/blog/introducing-open-clipboard-manager/</loc>
+  </url>
+  <url>
+    <loc>https://otm.sabaoon.dev/blog/how-a-clipboard-manager-works/</loc>
+  </url>
+  <url>
+    <loc>https://otm.sabaoon.dev/blog/clipboard-privacy-what-your-history-keeps/</loc>
   </url>
   <url>
     <loc>https://otm.sabaoon.dev/blog/rust-is-permanent-in-the-linux-kernel/</loc>

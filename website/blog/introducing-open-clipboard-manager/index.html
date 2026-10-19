@@ -1,0 +1,83 @@
+<!doctype html><html lang="en"><head>
+<title>Introducing Open Clipboard Manager &middot; Blog</title>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#F6F4EF" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#16130F" media="(prefers-color-scheme: dark)">
+<link rel="icon" href="/favicon.ico" sizes="any"><link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="/blog/blog.css">
+<meta name="description" content="A free, open-source clipboard history for Windows, Linux and macOS: text and images, a Win+V hotkey, search and regex-matched actions, all kept on your computer.">
+<link rel="canonical" href="https://otm.sabaoon.dev/blog/introducing-open-clipboard-manager/">
+<meta property="og:type" content="article"><meta property="og:title" content="Introducing Open Clipboard Manager">
+<meta property="og:url" content="https://otm.sabaoon.dev/blog/introducing-open-clipboard-manager/">
+<meta property="og:image" content="https://otm.sabaoon.dev/ocm/screenshot-history.png">
+</head><body>
+<div class="topbar">
+  <a class="brand" href="/" aria-label="Open Task Manager home">
+    <svg viewBox="0 0 513 398" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <rect width="512" height="398" rx="70" fill="#E93233"/>
+      <path d="M492.818 397.869C503.914 397.941 512.948 388.966 512.948 377.87V187.414C512.948 176.368 503.994 167.414 492.948 167.414H454.616C446.258 167.414 438.781 162.216 435.869 154.382L407.167 77.1576C401.073 60.7631 378.355 59.5366 370.532 75.1798L351.027 114.182C344.098 128.036 324.73 129.095 316.333 116.079L314.235 112.827C306.08 100.186 287.412 100.735 280.014 113.835L224.686 211.807C216.254 226.738 194.173 224.83 188.427 208.673L144.755 85.8569C138.495 68.2542 113.662 68.0829 107.161 85.5975L2.38706 367.842C-2.44362 380.855 7.12634 394.711 21.0068 394.802L492.818 397.869Z" fill="#FBA806"/>
+      <path d="M492.948 398C503.994 398 512.948 389.046 512.948 378V244.321C512.948 233.275 503.994 224.321 492.948 224.321H453.201C445.586 224.321 438.632 219.996 435.264 213.166L406.591 155.02C399.769 141.185 380.516 139.954 371.988 152.808L350.108 185.783C342.768 196.847 326.882 197.818 318.249 187.731L312.676 181.221C304.35 171.493 289.154 171.986 281.476 182.234L223.26 259.935C214.222 271.997 195.596 270.107 189.166 256.476L144.021 160.784C136.922 145.738 115.627 145.431 108.098 160.267L2.19154 368.949C-4.56059 382.254 5.10628 398 20.0262 398H492.948Z" fill="#FFDB56"/>
+    </svg>
+    Open Task Manager
+  </a>
+  <nav class="topnav"><a href="/#features">Features</a><a href="/#download">Download</a><a href="/blog/" aria-current="page">Blog</a><a href="/ocm/">Clipboard manager</a><a href="https://github.com/sabaoongfx/Open-Task-Manager" target="_blank" rel="noopener">GitHub</a></nav>
+</div>
+<main>
+  <a class="back" href="/blog/">&larr; All posts</a>
+  <article>
+    <p class="eyebrow">announcement</p>
+    <h1>Introducing Open Clipboard Manager</h1>
+    <p class="meta">2026-10-19 &middot; sabaoongfx &middot; 6 min read</p>
+
+    <p>You copy a link, then copy a paragraph, and the link is gone. Everyone has lost something this way: an address copied a minute ago, a command you needed twice, a screenshot you grabbed and then overwrote. A clipboard on its own holds exactly one thing. Clipboard history is the small fix for that, and it is one of those tools that feels optional until you have used it for a week.</p>
+    <p>Windows ships its own version, switched off by default and reachable with Win+V. Linux desktops mostly leave it to optional panel plugins, and macOS has nothing built in. <strong>Open Clipboard Manager</strong> is our attempt at one tool that behaves the same on all three: free, MIT-licensed, local-only, and styled after <a href="/">Open Task Manager</a> so the two apps look like they belong together.</p>
+    <aside class="cta">
+      <div><strong>Open Clipboard Manager</strong><span>Free and open source for Windows, Linux and macOS. No account, no telemetry.</span></div>
+      <div class="cta-links"><a class="cta-primary" href="/ocm/#download">Download</a><a href="/ocm/">See the app</a></div>
+    </aside>
+
+    <h2>The problem it solves</h2>
+    <p>The clipboard is a shared scratch space owned by whichever program last copied into it. When you copy again, the old contents are replaced. On Linux and macOS there is an extra wrinkle: on some systems the data is held by the program that copied it, so closing that program can empty the clipboard entirely. A history manager sits in the background, notices each change, and keeps a copy of its own so nothing disappears.</p>
+    <p>That sounds minor, but it changes how you work. You stop alt-tabbing back to the source for the thing you already copied. You can gather five snippets from five pages and paste them in order. You can copy something, copy something unrelated by accident, and still get the first one back.</p>
+
+    <h2>What it does</h2>
+    <ul>
+      <li><strong>Text and images.</strong> Screenshots and copied pictures are kept as thumbnails, and text shows its length. A preview pane on the right shows the full entry, so you can tell two similar snippets apart before pasting.</li>
+      <li><strong>Search as you type.</strong> The search box is focused as soon as the window opens, so the common path is hotkey, a few letters, Enter. Typing <code>image</code> filters to pictures, and there is a separate Images tab as well.</li>
+      <li><strong>Pick and paste.</strong> Enter or a double-click copies the entry back to the clipboard and pastes it into the window you came from. If you opened the window from the tray there is no previous window, so it only copies.</li>
+      <li><strong>Remove, clear and pause.</strong> Toolbar buttons handle the housekeeping, and <code>Delete</code> removes the selected entry. Pausing is useful when you are about to copy something you do not want recorded.</li>
+      <li><strong>Actions.</strong> Right-click an entry and the app offers the commands whose pattern matches it: open a URL in the browser, look up a bug number, show a file in Explorer or Finder. The idea comes from Xfce&rsquo;s Clipman, and the rules live in a plain <code>actions.json</code> file you can edit.</li>
+      <li><strong>Settings.</strong> Popup hotkey, history size from 1 to 1000, preview length, whether to paste after choosing, whether to remember history between sessions, whether to record images, and start at login.</li>
+    </ul>
+
+    <h2>One hotkey on every system</h2>
+    <p>The default is the one you already know. On <strong>Windows</strong> it is Win+V, and while Open Clipboard Manager runs it replaces Windows&rsquo; own clipboard panel. On <strong>Linux</strong> it is Super+V on X11. On <strong>macOS</strong> it is Ctrl+Cmd+V, because Cmd+V is the system Paste shortcut and cannot be reused. You can change it in Settings, and the change applies immediately.</p>
+    <p>Wayland is the exception. It does not let ordinary applications grab a global key, so there you bind a shortcut in your desktop&rsquo;s keyboard settings to <code>Open-Clipboard-Manager-x86_64 --show</code>. That command opens the window of the copy that is already running instead of starting a second one.</p>
+
+    <h2>Private by design</h2>
+    <p>A clipboard history is, by nature, a record of everything you copied, and that includes things you would not want recorded. So the design rule is simple: nothing leaves the machine. There is no telemetry, no account and no network access. History is stored as a JSON file next to PNG files for images, in your per-user data folder. If you would rather keep nothing on disk, turn off <em>remember history between sessions</em> and it lives in memory only. The <a href="/blog/clipboard-privacy-what-your-history-keeps/">privacy post</a> goes through the settings worth knowing.</p>
+
+    <h2>How it looks</h2>
+    <p>The window follows Open Task Manager: a navigation rail on the left that can collapse, a card with a title and toolbar, a flat table, rounded controls, and light or dark colours that follow your system each time the window opens. It is built with Python and Tk, so it starts quickly and stays small, and it runs from a single file on each platform.</p>
+
+    <h2>What it can&rsquo;t do yet</h2>
+    <p>Better to hear the limits from us than to find them yourself.</p>
+    <ul>
+      <li>The macOS build is started and tested by CI on a real Mac, but nobody has used the clipboard, hotkey and paste on one yet. Expect rough edges and please report them.</li>
+      <li>There are no Intel Mac or ARM Linux builds yet.</li>
+      <li>The Windows and macOS builds are not code-signed, so SmartScreen or Gatekeeper may warn you the first time.</li>
+      <li>Actions are edited by hand in <code>actions.json</code>; there is no editor window.</li>
+      <li>The standard Tk table cannot draw rounded rows or scrollbars, and rendering on high-DPI screens could be sharper.</li>
+    </ul>
+
+    <h2>Get it</h2>
+    <p>Windows is one portable <code>.exe</code>, Linux is one binary, and macOS is a zip for Apple Silicon. The <a href="/ocm/#download">download page</a> has every file and picks the right one for your system, and the <a href="/ocm/#install">install section</a> has the short setup steps, including the helper programs Linux needs. The source is on <a href="https://github.com/sabaoongfx/open-clipboard-manager" target="_blank" rel="noopener">GitHub</a>; if something breaks, open an issue with your operating system and what you expected to happen.</p>
+    <aside class="cta">
+      <div><strong>Try Open Clipboard Manager</strong><span>One file to download. Press Win+V and pick anything you copied earlier.</span></div>
+      <div class="cta-links"><a class="cta-primary" href="/ocm/#download">Download</a><a href="/ocm/">See the app</a></div>
+    </aside>
+  </article>
+</main>
+<footer><span>Open Task Manager &middot; open source on <a href="https://github.com/sabaoongfx/Open-Task-Manager" target="_blank" rel="noopener">GitHub</a> &middot; built by <a href="https://sabaoon.dev" target="_blank" rel="noopener">sabaoon.dev</a></span></footer>
+</body></html>

@@ -198,6 +198,11 @@ uploaded. A new tool means a `catalog.py` entry, a function in `utils.js` and a 
 class name from `site.css` (it already defines `.panel`) and don't name a form control `length`
 (it collides with `form.elements.length`).
 
+`website/ocm/` is the hand-written page for a second app, Open Clipboard Manager (repo
+`sabaoongfx/open-clipboard-manager`), served at `/ocm/`. It reuses `/site.css` and has its own
+screenshots and logo copied from that repo's `docs/` and `public/`; refresh them when the app's UI changes.
+Its download links use that repo's versionless `releases/latest/download/` names.
+
 SEO lives in `website/index.html`'s `<head>` (description, canonical, Open Graph/Twitter tags
 pointing at `website/og.png`, JSON-LD `SoftwareApplication`), plus `website/robots.txt` and
 `website/sitemap.xml`. All of them hardcode the production URL `https://otm.sabaoon.dev/`, also

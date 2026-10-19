@@ -36,6 +36,7 @@
       <div><strong>Open Clipboard Manager</strong><span>Free and open source for Windows, Linux and macOS. No account, no telemetry.</span></div>
       <div class="cta-links"><a class="cta-primary" href="/ocm/#download">Download</a><a href="/ocm/">See the app</a></div>
     </aside>
+    <figure><picture><source media="(prefers-color-scheme: dark)" srcset="/ocm/screenshot-history-dark.png"><img src="/ocm/screenshot-history.png" width="980" height="660" loading="lazy" alt="Open Clipboard Manager's History tab: a searchable list of copied text and images with a preview pane"></picture><figcaption>The History tab: search, the list of entries, and a preview of the selected one.</figcaption></figure>
 
     <h2>The problem it solves</h2>
     <p>The clipboard is a shared scratch space owned by whichever program last copied into it. When you copy again, the old contents are replaced. On Linux and macOS there is an extra wrinkle: on some systems the data is held by the program that copied it, so closing that program can empty the clipboard entirely. A history manager sits in the background, notices each change, and keeps a copy of its own so nothing disappears.</p>
@@ -55,6 +56,7 @@
     <p>The default is the one you already know. On <strong>Windows</strong> it is Win+V, and while Open Clipboard Manager runs it replaces Windows&rsquo; own clipboard panel. On <strong>Linux</strong> it is Super+V on X11. On <strong>macOS</strong> it is Ctrl+Cmd+V, because Cmd+V is the system Paste shortcut and cannot be reused. You can change it in Settings, and the change applies immediately.</p>
     <p>Wayland is the exception. It does not let ordinary applications grab a global key, so there you bind a shortcut in your desktop&rsquo;s keyboard settings to <code>Open-Clipboard-Manager-x86_64 --show</code>. That command opens the window of the copy that is already running instead of starting a second one.</p>
 
+    <figure><img src="/ocm/screenshot-settings.png" width="980" height="660" loading="lazy" alt="Open Clipboard Manager's Settings tab with hotkey, history size, paste behaviour and start at login"><figcaption>The Settings tab: hotkey, history size, paste behaviour and start at login.</figcaption></figure>
     <h2>Private by design</h2>
     <p>A clipboard history is, by nature, a record of everything you copied, and that includes things you would not want recorded. So the design rule is simple: nothing leaves the machine. There is no telemetry, no account and no network access. History is stored as a JSON file next to PNG files for images, in your per-user data folder. If you would rather keep nothing on disk, turn off <em>remember history between sessions</em> and it lives in memory only. The <a href="/blog/clipboard-privacy-what-your-history-keeps/">privacy post</a> goes through the settings worth knowing.</p>
 

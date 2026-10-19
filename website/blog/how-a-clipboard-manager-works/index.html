@@ -64,6 +64,7 @@
     <h2>Pasting into the previous window</h2>
     <p>When you open the popup with the hotkey, the app remembers which window had focus. Choosing an entry puts it back on the clipboard, hides the popup and sends a paste keystroke to the remembered window. The mechanism is again per platform: Win32 calls on Windows, <code>xdotool</code> on X11 and <code>wtype</code> (or <code>ydotool</code>) on Wayland, and on macOS a synthetic keystroke, which needs the Accessibility permission under <em>System Settings &rarr; Privacy &amp; Security</em>. If the popup was opened from the tray, there is no previous window, so the app only copies.</p>
 
+    <figure><picture><source media="(prefers-color-scheme: dark)" srcset="/ocm/screenshot-history-dark.png"><img src="/ocm/screenshot-history.png" width="980" height="660" loading="lazy" alt="Open Clipboard Manager's History tab: a searchable list of copied text and images with a preview pane"></picture><figcaption>The History tab: search, the list of entries, and a preview of the selected one.</figcaption></figure>
     <h2>Where history lives</h2>
     <p>History is a JSON file in the data folder, with images stored as PNG files beside it: <code>%APPDATA%\winclipman</code> on Windows, <code>~/Library/Application Support/winclipman</code> on macOS and <code>~/.local/share/winclipman</code> on Linux. Nothing is sent anywhere. The same folder holds your copy of <code>actions.json</code>.</p>
 

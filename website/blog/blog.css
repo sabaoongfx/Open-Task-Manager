@@ -79,3 +79,7 @@ article .cta a.cta-primary:hover{background:#2f64ac}
 article table{border-collapse:collapse;width:100%;margin-block:16px;font-size:15px}
 article th,article td{border:1px solid var(--border);padding:8px 12px;text-align:left;vertical-align:top}
 article th{background:var(--surface-2)}
+
+article figure{margin:24px 0}
+article figure img{display:block;width:100%;height:auto;border:1px solid var(--border);border-radius:10px}
+article figcaption{margin-top:8px;font-size:13.5px;color:var(--ink-muted)}

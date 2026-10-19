@@ -1,0 +1,81 @@
+<!doctype html><html lang="en"><head>
+<title>How a Clipboard Manager Works: Polling, Hotkeys and Pasting &middot; Blog</title>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#F6F4EF" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#16130F" media="(prefers-color-scheme: dark)">
+<link rel="icon" href="/favicon.ico" sizes="any"><link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="/blog/blog.css">
+<meta name="description" content="How Open Clipboard Manager notices clipboard changes on three operating systems, grabs a global hotkey, pastes into the previous window and keeps threads apart.">
+<link rel="canonical" href="https://otm.sabaoon.dev/blog/how-a-clipboard-manager-works/">
+<meta property="og:type" content="article"><meta property="og:title" content="How a Clipboard Manager Works: Polling, Hotkeys and Pasting">
+<meta property="og:url" content="https://otm.sabaoon.dev/blog/how-a-clipboard-manager-works/">
+<meta property="og:image" content="https://otm.sabaoon.dev/ocm/screenshot-history.png">
+</head><body>
+<div class="topbar">
+  <a class="brand" href="/" aria-label="Open Task Manager home">
+    <svg viewBox="0 0 513 398" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <rect width="512" height="398" rx="70" fill="#E93233"/>
+      <path d="M492.818 397.869C503.914 397.941 512.948 388.966 512.948 377.87V187.414C512.948 176.368 503.994 167.414 492.948 167.414H454.616C446.258 167.414 438.781 162.216 435.869 154.382L407.167 77.1576C401.073 60.7631 378.355 59.5366 370.532 75.1798L351.027 114.182C344.098 128.036 324.73 129.095 316.333 116.079L314.235 112.827C306.08 100.186 287.412 100.735 280.014 113.835L224.686 211.807C216.254 226.738 194.173 224.83 188.427 208.673L144.755 85.8569C138.495 68.2542 113.662 68.0829 107.161 85.5975L2.38706 367.842C-2.44362 380.855 7.12634 394.711 21.0068 394.802L492.818 397.869Z" fill="#FBA806"/>
+      <path d="M492.948 398C503.994 398 512.948 389.046 512.948 378V244.321C512.948 233.275 503.994 224.321 492.948 224.321H453.201C445.586 224.321 438.632 219.996 435.264 213.166L406.591 155.02C399.769 141.185 380.516 139.954 371.988 152.808L350.108 185.783C342.768 196.847 326.882 197.818 318.249 187.731L312.676 181.221C304.35 171.493 289.154 171.986 281.476 182.234L223.26 259.935C214.222 271.997 195.596 270.107 189.166 256.476L144.021 160.784C136.922 145.738 115.627 145.431 108.098 160.267L2.19154 368.949C-4.56059 382.254 5.10628 398 20.0262 398H492.948Z" fill="#FFDB56"/>
+    </svg>
+    Open Task Manager
+  </a>
+  <nav class="topnav"><a href="/#features">Features</a><a href="/#download">Download</a><a href="/blog/" aria-current="page">Blog</a><a href="/ocm/">Clipboard manager</a><a href="https://github.com/sabaoongfx/Open-Task-Manager" target="_blank" rel="noopener">GitHub</a></nav>
+</div>
+<main>
+  <a class="back" href="/blog/">&larr; All posts</a>
+  <article>
+    <p class="eyebrow">engineering</p>
+    <h1>How a Clipboard Manager Works: Polling, Hotkeys and Pasting</h1>
+    <p class="meta">2026-10-19 &middot; sabaoongfx &middot; 7 min read</p>
+
+    <p>A clipboard manager looks like one of the simplest programs you could write: remember what was copied. In practice each operating system answers four questions differently. How do you notice a change? How do you grab a hotkey nobody else is using? How do you paste into another program? And how do you do all of it without freezing the window? This post walks through how <a href="/ocm/">Open Clipboard Manager</a> handles each, and why the answers differ so much between Windows, Linux and macOS.</p>
+    <aside class="cta">
+      <div><strong>Open Clipboard Manager</strong><span>Free and open source for Windows, Linux and macOS. No account, no telemetry.</span></div>
+      <div class="cta-links"><a class="cta-primary" href="/ocm/#download">Download</a><a href="/ocm/">See the app</a></div>
+    </aside>
+
+    <h2>Noticing that something was copied</h2>
+    <p>None of the three systems gives a background application a dependable &ldquo;the clipboard changed&rdquo; callback that works everywhere, so the app polls: the Tk thread checks every 300 ms. The trick is making each check nearly free, which means reading a small change indicator instead of the clipboard itself, and only fetching the contents when that indicator moves.</p>
+    <ul>
+      <li><strong>Windows</strong> keeps a sequence number that increases every time the clipboard changes, available through <code>GetClipboardSequenceNumber</code>. Reading it takes no lock on the clipboard and copies no data.</li>
+      <li><strong>macOS</strong> offers the same idea as <code>NSPasteboard.changeCount</code>, an integer that goes up with each change.</li>
+      <li><strong>Linux</strong> has no counter. The app runs <code>xclip</code> (X11) or <code>wl-paste</code> (Wayland) and hashes what comes back, then compares the hash with the last one. It is more work per check, which is why Linux is the platform where polling costs the most.</li>
+    </ul>
+    <p>A 300 ms interval is a compromise. Shorter would catch two quick copies in a row more reliably but spend more time asking; longer would save a little power but sometimes miss the first of two fast copies. Copying twice within a third of a second is rare enough for people, though scripts can do it.</p>
+
+    <h2>A global hotkey</h2>
+    <p>A hotkey that works from any application is the part that differs most between systems, so the listener runs on its own thread and never blocks the window.</p>
+    <ul>
+      <li>On <strong>Windows</strong> the thread runs a message loop. Ordinary combinations can use <code>RegisterHotKey</code>, but Win+V is reserved by Windows itself, so the app installs a low-level keyboard hook that swallows the keys before Windows sees them. It also taps an unassigned key so the Start menu, which opens when the Windows key is released alone, stays closed.</li>
+      <li>On <strong>Linux</strong> it uses its own X11 connection through python-xlib to grab Super+V.</li>
+      <li>On <strong>macOS</strong> it registers the key with Carbon&rsquo;s <code>RegisterEventHotKey</code>, which is delivered through the app&rsquo;s event loop. The combination is Ctrl+Cmd+V, since Cmd+V is the system Paste shortcut.</li>
+    </ul>
+    <p>Wayland is deliberately not on that list. Its security model does not let applications listen for keys while another window has focus, so there is nothing for the app to grab. The workaround is to bind a shortcut in the desktop environment to run the app with <code>--show</code>.</p>
+
+    <h2>Keeping threads apart</h2>
+    <p>Tk is not thread-safe, so only one thread may touch the interface. The tray menu, the hotkey listener, the image encoder and the single-instance listener all run elsewhere, and none of them calls into the UI. Instead each posts an <code>Event</code> to a queue, and the Tk thread drains the queue every 100 ms. This one rule removes a whole class of bugs: no locks around widgets, no random crashes when the tray menu and the window update at the same moment.</p>
+    <p>Images follow the same pattern. When an image arrives it is hashed and written as a PNG on a worker thread, so a large screenshot never stalls the window, and only then does the finished entry reach the Tk thread to be added to the list.</p>
+
+    <h2>One copy of the app</h2>
+    <p>Two copies of a clipboard manager would fight over the hotkey and record every entry twice, so the app makes sure only one runs. The running copy listens on a loopback port and records the port number in the data folder. Starting the app again, or running it with <code>--show</code> or <code>--settings</code>, connects to that port and asks the existing copy to open its window, then exits. This is also what makes the Wayland workaround possible: the desktop shortcut just runs the program again.</p>
+
+    <h2>Pasting into the previous window</h2>
+    <p>When you open the popup with the hotkey, the app remembers which window had focus. Choosing an entry puts it back on the clipboard, hides the popup and sends a paste keystroke to the remembered window. The mechanism is again per platform: Win32 calls on Windows, <code>xdotool</code> on X11 and <code>wtype</code> (or <code>ydotool</code>) on Wayland, and on macOS a synthetic keystroke, which needs the Accessibility permission under <em>System Settings &rarr; Privacy &amp; Security</em>. If the popup was opened from the tray, there is no previous window, so the app only copies.</p>
+
+    <h2>Where history lives</h2>
+    <p>History is a JSON file in the data folder, with images stored as PNG files beside it: <code>%APPDATA%\winclipman</code> on Windows, <code>~/Library/Application Support/winclipman</code> on macOS and <code>~/.local/share/winclipman</code> on Linux. Nothing is sent anywhere. The same folder holds your copy of <code>actions.json</code>.</p>
+
+    <h2>Why Python and Tk</h2>
+    <p>A clipboard manager spends nearly all its time idle, so raw speed matters less than low overhead and easy packaging. Python with Tk gives a native-feeling window with no bundled browser engine, the operating-system calls are a few lines of <code>ctypes</code> on Windows and a bridge to PyObjC on macOS, and PyInstaller turns the result into a single file. The tests use only <code>unittest</code>, run on all three systems in CI, and use a temporary folder so they never touch real history.</p>
+
+    <p>If you want to read the code or try it, start at the <a href="/ocm/">Open Clipboard Manager page</a> or the <a href="https://github.com/sabaoongfx/open-clipboard-manager" target="_blank" rel="noopener">repository</a>.</p>
+    <aside class="cta">
+      <div><strong>Try Open Clipboard Manager</strong><span>One file to download. Press Win+V and pick anything you copied earlier.</span></div>
+      <div class="cta-links"><a class="cta-primary" href="/ocm/#download">Download</a><a href="/ocm/">See the app</a></div>
+    </aside>
+  </article>
+</main>
+<footer><span>Open Task Manager &middot; open source on <a href="https://github.com/sabaoongfx/Open-Task-Manager" target="_blank" rel="noopener">GitHub</a> &middot; built by <a href="https://sabaoon.dev" target="_blank" rel="noopener">sabaoon.dev</a></span></footer>
+</body></html>

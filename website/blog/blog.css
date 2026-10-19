@@ -67,3 +67,15 @@ article tbody th{font-weight:600;white-space:nowrap}
 article ol{padding-left:22px}
 article .sources,article .related{font-size:15px}
 article .sources li,article .related li{font-size:15px;line-height:1.6;margin-block:4px}
+
+/* Download call-to-action used by the Open Clipboard Manager posts. */
+.cta{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-block:28px;padding:18px 20px;background:var(--surface);border:1px solid var(--border);border-left:4px solid #3c78c8;border-radius:10px}
+.cta strong{display:block;font-size:16px}
+.cta span{display:block;font-size:14px;color:var(--ink-muted);margin-top:2px}
+.cta .cta-links{display:flex;gap:10px;flex-wrap:wrap}
+article .cta a{text-decoration:none;font-weight:600;font-size:14px;border-radius:7px;padding:10px 16px;border:1px solid var(--border);color:var(--ink)}
+article .cta a.cta-primary{background:#3c78c8;border-color:#3c78c8;color:#fff}
+article .cta a.cta-primary:hover{background:#2f64ac}
+article table{border-collapse:collapse;width:100%;margin-block:16px;font-size:15px}
+article th,article td{border:1px solid var(--border);padding:8px 12px;text-align:left;vertical-align:top}
+article th{background:var(--surface-2)}

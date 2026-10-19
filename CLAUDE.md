@@ -201,7 +201,15 @@ class name from `site.css` (it already defines `.panel`) and don't name a form c
 `website/ocm/` is the hand-written page for a second app, Open Clipboard Manager (repo
 `sabaoongfx/open-clipboard-manager`), served at `/ocm/`. It reuses `/site.css` and has its own
 screenshots and logo copied from that repo's `docs/` and `public/`; refresh them when the app's UI changes.
-Its download links use that repo's versionless `releases/latest/download/` names.
+Its download links use that repo's versionless `releases/latest/download/` names. The page's accent is
+the app icon's blue (`--red` is overridden to `#3c78c8` in a `<style>` block), not Open Task Manager's red.
+
+The blog has a "Clipboard" topic (`#clipboard` in `website/blog/index.html`) with three hand-written posts about
+that app: `introducing-open-clipboard-manager`, `how-a-clipboard-manager-works` and
+`clipboard-privacy-what-your-history-keeps`. Each carries two `.cta` boxes (styled at the end of
+`blog/blog.css`) linking to `/ocm/#download`, and uses the app screenshot as its `og:image`. Adding a post
+means a new `blog/<slug>/index.html`, a card in the blog index (and the "N posts" count and topic nav),
+and a `sitemap.xml` entry. Keep claims in them to what that repo's README and CHANGELOG say.
 
 SEO lives in `website/index.html`'s `<head>` (description, canonical, Open Graph/Twitter tags
 pointing at `website/og.png`, JSON-LD `SoftwareApplication`), plus `website/robots.txt` and

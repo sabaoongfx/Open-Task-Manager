@@ -219,9 +219,13 @@ Console rejects a sitemap whose `<loc>` URLs are on a different host than the si
 ("URL not allowed"). If the domain changes again, replace it everywhere with one repo-wide
 search-and-replace, then resubmit the sitemap in the matching Search Console property.
 
-`vercel.json` at the repo root deploys `website/` with no build step. Its `outputDirectory` is
-resolved relative to whatever Vercel's dashboard "Root Directory" project setting is (currently
-`website`), which is why `outputDirectory` is `"."` and not `"website"`.
+The site is hosted on Cloudflare as a Worker with static assets (Pages is now part of Workers):
+`wrangler.jsonc` at the repo root serves `website/` with no build step and binds the custom domain
+`otm.sabaoon.dev` (DNS zone `sabaoon.dev` is in the same Cloudflare account). Deploy with
+`npx wrangler deploy`; nothing deploys on push. Cloudflare serves `foo.html` at `/foo` (it
+redirects `/releases.html` -> `/releases`), so canonical URLs and the sitemap use the
+extensionless form, while in-page links stay `releases.html` so a plain static server still works.
+The site moved here from Vercel after hitting Vercel's limits.
 
 ### Linux packaging (`packaging/`, `.github/workflows/publish-linux.yml`)
 

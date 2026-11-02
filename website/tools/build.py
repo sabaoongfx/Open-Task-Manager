@@ -207,8 +207,8 @@ def update_sitemap():
     s = re.sub(r"  <url>\s*<loc>%s/tools/[^<]*</loc>\s*</url>\n?" % re.escape(SITE), "", s)
     locs = [SITE + "/tools/"] + ["%s/tools/%s/" % (SITE, t["slug"]) for t in TOOLS]
     block = "".join("  <url>\n    <loc>%s</loc>\n  </url>\n" % l for l in locs)
-    anchor = "<loc>%s/releases.html</loc>\n  </url>\n" % SITE
-    assert anchor in s, "releases.html entry not found in sitemap.xml"
+    anchor = "<loc>%s/releases</loc>\n  </url>\n" % SITE
+    assert anchor in s, "releases entry not found in sitemap.xml"
     s = s.replace(anchor, anchor + block, 1)
     open(p, "w", encoding="utf-8", newline="\n").write(s)
 

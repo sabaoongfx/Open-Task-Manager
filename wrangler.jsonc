@@ -1,0 +1,14 @@
+// Deploys website/ (a static site, no build step) to Cloudflare as a Worker with static assets.
+// Deploy: npx wrangler deploy
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "open-task-manager",
+  "compatibility_date": "2026-10-01",
+  "assets": {
+    "directory": "./website",
+    "html_handling": "auto-trailing-slash",
+    "not_found_handling": "404-page"
+  },
+  "workers_dev": true,
+  "routes": [{ "pattern": "otm.sabaoon.dev", "custom_domain": true }]
+}

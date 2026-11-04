@@ -210,6 +210,12 @@ class name from `site.css` (it already defines `.panel`) and don't name a form c
 screenshots and logo copied from that repo's `docs/` and `public/`; refresh them when the app's UI changes.
 Its download links use that repo's versionless `releases/latest/download/` names.
 
+`website/oit/` is the same kind of page for Open Image Tracer (repo `sabaoongfx/oit-open-image-tracer`,
+local checkout `~/Documents/code/image-tracer`), served at `/oit/`. `screenshot.png` is the window
+picture from that app's `python3 image_tracer.py --self-test OUTDIR`; `logo.png` and `modes/*.png` are
+copies of its `assets/icons/hicolor/128x128/...` and `assets/thumbs/`. Download links use the versionless
+names from its README (`Open-Image-Tracer-x86_64.flatpak`, `-all.deb`, `-x64-setup.exe`, ...).
+
 `website/apps/index.html` is the "Other apps" catalog (the nav's "Other apps" links to `/apps/`
 from the homepage and `releases.html`). Each app is a hand-written `<article class="app-card"
 data-tags="...">`; to add one, copy a card (a comment in the page lists the fields). The inline

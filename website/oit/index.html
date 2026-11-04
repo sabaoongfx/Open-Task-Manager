@@ -1,0 +1,346 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Open Image Tracer: convert PNG and JPEG to SVG, free and open source</title>
+<meta name="description" content="Free, open-source app that converts PNG and JPEG images into SVG vectors, like Inkscape's Trace Bitmap. Presets for logos, screenshots and line art, OCR text as real SVG text, centerline tracing. Linux, Windows, macOS.">
+<link rel="canonical" href="https://otm.sabaoon.dev/oit/">
+<meta name="theme-color" content="#F6F4EF" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#16130F" media="(prefers-color-scheme: dark)">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Open Image Tracer">
+<meta property="og:title" content="Open Image Tracer: turn any image into a clean SVG">
+<meta property="og:description" content="Free, open-source bitmap-to-SVG tracer with presets for logos, screenshots and line art, and OCR text kept as real text.">
+<meta property="og:url" content="https://otm.sabaoon.dev/oit/">
+<meta property="og:image" content="https://otm.sabaoon.dev/oit/screenshot.png">
+<meta property="og:image:width" content="1100">
+<meta property="og:image:height" content="720">
+<meta property="og:image:alt" content="Open Image Tracer tracing a screenshot: the original image on the left, the SVG result on the right.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Open Image Tracer: turn any image into a clean SVG">
+<meta name="twitter:description" content="Free, open-source bitmap-to-SVG tracer for Linux, Windows and macOS.">
+<meta name="twitter:image" content="https://otm.sabaoon.dev/oit/screenshot.png">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "Open Image Tracer",
+  "description": "Free, open-source app that converts bitmaps (PNG, JPEG) into SVG vectors, with presets for logos, screenshots and line art, OCR text as real SVG text, and centerline tracing. Built with Python, GTK 4 and potrace.",
+  "applicationCategory": "DesignApplication",
+  "operatingSystem": "Linux, Windows, macOS",
+  "url": "https://otm.sabaoon.dev/oit/",
+  "downloadUrl": "https://github.com/sabaoongfx/oit-open-image-tracer/releases/latest",
+  "image": "https://otm.sabaoon.dev/oit/screenshot.png",
+  "screenshot": "https://otm.sabaoon.dev/oit/screenshot.png",
+  "license": "https://www.gnu.org/licenses/gpl-3.0.html",
+  "isAccessibleForFree": true,
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+  "author": { "@type": "Person", "name": "Sabaoon", "url": "https://sabaoon.dev" },
+  "sameAs": ["https://github.com/sabaoongfx/oit-open-image-tracer"],
+  "featureList": [
+    "Convert PNG and JPEG to SVG",
+    "Presets for logos, screenshots and line art",
+    "Seven tracing modes, from full color to posterize",
+    "OCR text exported as real, editable SVG text",
+    "Centerline tracing for sketches and handwriting",
+    "Perceptual color palettes and JPEG noise removal",
+    "Optional AI upscaling"
+  ]
+}
+</script>
+<link rel="icon" type="image/png" href="logo.png">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;900&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>:root{color-scheme:light;box-sizing:border-box}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style>
+</head><body>
+<link rel="stylesheet" href="/site.css">
+<style>
+/* Accent follows the app icon's violet instead of Open Task Manager's red. */
+:root{--red:#6a4fd6}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--red:#8f78ee}}
+:root[data-theme="dark"]{--red:#8f78ee}
+.btn-primary:hover{background:#5a40c2}
+.brand img{width:24px;height:24px;flex-shrink:0}
+.hero h1 em{background:linear-gradient(90deg,#6a4fd6,#1fb5a8 60%,#f08a24);-webkit-background-clip:text;background-clip:text;color:transparent}
+.shots{max-width:1120px;margin-inline:auto}
+.shot{display:block;width:100%;height:auto;border:1px solid var(--border);border-radius:12px;box-shadow:var(--shadow);background:var(--surface)}
+.shot-cap{margin-top:12px;text-align:center;font-size:13px;color:var(--ink-muted)}
+.modes{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px}
+.mode{background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin:0}
+.mode img{display:block;width:100%;height:auto;aspect-ratio:222/152;background:#fff;border-bottom:1px solid var(--border)}
+.mode figcaption{padding:12px 14px}
+.mode b{display:block;font-size:14px;font-weight:600;margin-bottom:4px}
+.mode span{font-size:13px;line-height:1.5;color:var(--ink-muted)}
+.modes-sub{font:600 12px "IBM Plex Mono",monospace;text-transform:uppercase;letter-spacing:.09em;color:var(--ink-muted);margin:32px 0 14px}
+.modes-sub:first-of-type{margin-top:0}
+.panel h3.ftitle{margin-bottom:10px}
+.panel table{width:100%;border-collapse:collapse;margin-top:14px;font-size:13.5px}
+.panel th,.panel td{text-align:left;padding:8px 10px;border-top:1px solid var(--border);color:var(--ink-muted);vertical-align:top}
+.panel th{color:var(--ink);font-weight:600;font-size:12.5px}
+.panel code{font-family:"IBM Plex Mono",monospace;font-size:.92em}
+@media (max-width:720px){.panel table{display:block;overflow-x:auto}.modes{grid-template-columns:1fr 1fr;gap:10px}.mode figcaption{padding:10px}.mode b{font-size:13px}.mode span{font-size:12px}}
+</style>
+
+<div class="topbar">
+  <a class="brand" href="/oit/" aria-label="Open Image Tracer home">
+    <img src="logo.png" alt="">
+    Open Image Tracer
+  </a>
+  <nav class="topnav">
+    <a href="#features">Features</a>
+    <a href="#modes">Modes</a>
+    <a href="#install">Install</a>
+    <a href="#download">Download</a>
+    <a href="#specs">Specs</a>
+    <a href="/apps/">Other apps</a>
+    <a class="gh" href="https://github.com/sabaoongfx/oit-open-image-tracer" target="_blank" rel="noopener">
+      <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+      GitHub
+    </a>
+  </nav>
+</div>
+
+<div class="hero">
+  <p class="eyebrow">png &rarr; svg &middot; bitmap tracing</p>
+  <h1>Turn any image into a<br><em>clean vector</em>.</h1>
+  <p class="lede">Open Image Tracer converts PNG and JPEG images into scalable SVGs, like Inkscape's <em>Trace Bitmap</em>, with extras for screenshots: smart colour palettes, JPEG cleanup, text recognised as real SVG text, and single-stroke tracing for line art. Free and open source for Linux, Windows and macOS.</p>
+  <div class="cta-row">
+    <a class="btn btn-primary" id="hero-download" href="#download"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg><span>Download</span></a>
+    <a class="btn btn-ghost" href="#install">Install</a>
+    <a class="btn btn-ghost" href="https://github.com/sabaoongfx/oit-open-image-tracer" target="_blank" rel="noopener">Star on GitHub</a>
+  </div>
+  <p class="hero-note" id="hero-download-note" hidden></p>
+</div>
+
+<div class="shots">
+  <img class="shot" src="screenshot.png" width="1100" height="720" alt="Open Image Tracer with the Screenshot + OCR text preset: the original screenshot on the left and the traced SVG on the right, with presets and modes in the sidebar">
+  <p class="shot-cap">The real app, tracing a screenshot: original on the left, SVG on the right. 41 colours, 416 paths, and 12 lines of text kept as text.</p>
+</div>
+
+<section id="features" style="margin-top:56px">
+  <div class="section-head">
+    <div>
+      <p class="eyebrow">features</p>
+      <h2>One job: bitmap in, vector out.</h2>
+    </div>
+    <p><strong>Simple</strong> shows only presets and modes; <strong>Advanced</strong> shows every setting, each with a field for typing exact values.</p>
+  </div>
+  <div class="flist">
+    <div class="frow">
+      <div class="ficon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></div>
+      <div class="ftitle">Presets that just work</div>
+      <div class="fdesc">Pick Logo / illustration, Screenshot / UI, Line art or Screenshot + OCR text, and compare the result side by side with the original.</div>
+      <div class="ftag">presets</div>
+    </div>
+    <div class="frow">
+      <div class="ficon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7V5h16v2M9 19h6M12 5v14"/></svg></div>
+      <div class="ftitle">Text stays text</div>
+      <div class="fdesc">Screenshot mode keeps small text crisp, and can recognise it with Tesseract OCR and export it as real, editable <code class="mono">&lt;text&gt;</code> in the SVG.</div>
+      <div class="ftag">ocr</div>
+    </div>
+    <div class="frow">
+      <div class="ficon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 17c3-6 5-6 7-2s4 4 7-2 3-4 4-3"/></svg></div>
+      <div class="ftitle">Line art as single strokes</div>
+      <div class="fdesc">Centerline tracing turns each pen line of a sketch, handwriting or signature into one stroke, instead of an outline around it.</div>
+      <div class="ftag">centerline</div>
+    </div>
+    <div class="frow">
+      <div class="ficon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><circle cx="8.5" cy="10" r="1.5"/><circle cx="12" cy="7.5" r="1.5"/><circle cx="15.5" cy="10" r="1.5"/><path d="M12 21a3 3 0 010-6h1"/></svg></div>
+      <div class="ftitle">Colours that look right</div>
+      <div class="fdesc">Perceptual colour palettes, JPEG noise removal and fixed palettes, so a compressed screenshot doesn't turn into hundreds of near-identical shades.</div>
+      <div class="ftag">palette</div>
+    </div>
+    <div class="frow">
+      <div class="ficon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20h16M7 16l5-12 5 12M9 12h6"/></svg></div>
+      <div class="ftitle">Compact, gap-free SVG</div>
+      <div class="fdesc">Shapes fit together without hairline gaps, and the output stays small. Copy the SVG straight to the clipboard or export it to a file.</div>
+      <div class="ftag">output</div>
+    </div>
+    <div class="frow">
+      <div class="ficon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg></div>
+      <div class="ftitle">Optional AI upscaling</div>
+      <div class="fdesc">Small images can be upscaled first with waifu2x, Real-ESRGAN or Real-CUGAN (Vulkan GPU) for smoother curves. Not available in the Flatpak.</div>
+      <div class="ftag">upscale</div>
+    </div>
+  </div>
+</section>
+
+<section id="modes">
+  <div class="section-head">
+    <div>
+      <p class="eyebrow">modes</p>
+      <h2>Seven ways to trace.</h2>
+    </div>
+    <p>Every picture below is the app's own output, rendered from its sample images.</p>
+  </div>
+  <h3 class="modes-sub">Presets</h3>
+  <div class="modes">
+    <figure class="mode"><img src="modes/preset_logo.png" width="222" height="152" loading="lazy" alt="Logo traced as flat colour shapes"><figcaption><b>Logo / illustration</b><span>Flat colours and smooth curves.</span></figcaption></figure>
+    <figure class="mode"><img src="modes/preset_screenshot.png" width="222" height="152" loading="lazy" alt="Screenshot of an app traced to vectors"><figcaption><b>Screenshot / UI</b><span>Crisp small text and straight edges.</span></figcaption></figure>
+    <figure class="mode"><img src="modes/preset_screenshot-ocr.png" width="222" height="152" loading="lazy" alt="Screenshot traced with its text recognised"><figcaption><b>Screenshot + OCR text</b><span>The same, with text exported as real SVG text.</span></figcaption></figure>
+    <figure class="mode"><img src="modes/preset_line-art.png" width="222" height="152" loading="lazy" alt="A cat sketch traced as single strokes"><figcaption><b>Line art (centerline)</b><span>One stroke per pen line.</span></figcaption></figure>
+  </div>
+  <h3 class="modes-sub">Modes</h3>
+  <div class="modes">
+    <figure class="mode"><img src="modes/mode_multi_colors.png" width="222" height="152" loading="lazy" alt="Full color mode"><figcaption><b>Full color</b><span>Finds the image's colors and traces each one.</span></figcaption></figure>
+    <figure class="mode"><img src="modes/mode_brightness.png" width="222" height="152" loading="lazy" alt="Black and white mode"><figcaption><b>Black &amp; white</b><span>Dark parts become black shapes: logos, stamps, scans.</span></figcaption></figure>
+    <figure class="mode"><img src="modes/mode_centerline.png" width="222" height="152" loading="lazy" alt="Line drawing mode"><figcaption><b>Line drawing</b><span>Each pen line becomes a single stroke.</span></figcaption></figure>
+    <figure class="mode"><img src="modes/mode_edge.png" width="222" height="152" loading="lazy" alt="Outlines mode"><figcaption><b>Outlines</b><span>Only the edges between areas, like a coloring book.</span></figcaption></figure>
+    <figure class="mode"><img src="modes/mode_multi_grays.png" width="222" height="152" loading="lazy" alt="Grayscale mode"><figcaption><b>Grayscale</b><span>Full color, in the image's own grays.</span></figcaption></figure>
+    <figure class="mode"><img src="modes/mode_multi_brightness.png" width="222" height="152" loading="lazy" alt="Gray steps mode"><figcaption><b>Gray steps</b><span>Evenly spaced light-to-dark layers for shaded art.</span></figcaption></figure>
+    <figure class="mode"><img src="modes/mode_quant.png" width="222" height="152" loading="lazy" alt="Posterize mode"><figcaption><b>Posterize</b><span>A few colors, alternated black and white: stencils.</span></figcaption></figure>
+  </div>
+</section>
+
+<section id="install">
+  <div class="section-head">
+    <div>
+      <p class="eyebrow">install</p>
+      <h2>Install it in a minute.</h2>
+    </div>
+    <p>Packages for every major system. Windows and macOS builds aren't code-signed yet, so your OS may warn you the first time.</p>
+  </div>
+
+  <div class="tabs" role="tablist" aria-label="Choose your system">
+    <button type="button" role="tab" aria-selected="true" aria-controls="i-linux" data-os="linux">Linux</button>
+    <button type="button" role="tab" aria-selected="false" aria-controls="i-win" data-os="win">Windows</button>
+    <button type="button" role="tab" aria-selected="false" aria-controls="i-mac" data-os="mac">macOS</button>
+    <button type="button" role="tab" aria-selected="false" aria-controls="i-src" data-os="src">From source</button>
+  </div>
+
+  <div class="panel" id="i-linux" role="tabpanel">
+    <h3 class="ftitle">Linux (x86_64)</h3>
+    <p>The Flatpak runs on any distribution and includes OCR. Or pick your distribution's native package:</p>
+    <table>
+      <tr><th>System</th><th>Install</th></tr>
+      <tr><td>Any Linux (Flatpak)</td><td><code>flatpak install --user Open-Image-Tracer-x86_64.flatpak</code></td></tr>
+      <tr><td>Any Linux (AppImage)</td><td><code>chmod +x Open-Image-Tracer-x86_64.AppImage</code>, then run it</td></tr>
+      <tr><td>Debian 13+, Ubuntu 24.04+</td><td><code>sudo apt install ./Open-Image-Tracer-all.deb</code></td></tr>
+      <tr><td>Fedora</td><td><code>sudo dnf install ./Open-Image-Tracer-noarch.rpm</code></td></tr>
+      <tr><td>Arch, Manjaro</td><td><code>sudo pacman -U Open-Image-Tracer-any.pkg.tar.zst</code></td></tr>
+    </table>
+    <p style="margin-top:14px">The Flatpak opens and saves files through the system's file dialogs and can't reach AI upscalers installed on the host; use a native package for upscaling.</p>
+  </div>
+
+  <div class="panel" id="i-win" role="tabpanel" hidden>
+    <h3 class="ftitle">Windows 10 and 11</h3>
+    <p>Download the <a href="https://github.com/sabaoongfx/oit-open-image-tracer/releases/latest/download/Open-Image-Tracer-x64-setup.exe">installer (.exe)</a> or the <a href="https://github.com/sabaoongfx/oit-open-image-tracer/releases/latest/download/Open-Image-Tracer-x64.msi">.msi</a> and run it. If SmartScreen warns you, choose <em>More info &rarr; Run anyway</em>.</p>
+  </div>
+
+  <div class="panel" id="i-mac" role="tabpanel" hidden>
+    <h3 class="ftitle">macOS</h3>
+    <p>Download the disk image for your Mac: <a href="https://github.com/sabaoongfx/oit-open-image-tracer/releases/latest/download/Open-Image-Tracer-aarch64.dmg">Apple Silicon</a> or <a href="https://github.com/sabaoongfx/oit-open-image-tracer/releases/latest/download/Open-Image-Tracer-x64.dmg">Intel</a>. Open it and drag the app to Applications. It isn't signed yet, so the first time, right-click the app and choose <em>Open</em>.</p>
+  </div>
+
+  <div class="panel" id="i-src" role="tabpanel" hidden>
+    <h3 class="ftitle">From source</h3>
+    <p>Needs Python 3.10+, GTK 4 with PyGObject and pycairo, numpy, Pillow and potrace. Tesseract (with English data) is optional, for OCR.</p>
+    <div class="code"><button class="copy" type="button">Copy</button><pre>git clone https://github.com/sabaoongfx/oit-open-image-tracer
+cd oit-open-image-tracer
+python3 image_tracer.py</pre></div>
+    <p>On Arch or Manjaro: <code>sudo pacman -S python-gobject gtk4 python-cairo python-numpy python-pillow potrace tesseract tesseract-data-eng</code>. <code>python3 tools/install_desktop.py</code> adds a menu entry and icon for your user.</p>
+  </div>
+</section>
+
+<section id="download">
+  <div class="section-head">
+    <div>
+      <p class="eyebrow">download</p>
+      <h2>Every download, one click.</h2>
+    </div>
+    <p>Direct links to the latest release, free and open source under the GPL.</p>
+  </div>
+  <div class="dl-grid">
+    <div class="dl-card" data-platform="linux">
+      <h3>Linux <span class="yours-tag">Your system</span></h3>
+      <ul>
+        <li><a href="https://github.com/sabaoongfx/oit-open-image-tracer/releases/latest/download/Open-Image-Tracer-x86_64.flatpak"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>Any distribution<span class="ext">flatpak</span></a></li>
+        <li><a href="https://github.com/sabaoongfx/oit-open-image-tracer/releases/latest/download/Open-Image-Tracer-x86_64.AppImage"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>Any distribution<span class="ext">AppImage</span></a></li>
+        <li><a href="https://github.com/sabaoongfx/oit-open-image-tracer/releases/latest/download/Open-Image-Tracer-all.deb"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>Debian, Ubuntu<span class="ext">deb</span></a></li>
+        <li><a href="https://github.com/sabaoongfx/oit-open-image-tracer/releases/latest/download/Open-Image-Tracer-noarch.rpm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>Fedora<span class="ext">rpm</span></a></li>
+        <li><a href="https://github.com/sabaoongfx/oit-open-image-tracer/releases/latest/download/Open-Image-Tracer-any.pkg.tar.zst"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>Arch, Manjaro<span class="ext">pacman</span></a></li>
+      </ul>
+    </div>
+    <div class="dl-card" data-platform="win">
+      <h3>Windows <span class="yours-tag">Your system</span></h3>
+      <ul>
+        <li><a href="https://github.com/sabaoongfx/oit-open-image-tracer/releases/latest/download/Open-Image-Tracer-x64-setup.exe"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>Installer (recommended)<span class="ext">exe</span></a></li>
+        <li><a href="https://github.com/sabaoongfx/oit-open-image-tracer/releases/latest/download/Open-Image-Tracer-x64.msi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>MSI package<span class="ext">msi</span></a></li>
+      </ul>
+    </div>
+    <div class="dl-card" data-platform="mac">
+      <h3>macOS <span class="yours-tag">Your system</span></h3>
+      <ul>
+        <li><a href="https://github.com/sabaoongfx/oit-open-image-tracer/releases/latest/download/Open-Image-Tracer-aarch64.dmg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>Apple Silicon (M1 and newer)<span class="ext">dmg</span></a></li>
+        <li><a href="https://github.com/sabaoongfx/oit-open-image-tracer/releases/latest/download/Open-Image-Tracer-x64.dmg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>Intel Mac<span class="ext">dmg</span></a></li>
+      </ul>
+    </div>
+    <div class="dl-card">
+      <h3>Verify</h3>
+      <ul>
+        <li><a href="https://github.com/sabaoongfx/oit-open-image-tracer/releases/latest/download/SHA256SUMS"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>Checksums<span class="ext">SHA256SUMS</span></a></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section id="specs">
+  <div class="section-head">
+    <div>
+      <p class="eyebrow">specs</p>
+      <h2>What's actually running under the hood.</h2>
+    </div>
+  </div>
+  <div class="specs">
+    <div class="spec"><div class="l">Language</div><div class="v">Python 3</div></div>
+    <div class="spec"><div class="l">UI</div><div class="v">GTK 4</div></div>
+    <div class="spec"><div class="l">Tracing</div><div class="v">potrace</div></div>
+    <div class="spec"><div class="l">OCR</div><div class="v">Tesseract</div></div>
+    <div class="spec"><div class="l">Input</div><div class="v">PNG &middot; JPEG &middot; &hellip;</div></div>
+    <div class="spec"><div class="l">Output</div><div class="v">SVG</div></div>
+    <div class="spec"><div class="l">Platforms</div><div class="v">Linux &middot; Win &middot; macOS</div></div>
+    <div class="spec"><div class="l">License</div><div class="v">GPL-3.0+</div></div>
+  </div>
+</section>
+
+<footer>
+  <span>Open Image Tracer &middot; open source on <a href="https://github.com/sabaoongfx/oit-open-image-tracer" target="_blank" rel="noopener">GitHub</a> &middot; see <a href="/apps/">other apps</a> &middot; built by <a href="https://sabaoon.dev" target="_blank" rel="noopener">sabaoon.dev</a></span>
+</footer>
+
+<script>
+(function(){
+  var list = document.querySelector('#install .tabs');
+  var buttons = list.querySelectorAll('[role="tab"]');
+  function select(active){
+    buttons.forEach(function(b){ b.setAttribute('aria-selected', b === active ? 'true' : 'false'); });
+    document.querySelectorAll('#install [role="tabpanel"]').forEach(function(p){
+      p.hidden = p.id !== active.getAttribute('aria-controls');
+    });
+  }
+  buttons.forEach(function(b){ b.addEventListener('click', function(){ select(b); }); });
+
+  var ua = navigator.userAgent;
+  var platform = /Windows/.test(ua) ? 'win' : /Mac OS X|Macintosh/.test(ua) && !/iPhone|iPad/.test(ua) ? 'mac'
+               : /Linux|X11/.test(ua) && !/Android/.test(ua) ? 'linux' : null;
+  if (platform) {
+    select(list.querySelector('[data-os="' + platform + '"]'));
+    document.querySelector('.dl-card[data-platform="' + platform + '"]').classList.add('yours');
+    var BASE = 'https://github.com/sabaoongfx/oit-open-image-tracer/releases/latest/download/';
+    var files = {win: ['Windows', 'Open-Image-Tracer-x64-setup.exe', 'Installer for Windows 10 and 11'],
+                 mac: ['Mac', 'Open-Image-Tracer-aarch64.dmg', 'For Apple Silicon Macs &middot; <a href="' + BASE + 'Open-Image-Tracer-x64.dmg">Intel Mac?</a>'],
+                 linux: ['Linux', 'Open-Image-Tracer-x86_64.flatpak', 'Flatpak, runs on any distro &middot; <a href="#install">native packages</a>']};
+    var f = files[platform];
+    var hero = document.getElementById('hero-download'), note = document.getElementById('hero-download-note');
+    hero.href = BASE + f[1];
+    hero.querySelector('span').textContent = 'Download for ' + f[0];
+    note.innerHTML = f[2] + ' &middot; <a href="#download">Other platforms</a>';
+    note.hidden = false;
+  }
+
+  document.querySelectorAll('.copy').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      navigator.clipboard.writeText(btn.nextElementSibling.textContent).then(function(){
+        btn.textContent = 'Copied';
+        setTimeout(function(){ btn.textContent = 'Copy'; }, 1500);
+      });
+    });
+  });
+})();
+</script>
+</body></html>

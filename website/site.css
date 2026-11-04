@@ -271,3 +271,18 @@ kbd{
   .release-meta{ flex-direction:row; align-items:baseline; flex-wrap:wrap; gap:12px; }
   .release-meta h2{ font-size:24px; }
 }
+
+/* ---------- other apps (index.html) ---------- */
+.app-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:14px; }
+.app-card{
+  display:flex; gap:18px; align-items:flex-start; text-decoration:none;
+  background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:22px;
+  transition:border-color .15s;
+}
+.app-card:hover{ border-color:var(--red); }
+.app-card img{ flex-shrink:0; }
+.app-card h3{ font-size:17px; font-weight:700; margin-bottom:8px; }
+.app-card p{ color:var(--ink-muted); font-size:14px; line-height:1.6; }
+.app-card kbd{ margin-right:0; }
+.app-link{ display:inline-block; margin-top:12px; font-weight:600; font-size:14px; color:var(--red); }
+@media (max-width:720px){ .app-card{ flex-direction:column; gap:12px; } }

@@ -178,7 +178,8 @@ Braille glyphs and the fallback font's width otherwise skews every graph row.
 
 Page sections, top to bottom: hero, `#full-demo` (the iframe), `#features`, `#terminal` (otm
 screens + key cheat sheet), `#install` (tabs: apt, pacman, Windows, macOS, other Linux, terminal
-only), `#download` (every direct download as cards), `#specs`, `#roadmap`. The top-left logo links
+only), `#download` (every direct download as cards), `#specs`, `#roadmap`, `#other-apps` (a card per
+sibling app, linked from the nav's "Other apps"; today just Open Clipboard Manager at `/ocm/`). The top-left logo links
 to `/`, and the nav's "What's new" links to `releases.html`, whose top bar is the same markup with
 section links pointing back at `/#...`. One inline script at the bottom detects the visitor's OS from the user agent and uses it
 three ways: preselects the install tab, marks the matching `#download` card "Your system", and

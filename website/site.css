@@ -307,7 +307,7 @@ kbd{
 .app-foot{ display:flex; align-items:center; justify-content:space-between; gap:12px; }
 .app-tags{ list-style:none; margin:0; padding:0; display:flex; flex-wrap:wrap; gap:4px; }
 .app-tags button{ font-size:11px; padding:3px 9px; }
-.app-gh{ font-size:13px; font-weight:600; color:var(--ink-muted); white-space:nowrap; }
+.app-gh{ margin-left:auto; font-size:13px; font-weight:600; color:var(--ink-muted); white-space:nowrap; }
 .app-gh:hover{ color:var(--ink); }
 .apps-empty{ color:var(--ink-muted); font-size:14px; padding:24px 0; }
 .apps-empty button{ font:inherit; color:var(--red); background:none; border:none; padding:0; cursor:pointer; text-decoration:underline; }

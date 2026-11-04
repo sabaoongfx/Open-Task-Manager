@@ -7,9 +7,6 @@
     <loc>https://otm.sabaoon.dev/releases</loc>
   </url>
   <url>
-    <loc>https://otm.sabaoon.dev/apps/</loc>
-  </url>
-  <url>
     <loc>https://otm.sabaoon.dev/tools/</loc>
   </url>
   <url>
@@ -80,6 +77,9 @@
   </url>
   <url>
     <loc>https://otm.sabaoon.dev/tools/lorem-ipsum-generator/</loc>
+  </url>
+  <url>
+    <loc>https://otm.sabaoon.dev/apps/</loc>
   </url>
   <url>
     <loc>https://otm.sabaoon.dev/ocm/</loc>

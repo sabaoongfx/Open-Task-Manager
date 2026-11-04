@@ -48,6 +48,7 @@ p{ margin:0; }
 .brand svg{ width:26px; height:20px; flex-shrink:0; }
 .topnav{ display:flex; gap:28px; font-size:14px; color:var(--ink-muted); flex-wrap:wrap; align-items:center; }
 .topnav a{ text-decoration:none; }
+@media (max-width:720px){ .topnav{ gap:8px 18px; } .topbar{ padding-block:16px; } }
 .topnav a:hover{ color:var(--ink); }
 .topnav a.gh{
   display:flex; align-items:center; gap:6px; color:var(--ink); font-weight:600;

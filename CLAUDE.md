@@ -178,8 +178,7 @@ Braille glyphs and the fallback font's width otherwise skews every graph row.
 
 Page sections, top to bottom: hero, `#full-demo` (the iframe), `#features`, `#terminal` (otm
 screens + key cheat sheet), `#install` (tabs: apt, pacman, Windows, macOS, other Linux, terminal
-only), `#download` (every direct download as cards), `#specs`, `#roadmap`, `#other-apps` (a card per
-sibling app, linked from the nav's "Other apps"; today just Open Clipboard Manager at `/ocm/`). The top-left logo links
+only), `#download` (every direct download as cards), `#specs`, `#roadmap`. The top-left logo links
 to `/`, and the nav's "What's new" links to `releases.html`, whose top bar is the same markup with
 section links pointing back at `/#...`. One inline script at the bottom detects the visitor's OS from the user agent and uses it
 three ways: preselects the install tab, marks the matching `#download` card "Your system", and
@@ -210,6 +209,14 @@ class name from `site.css` (it already defines `.panel`) and don't name a form c
 `sabaoongfx/open-clipboard-manager`), served at `/ocm/`. It reuses `/site.css` and has its own
 screenshots and logo copied from that repo's `docs/` and `public/`; refresh them when the app's UI changes.
 Its download links use that repo's versionless `releases/latest/download/` names.
+
+`website/apps/index.html` is the "Other apps" catalog (the nav's "Other apps" links to `/apps/`
+from the homepage and `releases.html`). Each app is a hand-written `<article class="app-card"
+data-tags="...">`; to add one, copy a card (a comment in the page lists the fields). The inline
+script builds the tag chips and per-card tags from `data-tags`, searches name + description + tags,
+and keeps `?q=`/`?tag=` in the URL so filtered views can be linked. Styles are the `other apps`
+block at the end of `site.css`; `.app-card[hidden]` needs its own `display:none` because the card is
+`display:flex`.
 
 SEO lives in `website/index.html`'s `<head>` (description, canonical, Open Graph/Twitter tags
 pointing at `website/og.png`, JSON-LD `SoftwareApplication`), plus `website/robots.txt` and

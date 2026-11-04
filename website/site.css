@@ -312,3 +312,13 @@ kbd{
 .apps-empty{ color:var(--ink-muted); font-size:14px; padding:24px 0; }
 .apps-empty button{ font:inherit; color:var(--red); background:none; border:none; padding:0; cursor:pointer; text-decoration:underline; }
 @media (max-width:720px){ .app-grid{ grid-template-columns:1fr; } }
+
+/* ---------- family bar: way back to OTM from sibling app pages (ocm/, oit/) ---------- */
+.family-bar{
+  max-width:1120px; margin-inline:auto; display:flex; align-items:center; gap:10px;
+  padding-top:14px; font-size:13px; color:var(--ink-faint);
+}
+.family-bar a{ display:inline-flex; align-items:center; gap:4px; color:var(--ink-muted); text-decoration:none; font-weight:500; }
+.family-bar a:hover{ color:var(--ink); }
+.family-bar svg{ width:14px; height:14px; }
+.family-bar + .topbar{ padding-top:10px; }

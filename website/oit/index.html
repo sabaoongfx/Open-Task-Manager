@@ -45,6 +45,7 @@
   ]
 }
 </script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Open Task Manager", "item": "https://otm.sabaoon.dev/"}, {"@type": "ListItem", "position": 2, "name": "Other apps", "item": "https://otm.sabaoon.dev/apps/"}, {"@type": "ListItem", "position": 3, "name": "Open Image Tracer", "item": "https://otm.sabaoon.dev/oit/"}]}</script>
 <link rel="icon" type="image/png" href="logo.png">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;900&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
 <style>:root{color-scheme:light;box-sizing:border-box}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style>
@@ -77,11 +78,6 @@
 @media (max-width:720px){.panel table{display:block;overflow-x:auto}.modes{grid-template-columns:1fr 1fr;gap:10px}.mode figcaption{padding:10px}.mode b{font-size:13px}.mode span{font-size:12px}}
 </style>
 
-<div class="family-bar">
-  <a href="/"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>Open Task Manager</a>
-  <span aria-hidden="true">&middot;</span>
-  <a href="/apps/">Other apps</a>
-</div>
 <div class="topbar">
   <a class="brand" href="/oit/" aria-label="Open Image Tracer home">
     <img src="logo.png" alt="">
@@ -99,6 +95,13 @@
     </a>
   </nav>
 </div>
+<nav class="crumbs" aria-label="Breadcrumb">
+  <ol>
+    <li><a href="/">Open Task Manager</a></li>
+    <li><a href="/apps/">Other apps</a></li>
+    <li><span aria-current="page">Open Image Tracer</span></li>
+  </ol>
+</nav>
 
 <div class="hero">
   <p class="eyebrow">png &rarr; svg &middot; bitmap tracing</p>

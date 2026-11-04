@@ -210,8 +210,9 @@ class name from `site.css` (it already defines `.panel`) and don't name a form c
 screenshots and logo copied from that repo's `docs/` and `public/`; refresh them when the app's UI changes.
 Its download links use that repo's versionless `releases/latest/download/` names.
 
-Both sibling pages (`ocm/`, `oit/`) start with a `.family-bar` ("< Open Task Manager · Other apps",
-styled in `site.css`) above their own top bar, since their logo links to the app's own page.
+Both sibling pages (`ocm/`, `oit/`) have a breadcrumb under their top bar (`nav.crumbs`:
+Open Task Manager > Other apps > the app, styled in `site.css`, plus a BreadcrumbList JSON-LD),
+since their logo links to the app's own page. A new app page should copy both.
 
 `website/oit/` is the same kind of page for Open Image Tracer (repo `sabaoongfx/oit-open-image-tracer`,
 local checkout `~/Documents/code/image-tracer`), served at `/oit/`. `screenshot.png` is the window

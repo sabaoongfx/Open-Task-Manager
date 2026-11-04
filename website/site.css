@@ -313,12 +313,17 @@ kbd{
 .apps-empty button{ font:inherit; color:var(--red); background:none; border:none; padding:0; cursor:pointer; text-decoration:underline; }
 @media (max-width:720px){ .app-grid{ grid-template-columns:1fr; } }
 
-/* ---------- family bar: way back to OTM from sibling app pages (ocm/, oit/) ---------- */
-.family-bar{
-  max-width:1120px; margin-inline:auto; display:flex; align-items:center; gap:10px;
-  padding-top:14px; font-size:13px; color:var(--ink-faint);
+/* ---------- breadcrumbs under the top bar on sibling app pages (ocm/, oit/) ---------- */
+.crumbs{ max-width:1120px; margin-inline:auto; }
+.crumbs ol{
+  list-style:none; margin:0; padding:10px 0 0; border-top:1px solid var(--border);
+  display:flex; flex-wrap:wrap; align-items:center; gap:4px 0; font-size:13px;
 }
-.family-bar a{ display:inline-flex; align-items:center; gap:4px; color:var(--ink-muted); text-decoration:none; font-weight:500; }
-.family-bar a:hover{ color:var(--ink); }
-.family-bar svg{ width:14px; height:14px; }
-.family-bar + .topbar{ padding-top:10px; }
+.crumbs li{ display:inline-flex; align-items:center; color:var(--ink-muted); }
+.crumbs li + li::before{
+  content:""; width:6px; height:6px; margin:0 10px; flex-shrink:0;
+  border-top:1.5px solid var(--ink-faint); border-right:1.5px solid var(--ink-faint); transform:rotate(45deg);
+}
+.crumbs a{ color:var(--ink-muted); text-decoration:none; }
+.crumbs a:hover{ color:var(--ink); text-decoration:underline; text-underline-offset:2px; }
+.crumbs [aria-current]{ color:var(--ink); font-weight:600; }

@@ -178,11 +178,15 @@ Braille glyphs and the fallback font's width otherwise skews every graph row.
 
 Page sections, top to bottom: hero, `#full-demo` (the iframe), `#features`, `#terminal` (otm
 screens + key cheat sheet), `#install` (tabs: apt, pacman, Windows, macOS, other Linux, terminal
-only), `#download` (every direct download as cards), `#specs`, `#roadmap`, `#other-apps`
-(the first three cards of `apps/index.html`, fetched and copied in by a script when the section nears
-the viewport, so `/apps/` stays the only list to edit; reorder cards there to change which show). The top-left logo links
-to `/`, and the nav's "What's new" links to `releases.html`, whose top bar is the same markup with
-section links pointing back at `/#...`. One inline script at the bottom detects the visitor's OS from the user agent and uses it
+only), `#download` (every direct download as cards), `#specs`, `#roadmap`, `#other-apps` (see Other
+apps below). The top-left logo links to `/`.
+
+The top menu is kept short on purpose (it had 11 links and read as noise): **Features, Download,
+What's new, Other apps, Tools, Blog** + a GitHub button. The same markup is copied into
+`releases.html` and `apps/index.html` (with `/#...` links and `aria-current` on their own entry) and
+generated into every tools page from `NAV` in `tools/build.py`, so change all four together. Don't
+add homepage section jumps back to it; those sections are reached by scrolling. The blog pages and
+the sibling app pages have their own shorter menus. One inline script at the bottom detects the visitor's OS from the user agent and uses it
 three ways: preselects the install tab, marks the matching `#download` card "Your system", and
 turns the hero's plain "Download" button (which scrolls to `#download`, also the no-JS and phone
 behaviour) into a direct "Download for Windows/Mac/Linux" link with a note underneath. Macs get the
@@ -207,28 +211,44 @@ uploaded. A new tool means a `catalog.py` entry, a function in `utils.js` and a 
 class name from `site.css` (it already defines `.panel`) and don't name a form control `length`
 (it collides with `form.elements.length`).
 
-`website/ocm/` is the hand-written page for a second app, Open Clipboard Manager (repo
-`sabaoongfx/open-clipboard-manager`), served at `/ocm/`. It reuses `/site.css` and has its own
-screenshots and logo copied from that repo's `docs/` and `public/`; refresh them when the app's UI changes.
-Its download links use that repo's versionless `releases/latest/download/` names.
+`website/blog/` is a hand-written blog: `blog/index.html` (posts grouped by topic) plus one folder per
+post (`blog/<slug>/index.html`), styled by `blog/blog.css` on top of `site.css`, each post with its own
+short menu (Features, Download, Blog, GitHub). New posts need an entry in `blog/index.html` and in
+`sitemap.xml`.
 
-Both sibling pages (`ocm/`, `oit/`) have a breadcrumb under their top bar (`nav.crumbs`:
-Open Task Manager > Other apps > the app, styled in `site.css`, plus a BreadcrumbList JSON-LD),
-since their logo links to the app's own page. A new app page should copy both.
+#### Other apps (`apps/`, `ocm/`, `oit/`)
 
-`website/oit/` is the same kind of page for Open Image Tracer (repo `sabaoongfx/oit-open-image-tracer`,
-local checkout `~/Documents/code/image-tracer`), served at `/oit/`. `screenshot.png` is the window
-picture from that app's `python3 image_tracer.py --self-test OUTDIR`; `logo.png` and `modes/*.png` are
-copies of its `assets/icons/hicolor/128x128/...` and `assets/thumbs/`. Download links use the versionless
-names from its README (`Open-Image-Tracer-x86_64.flatpak`, `-all.deb`, `-x64-setup.exe`, ...).
+The site also lists the owner's other apps. **`website/apps/index.html` is the single list**:
+each app is a hand-written `<article class="app-card" data-tags="...">` (a comment in the page lists
+the fields; tags are lowercase, platforms first, e.g. `windows macos linux media video`). Its inline
+script builds the tag chips and each card's tag buttons from `data-tags`, searches name + description +
+tags, and keeps `?q=`/`?tag=` in the URL so filtered views can be linked. Styles are the `other apps`
+block in `site.css`; `.app-card[hidden]` needs its own `display:none` because the card is
+`display:flex`. Icons for apps without a page here live in `apps/logos/`.
 
-`website/apps/index.html` is the "Other apps" catalog (the nav's "Other apps" links to `/apps/`
-from the homepage and `releases.html`). Each app is a hand-written `<article class="app-card"
-data-tags="...">`; to add one, copy a card (a comment in the page lists the fields). The inline
-script builds the tag chips and per-card tags from `data-tags`, searches name + description + tags,
-and keeps `?q=`/`?tag=` in the URL so filtered views can be linked. Styles are the `other apps`
-block at the end of `site.css`; `.app-card[hidden]` needs its own `display:none` because the card is
-`display:flex`.
+The homepage's `#other-apps` section has no cards in its HTML: a script fetches `/apps/` when the
+section nears the viewport and copies in the **first three** cards (minus their tag lists), so reorder
+cards on `/apps/` to change which show. Search engines and no-JS visitors only see the links to `/apps/`.
+
+Current entries, in order:
+- **Open Clipboard Manager** -> `/ocm/` (repo `sabaoongfx/open-clipboard-manager`, local checkout
+  `~/Documents/code/open-clipboard-manager`). Hand-written page reusing `/site.css` with a blue accent;
+  screenshots and `logo.svg` are copies of that repo's `docs/` and `public/`.
+- **Open Image Tracer** -> `/oit/` (repo `sabaoongfx/oit-open-image-tracer`, local checkout
+  `~/Documents/code/image-tracer`). Same kind of page with a violet accent. `screenshot.png` is the window
+  picture from that app's `python3 image_tracer.py --self-test OUTDIR`; `logo.png` and `modes/*.png` are
+  copies of its `assets/icons/hicolor/128x128/...` and `assets/thumbs/`.
+- **VLC (juxtopposed)** -> `https://vlc.sabaoon.dev/`, its own site (repo
+  `sabaoongfx/vlc-qt-redesign-fork`); icon is a copy of that site's favicon in `apps/logos/`. Always
+  describe it as an unofficial VLC build with Juxtopposed's redesign, never as VideoLAN's VLC.
+
+App pages hosted here (`ocm/`, `oit/`) link their logo to their own page, so each has a breadcrumb
+under the top bar (`nav.crumbs`: Open Task Manager > Other apps > the app, styled in `site.css`, plus
+a BreadcrumbList JSON-LD). Their download links use the app repo's versionless
+`releases/latest/download/<name>` names, so they only work once that repo's latest release has those
+files; check with `curl -sIL` after deploying. Refresh copied screenshots and icons when an app's UI
+changes. A new app page means: a folder with its own `index.html` (copy `oit/`), its card on `/apps/`,
+and a `sitemap.xml` entry.
 
 SEO lives in `website/index.html`'s `<head>` (description, canonical, Open Graph/Twitter tags
 pointing at `website/og.png`, JSON-LD `SoftwareApplication`), plus `website/robots.txt` and
@@ -242,7 +262,9 @@ search-and-replace, then resubmit the sitemap in the matching Search Console pro
 The site is hosted on Cloudflare as a Worker with static assets (Pages is now part of Workers):
 `wrangler.jsonc` at the repo root serves `website/` with no build step and binds the custom domain
 `otm.sabaoon.dev` (DNS zone `sabaoon.dev` is in the same Cloudflare account). Deploy with
-`npx wrangler deploy`; nothing deploys on push. Cloudflare serves `foo.html` at `/foo` (it
+`npx wrangler deploy`; nothing deploys on push. **Run `git pull` first**: a deploy uploads whatever
+`website/` holds locally, and deploying from an out-of-date checkout once took the blog, the tools and
+`/ocm/` off the live site. Cloudflare serves `foo.html` at `/foo` (it
 redirects `/releases.html` -> `/releases`), so canonical URLs and the sitemap use the
 extensionless form, while in-page links stay `releases.html` so a plain static server still works.
 The site moved here from Vercel after hitting Vercel's limits.

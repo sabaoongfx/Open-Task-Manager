@@ -216,7 +216,8 @@ post (`blog/<slug>/index.html`), styled by `blog/blog.css` alone (blog pages don
 `blog.css` carries its own copy of the `.crumbs` rules), each post with its own short menu (Features,
 Download, Blog, GitHub) and a breadcrumb under it (Open Task Manager > Blog > post title, plus a
 BreadcrumbList JSON-LD). New posts need the breadcrumb, an entry in `blog/index.html` and in
-`sitemap.xml`.
+`sitemap.xml`, and a bump of the post count, which is written out twice: the blog index intro
+("35 posts.") and the homepage `#blog` footer link ("Read all 35 posts").
 
 #### Other apps (`apps/`, `ocm/`, `oit/`)
 
@@ -260,6 +261,17 @@ used in the blog pages, `README.md` and the AppStream file. The old
 Console rejects a sitemap whose `<loc>` URLs are on a different host than the sitemap itself
 ("URL not allowed"). If the domain changes again, replace it everywhere with one repo-wide
 search-and-replace, then resubmit the sitemap in the matching Search Console property.
+
+`sitemap.xml` is hand-maintained (only its `/tools/` entries are rewritten by `tools/build.py`), and it
+once went a month missing `/blog/` and two posts, so after adding pages compare it against the real
+pages: every `blog/*/`, `/blog/`, `/apps/`, each app folder, `/releases` and the tools. The live
+`robots.txt` differs from the repo's: Cloudflare prepends a managed block (Content-Signal plus
+`Disallow: /` for AI-training crawlers such as GPTBot, ClaudeBot and Google-Extended). That is
+intended and doesn't affect Googlebot. Search Console's Page indexing export (2026-11-06) showed
+only 14 pages indexed, all blog posts; the homepage, tools and app pages were "Crawled - currently
+not indexed", a quality/age judgement by Google, not a technical block (every sitemap URL returns
+200 with a self canonical and no noindex). The homepage `#blog` cards are there partly to give
+posts internal links.
 
 The site is hosted on Cloudflare as a Worker with static assets (Pages is now part of Workers):
 `wrangler.jsonc` at the repo root serves `website/` with no build step and binds the custom domain

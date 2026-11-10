@@ -178,8 +178,8 @@ Braille glyphs and the fallback font's width otherwise skews every graph row.
 
 Page sections, top to bottom: hero, `#full-demo` (the iframe), `#features`, `#terminal` (otm
 screens + key cheat sheet), `#install` (tabs: apt, pacman, Windows, macOS, other Linux, terminal
-only), `#download` (every direct download as cards), `#specs`, `#roadmap`, `#other-apps` (see Other
-apps below). The top-left logo links to `/`.
+only), `#download` (every direct download as cards), `#specs`, `#roadmap`, `#blog` (six hand-picked post
+cards, plain HTML so crawlers follow them; swap cards by hand), `#other-apps` (see Other apps below). The top-left logo links to `/`.
 
 The top menu is kept short on purpose (it had 11 links and read as noise): **Features, Download,
 What's new, Other apps, Tools, Blog** + a GitHub button. The same markup is copied into
@@ -212,8 +212,10 @@ class name from `site.css` (it already defines `.panel`) and don't name a form c
 (it collides with `form.elements.length`).
 
 `website/blog/` is a hand-written blog: `blog/index.html` (posts grouped by topic) plus one folder per
-post (`blog/<slug>/index.html`), styled by `blog/blog.css` on top of `site.css`, each post with its own
-short menu (Features, Download, Blog, GitHub). New posts need an entry in `blog/index.html` and in
+post (`blog/<slug>/index.html`), styled by `blog/blog.css` alone (blog pages don't load `site.css`, so
+`blog.css` carries its own copy of the `.crumbs` rules), each post with its own short menu (Features,
+Download, Blog, GitHub) and a breadcrumb under it (Open Task Manager > Blog > post title, plus a
+BreadcrumbList JSON-LD). New posts need the breadcrumb, an entry in `blog/index.html` and in
 `sitemap.xml`.
 
 #### Other apps (`apps/`, `ocm/`, `oit/`)

@@ -46,8 +46,14 @@ article a{text-decoration:underline;text-underline-offset:2px}
 article code{font-family:"IBM Plex Mono",monospace;font-size:.9em;background:var(--surface-2);border-radius:4px;padding:1px 5px}
 article pre{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto}
 article pre code{background:none;padding:0}
-.back{font-size:14px;color:var(--ink-muted);text-decoration:none}
-.back:hover{color:var(--ink)}
+/* Breadcrumbs under the top bar (same look as .crumbs in /site.css, which blog pages don't load). */
+.crumbs{max-width:1120px;margin-inline:auto}
+.crumbs ol{list-style:none;margin:0;padding:10px 0 0;border-top:1px solid var(--border);display:flex;flex-wrap:wrap;align-items:center;gap:4px 0;font-size:13px}
+.crumbs li{display:inline-flex;align-items:center;color:var(--ink-muted);min-width:0}
+.crumbs li + li::before{content:"";width:6px;height:6px;margin:0 10px;flex-shrink:0;border-top:1.5px solid var(--ink-faint);border-right:1.5px solid var(--ink-faint);transform:rotate(45deg)}
+.crumbs a{color:var(--ink-muted);text-decoration:none}
+.crumbs a:hover{color:var(--ink);text-decoration:underline;text-underline-offset:2px}
+.crumbs [aria-current]{color:var(--ink);font-weight:600}
 footer{max-width:1120px;margin-inline:auto;padding-block:32px 48px;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;color:var(--ink-faint);font-size:12.5px;font-family:"IBM Plex Mono",monospace}
 footer a{text-decoration:underline;text-underline-offset:2px}
 footer a:hover{color:var(--ink)}

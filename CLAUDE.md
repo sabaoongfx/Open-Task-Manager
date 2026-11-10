@@ -257,7 +257,9 @@ SEO lives in `website/index.html`'s `<head>` (description, canonical, Open Graph
 pointing at `website/og.png`, JSON-LD `SoftwareApplication`), plus `website/robots.txt` and
 `website/sitemap.xml`. All of them hardcode the production URL `https://otm.sabaoon.dev/`, also
 used in the blog pages, `README.md` and the AppStream file. The old
-`opentaskmanager.vercel.app` host now 307-redirects there, so never put it in the sitemap: Search
+`opentaskmanager.vercel.app` host used to 307-redirect there, but by 2026-11-10 Vercel had disabled
+the deployment (every URL returns `402 Payment required` / `DEPLOYMENT_DISABLED`), so old links and
+Google's vercel.app referring pages are dead ends now. Never put that host in the sitemap: Search
 Console rejects a sitemap whose `<loc>` URLs are on a different host than the sitemap itself
 ("URL not allowed"). If the domain changes again, replace it everywhere with one repo-wide
 search-and-replace, then resubmit the sitemap in the matching Search Console property.

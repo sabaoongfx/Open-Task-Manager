@@ -17,7 +17,7 @@
 </p>
 
 <p align="center">
-  <a href="https://otm.sabaoon.dev"><strong>Website &amp; live demo</strong></a> ·
+  <a href="https://otm.sabaoon.dev/"><strong>otm.sabaoon.dev</strong></a> (website &amp; live demo) ·
   <a href="#install">Install</a> ·
   <a href="#terminal-ui-otm">Terminal UI</a> ·
   <a href="#development">Development</a>

@@ -1,7 +1,7 @@
 # Maintainer: Sabaoon
 #
 # Repackages the prebuilt .deb from the GitHub release (it already contains both binaries).
-# pkgver and sha256sums are rewritten by .github/workflows/publish-linux.yml on every
+# pkgver and sha256sums are rewritten by .github/workflows/publish-linux.yaml on every
 # published GitHub release; edit everything else here.
 pkgname=open-task-manager-bin
 _pkgname=open-task-manager

@@ -58,28 +58,37 @@ your app menu, or `open-task-manager`) and the terminal UI (`otm`).
 Ubuntu 22.04+ or Debian 12+, x86_64. Add the signed repository once:
 
 ```bash
-curl -fsSL https://sabaoongfx.github.io/Open-Task-Manager/KEY.gpg \
-  | sudo gpg --dearmor -o /usr/share/keyrings/open-task-manager.gpg
-echo "deb [signed-by=/usr/share/keyrings/open-task-manager.gpg] https://sabaoongfx.github.io/Open-Task-Manager stable main" \
-  | sudo tee /etc/apt/sources.list.d/open-task-manager.list
+sudo curl -fsSL -o /usr/share/keyrings/open-task-manager.asc \
+  https://sabaoongfx.github.io/Open-Task-Manager/KEY.asc
+sudo tee /etc/apt/sources.list.d/open-task-manager.sources > /dev/null <<'SOURCES'
+Types: deb
+URIs: https://sabaoongfx.github.io/Open-Task-Manager
+Suites: stable
+Components: main
+Signed-By: /usr/share/keyrings/open-task-manager.asc
+SOURCES
 sudo apt update && sudo apt install open-task-manager
 ```
 
-Updates then arrive with the normal `sudo apt upgrade`.
+Updates then arrive with the normal `sudo apt upgrade`. If you added the repository before
+this format, remove the old entry with `sudo rm /etc/apt/sources.list.d/open-task-manager.list`
+so apt doesn't list the repository twice.
 
 ### Arch Linux, Manjaro, EndeavourOS (pacman)
 
 A signed repository, built natively on Arch:
 
 ```bash
-curl -fsSL https://sabaoongfx.github.io/Open-Task-Manager/KEY.gpg | sudo pacman-key --add -
+curl -fsSL https://sabaoongfx.github.io/Open-Task-Manager/KEY.asc | sudo pacman-key --add -
 sudo pacman-key --lsign-key "Open Task Manager packages"
 printf '\n[open-task-manager]\nServer = https://sabaoongfx.github.io/Open-Task-Manager/arch/$arch\n' \
   | sudo tee -a /etc/pacman.conf
-sudo pacman -Sy open-task-manager
+sudo pacman -Syu open-task-manager
 ```
 
-Updates then arrive with the normal `sudo pacman -Syu`. To build it yourself instead (no
+Always install with a full upgrade (`-Syu`), never `-Sy` alone: Arch doesn't support partial
+upgrades, and installing against a stale package database can break the system. Updates then
+arrive with the normal `sudo pacman -Syu`. To build it yourself instead (no
 automatic updates): clone this repo, `cd packaging/aur/open-task-manager`, `makepkg -si`.
 AUR packages are prepared and will be published once AUR account registration reopens.
 
@@ -93,8 +102,10 @@ These links always download the newest version (x86_64):
   `sudo dnf install ./Open-Task-Manager-x86_64.rpm`
 - [`.deb`](https://github.com/sabaoongfx/Open-Task-Manager/releases/latest/download/Open-Task-Manager-amd64.deb), which includes `otm` (on Debian/Ubuntu, prefer
   the apt repository above so you get updates)
-- [`.AppImage`](https://github.com/sabaoongfx/Open-Task-Manager/releases/latest/download/Open-Task-Manager-x86_64.AppImage) for any other distribution (desktop
-  app only):
+- [`.AppImage`](https://github.com/sabaoongfx/Open-Task-Manager/releases/latest/download/Open-Task-Manager-x86_64.AppImage) for most other distributions (desktop
+  app only). It needs no installation, but it isn't fully self-contained: it uses your system's
+  graphics and GTK libraries, and it starts only if FUSE 2 is installed (on Ubuntu 22.04+ that
+  is the `libfuse2` package). Without it, add `--appimage-extract-and-run` after the file name:
 
   ```bash
   chmod +x Open-Task-Manager-x86_64.AppImage
@@ -170,8 +181,10 @@ cargo install --locked --git https://github.com/sabaoongfx/Open-Task-Manager otm
 - **Startup apps**: real autostart entries parsed from `/etc/xdg/autostart` and
   `~/.config/autostart`, with Enable/Disable (updates the app's own view only, not
   your real autostart config).
-- **Services**: the real systemd service list (name, description, status), with
-  Start/Stop (also UI-only for now; see [Roadmap](#roadmap)).
+- **Services** (Linux): the real systemd units from both the system manager and your
+  user manager (`systemctl --user`), with scope, description and status. Failed units
+  are listed first and counted in the header, and any unit type counts (a failed timer or
+  mount too, not just services). Start/Stop is UI-only for now; see [Roadmap](#roadmap).
 
 ### Disk usage
 
@@ -310,11 +323,11 @@ backend and render every `otm` tab through ratatui's test backend.
 
 1. Bump the version in `package.json`, the root `Cargo.toml` and `src-tauri/tauri.conf.json`,
    and add a `<release>` entry to `packaging/linux/io.github.sabaoongfx.OpenTaskManager.appdata.xml`.
-2. Push a `v*` tag. `release.yml` builds every installer plus the `otm` archives into a
+2. Push a `v*` tag. `release.yaml` builds every installer plus the `otm` archives into a
    draft GitHub release. Each file is also uploaded under a versionless name (for example
    `Open-Task-Manager-x64-setup.exe`), so the `releases/latest/download/…` links in this
    README and on the website always give the newest version.
-3. Publish the draft. `publish-linux.yml` then rebuilds the signed apt and pacman
+3. Publish the draft. `publish-linux.yaml` then rebuilds the signed apt and pacman
    repositories on GitHub Pages, so Linux users get the update through their package
    manager.
 
@@ -343,7 +356,7 @@ tests/                Playwright end-to-end tests
 
 packaging/            Linux packaging: AUR PKGBUILDs, apt repo config,
                       pacman repo script, desktop entry
-.github/workflows/    release.yml (installers + otm), publish-linux.yml (apt/pacman repos)
+.github/workflows/    release.yaml (installers + otm), publish-linux.yaml (apt/pacman repos)
 
 website/              The static site at otm.sabaoon.dev, which embeds a real
                       build of the app and real otm renders

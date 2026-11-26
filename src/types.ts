@@ -32,11 +32,15 @@ export interface NetworkInterface {
 
 export interface SystemStats {
   cpu_usage: number;
+  /** Utilization of each logical processor, 0-100, in CPU order. */
+  cpu_cores: number[];
   total_memory: number;
   used_memory: number;
   total_swap: number;
   used_swap: number;
   disk_bytes_per_sec: number;
+  disk_read_bytes_per_sec: number;
+  disk_write_bytes_per_sec: number;
   disk_active_percent: number;
   network_rx_bytes_per_sec: number;
   network_tx_bytes_per_sec: number;
@@ -61,6 +65,9 @@ export interface Snapshot {
 export interface ServiceInfo {
   name: string;
   description: string;
+  /** "System" or "User" systemd manager (Linux). */
+  scope: string;
+  /** "Running", "Stopped" or "Failed". */
   status: string;
 }
 

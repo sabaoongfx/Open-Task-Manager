@@ -119,6 +119,7 @@ fn disk_heat(rate: f64) -> Style {
 fn status_style(status: &str) -> Style {
     match status {
         "Running" | "Enabled" => Style::new().fg(Color::Green),
+        "Failed" => Style::new().fg(Color::LightRed).add_modifier(Modifier::BOLD),
         _ => Style::new().fg(Color::DarkGray),
     }
 }
@@ -461,16 +462,24 @@ fn startup(app: &App) -> View {
 }
 
 fn services(app: &App) -> View {
-    let mut services = filtered(app, Tab::Services, &app.services, |s| format!("{} {}", s.name, s.description));
+    let mut services = filtered(app, Tab::Services, &app.services, |s| {
+        format!("{} {} {}", s.scope, s.name, s.description)
+    });
     sort_by_tab(app, Tab::Services, &mut services, |a, b, key| match key {
         SortKey::Status => a.status.cmp(&b.status),
         _ => cmp_name(&a.name, &b.name),
     });
+    let failed = services.iter().filter(|s| s.status == "Failed").count();
 
     View {
-        title: format!("Services · {}", services.len()),
+        title: if failed > 0 {
+            format!("Services · {} ({failed} failed)", services.len())
+        } else {
+            format!("Services · {}", services.len())
+        },
         columns: vec![
             col("Name", Constraint::Fill(2), Some(SortKey::Name), false),
+            col("Scope", Constraint::Length(7), None, false),
             col("Description", Constraint::Fill(3), None, false),
             col("Status", Constraint::Length(9), Some(SortKey::Status), false),
         ],
@@ -478,9 +487,10 @@ fn services(app: &App) -> View {
             .iter()
             .map(|s| {
                 ViewRow::plain(
-                    s.name.clone(),
+                    format!("{}/{}", s.scope, s.name),
                     vec![
                         text(s.name.clone()),
+                        Cell::from(s.scope.clone()).style(Style::new().fg(Color::Gray)),
                         Cell::from(s.description.clone()).style(Style::new().fg(Color::Gray)),
                         Cell::from(s.status.clone()).style(status_style(&s.status)),
                     ],
@@ -518,12 +528,12 @@ fn share_bar(part: u64, whole: u64) -> String {
     let pct = if whole > 0 { part as f64 / whole as f64 * 100.0 } else { 0.0 };
     let eighths = (pct / 100.0 * (WIDTH * 8) as f64).round() as usize;
     let mut bar = "█".repeat(eighths / 8) + PARTIALS[eighths % 8];
-    let used = eighths / 8 + usize::from(eighths % 8 > 0);
+    let used = eighths.div_ceil(8);
     bar.push_str(&" ".repeat(WIDTH.saturating_sub(used)));
     format!("{bar} {pct:>5.1}%")
 }
 
-fn sorted_children<'a>(node: &'a DiskNode, key: SortKey, desc: bool) -> Vec<&'a DiskNode> {
+fn sorted_children(node: &DiskNode, key: SortKey, desc: bool) -> Vec<&DiskNode> {
     let mut kids: Vec<&DiskNode> = node.children.iter().collect();
     kids.sort_by(|a, b| {
         // "N smaller items" always goes last, like a footer.

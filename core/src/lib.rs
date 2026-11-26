@@ -1,7 +1,7 @@
 //! System data collection shared by the Tauri GUI (`src-tauri`) and the terminal UI (`tui`).
 
 use serde::Serialize;
-use std::collections::HashMap;
+use std::collections::{BTreeMap, HashMap};
 use std::time::Instant;
 use sysinfo::{DiskKind, Disks, Networks, Pid, System, Users};
 
@@ -70,11 +70,16 @@ pub struct NetworkInterface {
 #[derive(Serialize, Clone)]
 pub struct SystemStats {
     pub cpu_usage: f32,
+    /// Utilization of each logical processor, 0-100, in CPU order.
+    pub cpu_cores: Vec<f32>,
     pub total_memory: u64,
     pub used_memory: u64,
     pub total_swap: u64,
     pub used_swap: u64,
+    /// Read plus written bytes per second, all processes.
     pub disk_bytes_per_sec: f64,
+    pub disk_read_bytes_per_sec: f64,
+    pub disk_write_bytes_per_sec: f64,
     pub disk_active_percent: f64,
     pub network_rx_bytes_per_sec: f64,
     pub network_tx_bytes_per_sec: f64,
@@ -102,6 +107,9 @@ pub struct Snapshot {
 pub struct ServiceInfo {
     pub name: String,
     pub description: String,
+    /// "System" or "User" (the systemd manager the unit belongs to).
+    pub scope: String,
+    /// "Running", "Stopped" or "Failed".
     pub status: String,
 }
 
@@ -234,6 +242,8 @@ impl Monitor {
         }
 
         let mut total_disk_bytes = 0f64;
+        let mut total_disk_read = 0f64;
+        let mut total_disk_written = 0f64;
         // sysinfo reports a process's CPU as percent of one core (up to 100% x cores).
         let cores = sys.cpus().len().max(1) as f32;
         let processes: Vec<ProcessInfo> = sys
@@ -247,6 +257,8 @@ impl Monitor {
                 let bytes = disk.read_bytes + disk.written_bytes;
                 let rate = bytes as f64 / elapsed;
                 total_disk_bytes += rate;
+                total_disk_read += disk.read_bytes as f64 / elapsed;
+                total_disk_written += disk.written_bytes as f64 / elapsed;
                 let user_name = p
                     .user_id()
                     .and_then(|uid| users.get_user_by_id(uid))
@@ -344,11 +356,14 @@ impl Monitor {
             app_history,
             stats: SystemStats {
                 cpu_usage: sys.global_cpu_usage(),
+                cpu_cores: cpus.iter().map(|c| c.cpu_usage()).collect(),
                 total_memory: sys.total_memory(),
                 used_memory: sys.used_memory(),
                 total_swap: sys.total_swap(),
                 used_swap: sys.used_swap(),
                 disk_bytes_per_sec: total_disk_bytes,
+                disk_read_bytes_per_sec: total_disk_read,
+                disk_write_bytes_per_sec: total_disk_written,
                 disk_active_percent,
                 network_rx_bytes_per_sec: rx as f64 / elapsed,
                 network_tx_bytes_per_sec: tx as f64 / elapsed,
@@ -381,36 +396,75 @@ struct RawUnit {
     description: String,
 }
 
+/// One `systemctl list-units` query against the system manager or, with
+/// `user_scope`, the current user's manager. A manager that cannot be reached
+/// (for example `--user` with no session bus) yields an empty list, not an error.
 #[cfg(target_os = "linux")]
-pub fn get_services() -> Vec<ServiceInfo> {
-    let Ok(output) = std::process::Command::new("systemctl")
-        .args([
-            "list-units",
-            "--type=service",
-            "--all",
-            "--no-legend",
-            "--no-pager",
-            "-o",
-            "json",
-        ])
+fn list_units(user_scope: bool, filter_args: &[&str]) -> Vec<RawUnit> {
+    let mut cmd = std::process::Command::new("systemctl");
+    if user_scope {
+        cmd.arg("--user");
+    }
+    let Ok(output) = cmd
+        .arg("list-units")
+        .args(filter_args)
+        .args(["--no-legend", "--no-pager", "-o", "json"])
         .output()
     else {
         return Vec::new();
     };
-    let Ok(raw): Result<Vec<RawUnit>, _> = serde_json::from_slice(&output.stdout) else {
-        return Vec::new();
-    };
-    raw.into_iter()
+    serde_json::from_slice(&output.stdout).unwrap_or_default()
+}
+
+/// Combines the service list with the failed units of any type for one scope.
+/// A failed service appears in both queries, so entries are keyed by unit name
+/// and the failed copy is the one kept.
+#[cfg(target_os = "linux")]
+fn merge_units(scope: &str, services: Vec<RawUnit>, failed: Vec<RawUnit>) -> Vec<ServiceInfo> {
+    let mut by_unit: BTreeMap<String, RawUnit> = BTreeMap::new();
+    for unit in services {
+        by_unit.insert(unit.unit.clone(), unit);
+    }
+    for unit in failed {
+        by_unit.insert(unit.unit.clone(), unit);
+    }
+    by_unit
+        .into_values()
         .map(|u| ServiceInfo {
             name: u.unit.trim_end_matches(".service").to_string(),
             description: u.description,
-            status: if u.active == "active" {
-                "Running".to_string()
-            } else {
-                "Stopped".to_string()
-            },
+            scope: scope.to_string(),
+            status: match u.active.as_str() {
+                "active" => "Running",
+                "failed" => "Failed",
+                _ => "Stopped",
+            }
+            .to_string(),
         })
         .collect()
+}
+
+/// Failed units first, then system before user, then by name, so problems are at the top.
+#[cfg(target_os = "linux")]
+fn sort_services(services: &mut [ServiceInfo]) {
+    services.sort_by(|a, b| {
+        (a.status != "Failed")
+            .cmp(&(b.status != "Failed"))
+            .then_with(|| a.scope.cmp(&b.scope))
+            .then_with(|| a.name.cmp(&b.name))
+    });
+}
+
+#[cfg(target_os = "linux")]
+pub fn get_services() -> Vec<ServiceInfo> {
+    let mut all = Vec::new();
+    for (scope, user_scope) in [("System", false), ("User", true)] {
+        let services = list_units(user_scope, &["--type=service", "--all"]);
+        let failed = list_units(user_scope, &["--state=failed"]);
+        all.extend(merge_units(scope, services, failed));
+    }
+    sort_services(&mut all);
+    all
 }
 
 #[cfg(not(target_os = "linux"))]
@@ -586,6 +640,15 @@ mod tests {
     }
 
     #[test]
+    fn snapshot_reports_one_cpu_value_per_logical_core() {
+        let mut monitor = super::Monitor::new();
+        let stats = monitor.snapshot().stats;
+        assert_eq!(stats.cpu_cores.len(), stats.cpu_info.logical_cores);
+        assert!(stats.cpu_cores.iter().all(|&c| (0.0..=100.0).contains(&c)));
+        assert!(stats.disk_read_bytes_per_sec >= 0.0 && stats.disk_write_bytes_per_sec >= 0.0);
+    }
+
+    #[test]
     fn get_services_returns_real_running_services() {
         let services = super::get_services();
         assert!(
@@ -597,6 +660,64 @@ mod tests {
             "expected at least one Running service on a live system"
         );
         assert!(services.iter().all(|s| !s.name.is_empty()));
+        assert!(services.iter().all(|s| s.scope == "System" || s.scope == "User"));
+    }
+
+    #[cfg(target_os = "linux")]
+    #[test]
+    fn merge_units_keeps_failed_units_of_any_type_once() {
+        use super::RawUnit;
+        let unit = |name: &str, active: &str, description: &str| RawUnit {
+            unit: name.to_string(),
+            active: active.to_string(),
+            description: description.to_string(),
+        };
+        let services = vec![
+            unit("cups.service", "active", "CUPS Scheduler"),
+            unit("bad.service", "failed", "Broken daemon"),
+            unit("old.service", "inactive", "Unused"),
+        ];
+        // A failed service shows up in both queries, and a failed timer only in the second.
+        let failed = vec![unit("bad.service", "failed", "Broken daemon"), unit("backup.timer", "failed", "Nightly backup")];
+
+        let merged = super::merge_units("User", services, failed);
+        let find = |name: &str| merged.iter().filter(|s| s.name == name).collect::<Vec<_>>();
+
+        assert_eq!(merged.len(), 4);
+        assert_eq!(find("bad")[0].status, "Failed");
+        assert_eq!(find("bad").len(), 1);
+        assert_eq!(find("cups")[0].status, "Running");
+        assert_eq!(find("old")[0].status, "Stopped");
+        assert_eq!(find("backup.timer")[0].status, "Failed");
+        assert!(merged.iter().all(|s| s.scope == "User"));
+    }
+
+    #[cfg(target_os = "linux")]
+    #[test]
+    fn sort_services_puts_failed_first_then_system_before_user() {
+        let svc = |name: &str, scope: &str, status: &str| super::ServiceInfo {
+            name: name.to_string(),
+            description: String::new(),
+            scope: scope.to_string(),
+            status: status.to_string(),
+        };
+        let mut list = vec![
+            svc("zeta", "System", "Running"),
+            svc("alpha", "User", "Failed"),
+            svc("beta", "System", "Failed"),
+            svc("alpha", "System", "Running"),
+        ];
+        super::sort_services(&mut list);
+        let order: Vec<(String, String)> = list.iter().map(|s| (s.scope.clone(), s.name.clone())).collect();
+        assert_eq!(
+            order,
+            vec![
+                ("System".into(), "beta".into()),
+                ("User".into(), "alpha".into()),
+                ("System".into(), "alpha".into()),
+                ("System".into(), "zeta".into()),
+            ]
+        );
     }
 
     #[test]

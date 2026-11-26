@@ -1,4 +1,4 @@
-# reprepro config for the apt repo published to GitHub Pages by .github/workflows/publish-linux.yml
+# reprepro config for the apt repo published to GitHub Pages by .github/workflows/publish-linux.yaml
 Origin: Open Task Manager
 Label: Open Task Manager
 Codename: stable

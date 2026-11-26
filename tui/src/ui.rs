@@ -211,12 +211,20 @@ fn draw_performance(frame: &mut Frame, app: &App, area: Rect) {
         Layout::horizontal([Constraint::Fill(2), Constraint::Fill(3), Constraint::Fill(2)]).areas(details);
 
     let label = |k: &str| Span::styled(format!("{k:<13}"), Style::new().fg(Color::Gray));
+    // One block per logical processor, as tall as its load (the GUI draws these as bars).
+    let mut per_core = vec![label("Per core")];
+    per_core.extend(s.cpu_cores.iter().map(|&pct| {
+        const LEVELS: [char; 8] = ['▁', '▂', '▃', '▄', '▅', '▆', '▇', '█'];
+        let level = ((pct / 100.0) * 7.0).round().clamp(0.0, 7.0) as usize;
+        Span::styled(LEVELS[level].to_string(), Style::new().fg(CPU_COLOR))
+    }));
     let info = vec![
         Line::from(vec![label("Processor"), Span::raw(s.cpu_info.brand.clone())]),
         Line::from(vec![
             label("Cores"),
             Span::raw(format!("{} physical · {} logical", s.cpu_info.physical_cores, s.cpu_info.logical_cores)),
         ]),
+        Line::from(per_core),
         Line::from(vec![label("Speed"), Span::raw(format::hz(s.cpu_info.frequency_mhz))]),
         Line::from(vec![label("Processes"), Span::raw(s.process_count.to_string())]),
         Line::from(vec![label("Up time"), Span::raw(format::uptime(s.uptime_secs as f64))]),

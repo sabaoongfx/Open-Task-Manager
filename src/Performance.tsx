@@ -207,6 +207,24 @@ export default function PerformancePane({
                 />
                 <StatBlock label="Up time" value={stats ? formatUptime(stats.uptime_secs) : "…"} />
               </div>
+              {stats && stats.cpu_cores.length > 0 && (
+                <>
+                  <h3 className="perf-section-title">Logical processors</h3>
+                  <div className="perf-core-grid">
+                    {stats.cpu_cores.map((usage, i) => (
+                      <div className="perf-core" key={i}>
+                        <div className="perf-core-head">
+                          <span>CPU {i}</span>
+                          <span>{usage.toFixed(0)}%</span>
+                        </div>
+                        <div className="perf-core-track">
+                          <div className="perf-core-fill" style={{ width: `${Math.min(100, usage)}%` }} />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </>
+              )}
             </>
           )}
 
@@ -242,6 +260,8 @@ export default function PerformancePane({
                   value={stats ? `${stats.disk_active_percent.toFixed(0)}%` : "…"}
                 />
                 <StatBlock label="Throughput" value={stats ? formatRate(stats.disk_bytes_per_sec) : "…"} />
+                <StatBlock label="Read" value={stats ? formatRate(stats.disk_read_bytes_per_sec) : "…"} />
+                <StatBlock label="Write" value={stats ? formatRate(stats.disk_write_bytes_per_sec) : "…"} />
                 <StatBlock label="Type" value={primaryDisk?.kind ?? "…"} />
                 <StatBlock label="Mount point" value={primaryDisk?.mount_point ?? "…"} />
                 <StatBlock label="Capacity" value={primaryDisk ? formatGB(primaryDisk.total_bytes) : "…"} />

@@ -436,6 +436,28 @@ body {
   flex-shrink: 0;
 }
 
+.col-status.failed {
+  color: var(--danger);
+  font-weight: 600;
+}
+
+.col-scope {
+  width: 80px;
+  flex-shrink: 0;
+  color: var(--text-muted);
+}
+
+.failed-count {
+  margin-left: 12px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  background: var(--danger-bg);
+  color: var(--danger);
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
 .col-user {
   width: 150px;
   flex-shrink: 0;
@@ -773,6 +795,39 @@ body {
   display: flex;
   flex-direction: column;
   gap: 2px;
+}
+
+.perf-section-title {
+  margin: 28px 0 12px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.perf-core-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 12px 20px;
+}
+
+.perf-core-head {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+
+.perf-core-track {
+  height: 8px;
+  border-radius: 4px;
+  background: var(--row-hover);
+  overflow: hidden;
+}
+
+.perf-core-fill {
+  height: 100%;
+  background: #0ea5e9;
+  transition: width 0.4s ease;
 }
 
 .perf-stat-label {

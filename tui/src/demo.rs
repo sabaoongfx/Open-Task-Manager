@@ -83,11 +83,14 @@ fn demo_app() -> App {
 
     app.snapshot.stats = SystemStats {
         cpu_usage: 23.0,
+        cpu_cores: vec![31.0, 12.5, 40.0, 8.0, 22.0, 5.5, 18.0, 27.0, 10.0, 3.0, 45.0, 14.0, 9.0, 21.0, 6.0, 16.0],
         total_memory: 32 * GB,
         used_memory: 12 * GB + 700 * MB,
         total_swap: 8 * GB,
         used_swap: 0,
         disk_bytes_per_sec: 2.3 * MB as f64,
+        disk_read_bytes_per_sec: 1.6 * MB as f64,
+        disk_write_bytes_per_sec: 0.7 * MB as f64,
         disk_active_percent: 4.0,
         network_rx_bytes_per_sec: 1.9 * MB as f64,
         network_tx_bytes_per_sec: 0.2 * MB as f64,

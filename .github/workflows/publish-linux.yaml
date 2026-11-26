@@ -1,13 +1,14 @@
 name: Publish Linux packages
 
-# Runs when a release is published (i.e. after release.yml's draft has been reviewed and
+# Runs when a release is published (i.e. after release.yaml's draft has been reviewed and
 # published), so apt/pacman users only ever see releases that were actually shipped.
 #
 # Everything lands on one GitHub Pages site, rebuilt from scratch each release (only the newest
 # version is kept; package managers only need that):
 #   /                  signed apt repo      (dists/, pool/)
 #   /arch/x86_64/      signed pacman repo   (open-task-manager.db + packages)
-#   /KEY.gpg           the public key that signs both
+#   /KEY.asc           the public key that signs both (ASCII-armored, as apt and pacman-key expect)
+#   /KEY.gpg           the same file under its old name, for install commands written before KEY.asc
 #
 # Pre-release tags containing '-' (v1.0.0-beta.1) are skipped entirely: pacman's pkgver can't
 # contain '-', and the stable repos shouldn't get betas anyway.
@@ -34,7 +35,7 @@ jobs:
       - name: Install tools
         run: pacman -Syu --noconfirm --needed git pacman-contrib
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Build package
         run: |
@@ -54,7 +55,7 @@ jobs:
           PACKAGES_GPG_PRIVATE_KEY: ${{ secrets.PACKAGES_GPG_PRIVATE_KEY }}
         run: packaging/arch/make-repo.sh /build arch-repo/x86_64
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: arch-repo
           path: arch-repo
@@ -72,7 +73,7 @@ jobs:
       name: github-pages
       url: ${{ steps.deploy.outputs.page_url }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Install reprepro
         run: sudo apt-get update && sudo apt-get install -y reprepro
@@ -92,20 +93,21 @@ jobs:
           mkdir -p reprepro/conf public
           cp packaging/apt/distributions reprepro/conf/
           reprepro --basedir reprepro --outdir "$PWD/public" includedeb stable debs/*.deb
-          gpg --armor --export > public/KEY.gpg
+          gpg --armor --export > public/KEY.asc
+          cp public/KEY.asc public/KEY.gpg   # old install instructions still fetch this name
           touch public/.nojekyll
 
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: arch-repo
           path: public/arch
 
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/upload-pages-artifact@v5
         with:
           path: public
 
       - id: deploy
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
 
   # AUR: a source-built package and a -bin package that repackages the release .deb.
   # AUR registration is currently closed, so this quietly skips until the
@@ -124,14 +126,14 @@ jobs:
         if: ${{ env.AUR_SSH_PRIVATE_KEY == '' }}
         run: echo "::notice::AUR_SSH_PRIVATE_KEY is not set; skipping the AUR upload of ${{ matrix.pkg }}"
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         if: ${{ env.AUR_SSH_PRIVATE_KEY != '' }}
 
       - name: Set version
         if: ${{ env.AUR_SSH_PRIVATE_KEY != '' }}
         run: sed -i "s/^pkgver=.*/pkgver=${TAG#v}/; s/^pkgrel=.*/pkgrel=1/" "packaging/aur/${{ matrix.pkg }}/PKGBUILD"
 
-      - uses: KSXGitHub/github-actions-deploy-aur@v3
+      - uses: KSXGitHub/github-actions-deploy-aur@v4
         if: ${{ env.AUR_SSH_PRIVATE_KEY != '' }}
         with:
           pkgname: ${{ matrix.pkg }}

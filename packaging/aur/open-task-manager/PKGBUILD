@@ -1,6 +1,6 @@
 # Maintainer: Sabaoon
 #
-# Builds from source. pkgver and sha256sums are rewritten by .github/workflows/publish-linux.yml
+# Builds from source. pkgver and sha256sums are rewritten by .github/workflows/publish-linux.yaml
 # on every published GitHub release; edit everything else here.
 pkgname=open-task-manager
 pkgver=0.2.0

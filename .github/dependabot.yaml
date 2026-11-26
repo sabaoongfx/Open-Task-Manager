@@ -1,0 +1,29 @@
+# Weekly update PRs for the three things this repo pins: GitHub Actions versions (the workflows
+# under .github/workflows/), Rust crates (Cargo.toml at the root covers every crate and src-tauri),
+# and npm packages (package.json). Minor and patch updates are grouped per ecosystem so one PR
+# brings them in together; major versions still come as their own PRs for review.
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      actions:
+        patterns: ["*"]
+
+  - package-ecosystem: cargo
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      cargo-minor-and-patch:
+        update-types: ["minor", "patch"]
+
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      npm-minor-and-patch:
+        update-types: ["minor", "patch"]

@@ -18,9 +18,12 @@ npx playwright test tests/processes.spec.ts   # one file
 npx playwright test -g "right-click"          # by test name
 
 cargo test --workspace       # Rust tests: otm-core (process names/threads/CPU scale against live data,
-                             #   get_services, get_startup_apps, the disk scanner on a temp tree)
+                             #   per-core CPU and disk read/write, get_services incl. failed units,
+                             #   get_startup_apps, the disk scanner on a temp tree)
                              #   + otm (formatting, TestBackend renders of every tab, a Disk usage scan)
 cargo check --workspace      # fast Rust compile check
+# If that fails in src-tauri's build script with a path under an old checkout location, the cached
+# build outputs are stale: `cargo clean -p tauri -p tauri-build -p open-task-manager`, then retry.
 
 cargo test -p otm export_website_demo -- --ignored   # regenerate the website's otm screens
 python3 -m http.server -d website 8000               # preview the static website locally
@@ -81,8 +84,8 @@ first time its Disk usage tab opens, rooted at the working directory.
 
 Only Processes/Performance/Details/Users are backed by real `sysinfo` data end-to-end, plus
 Disk usage (a real, read-only filesystem walk; it never deletes anything). Startup
-apps (real `.desktop` autostart entries) and Services (real `systemctl` output) are real reads
-but their Enable/Disable/Start/Stop actions only mutate local component state — they do not
+apps (real `.desktop` autostart entries) and Services (real `systemctl` output, Linux only) are real
+reads but their Enable/Disable/Start/Stop actions only mutate local component state — they do not
 touch the real system (`kill_process`/task-ending is the only real system mutation the app
 performs). App history's CPU time is real and live but resets on restart (no persistence). See
 `README.md`'s Roadmap section for what's intentionally left as UI-only.
@@ -90,6 +93,17 @@ performs). App history's CPU time is real and live but resets on restart (no per
 `get_services` and `get_startup_apps` in `core/src/lib.rs` are `#[cfg(target_os = "linux")]` with an
 empty-Vec fallback on other platforms — on Windows/macOS those two tabs will show nothing when
 run as the real Tauri app (mock data still works everywhere since it doesn't hit the OS).
+
+`get_services` asks the system manager and the user manager (`systemctl --user`) twice each: once for
+`--type=service --all`, once for `--state=failed` (any unit type, so failed timers and mounts show
+too). Results are merged by unit name, a failed unit wins, and each `ServiceInfo` carries `scope`
+("System" or "User") and `status` ("Running", "Stopped" or "Failed"). The list is sorted failed first,
+then system before user, then by name. A manager that can't be reached (for example `--user` without a
+session bus) contributes nothing rather than an error. The Services tab shows the scope column, a red
+Failed status and a "N failed" count in the header; the TUI shows the same in its title. Rows are keyed
+by scope plus name because a system and a user unit can share a name. Start/Stop are still UI-only.
+The `systemd` parsing is covered by fixture tests (`merge_units`, `sort_services`); the live test
+checks only that the call returns sane data, since a CI machine may have no failed units.
 
 On Linux, `sysinfo` lists every **thread** as its own process, each reporting its whole
 process's memory. `Monitor::snapshot()` drops entries whose `thread_kind()` is set; without that
@@ -104,6 +118,16 @@ per-core value divided by the logical core count), so rows add up to the header 
 history adds up CPU-seconds from sysinfo's raw per-core value in the same pass, before that
 division. `otm`'s CPU heat thresholds are whole-CPU too (2.5% / 12.5%), and `tui/src/demo.rs`'s
 numbers are written in the same units.
+
+The per-core figures are separate: `SystemStats::cpu_cores` holds each logical processor's own
+utilization (0-100, in CPU order), shown as bars on the GUI's Performance tab and as block characters
+in the TUI's System panel. Disk figures: `disk_bytes_per_sec` is read plus written bytes, and
+`disk_read_bytes_per_sec` / `disk_write_bytes_per_sec` split the same per-process sums, so the two
+always add up to the total.
+
+**`SystemStats` has a struct literal in three places, and all three must gain any new field:**
+`core/src/lib.rs` (the real snapshot), `src/mockData.ts` (browser dev and Playwright) and
+`tui/src/demo.rs` (the website's TUI screens). Mirror the field in `src/types.ts` too.
 
 Process icons (`src/appIcons.tsx`) are Simple Icons SVGs (CC0) in `src/assets/brand-icons/`,
 matched to process names by `RULES`, with brand colors in `HEX_BY_SLUG` (from Simple Icons'
@@ -285,7 +309,7 @@ redirects `/releases.html` -> `/releases`), so canonical URLs and the sitemap us
 extensionless form, while in-page links stay `releases.html` so a plain static server still works.
 The site moved here from Vercel after hitting Vercel's limits.
 
-### Linux packaging (`packaging/`, `.github/workflows/publish-linux.yml`)
+### Linux packaging (`packaging/`, `.github/workflows/publish-linux.yaml`)
 
 The package/binary name is `open-task-manager` (renamed from `task-manager` after v0.2.0; the
 deb/rpm declare `Conflicts`/`Replaces` on the old name). Every Linux package ships **both**
@@ -293,11 +317,13 @@ binaries: `tauri.conf.json`'s `beforeBundleCommand` builds `otm`, and `bundle.li
 `rpm.files` add it as `/usr/bin/otm` — so the `.deb`/`.rpm` from `npm run tauri build` already
 contain both.
 
-`publish-linux.yml` runs when a GitHub release is *published* (not when release.yml creates the
-draft). Tags containing `-` (pre-releases) are skipped entirely, since `pkgver` can't contain `-`.
+`publish-linux.yaml` runs when a GitHub release is *published* (not when `release.yaml` creates the
+draft). Both workflow files use the `.yaml` extension. Tags containing `-` (pre-releases) are skipped entirely, since `pkgver` can't contain `-`.
 It publishes one GitHub Pages site, rebuilt from scratch each release (only the newest version is
 kept), signed with one GPG key (`PACKAGES_GPG_PRIVATE_KEY` secret, UID "Open Task Manager
-packages"; Pages source must be "GitHub Actions" and the `github-pages` environment must allow
+packages"). The public key is published as `/KEY.asc` (ASCII-armored). `/KEY.gpg` is the same file
+kept for install commands written before the rename; don't remove it. Pages source must be "GitHub
+Actions" and the `github-pages` environment must allow
 `v*` tags):
 - **pacman** (`/arch/x86_64/`): builds `packaging/aur/open-task-manager/PKGBUILD` from source in
   an `archlinux:base-devel` container, then `packaging/arch/make-repo.sh` signs it and runs
@@ -306,6 +332,10 @@ packages"; Pages source must be "GitHub Actions" and the `github-pages` environm
 - **apt** (`/`): downloads the release `.deb`, builds a signed repo with `reprepro`
   (`packaging/apt/distributions`). The Pages deploy `needs` the pacman job, so a failed Arch build
   leaves the previous site untouched rather than dropping the pacman repo.
+- **Install snippets are duplicated** in `README.md` (the Install section) and `website/index.html`
+  (the `#install` tabs). The apt one-liner uses a deb822 `.sources` file with `Signed-By` pointing at
+  the armored `KEY.asc`, and the pacman one uses `sudo pacman -Syu`. Change both places together. Never
+  suggest `-Sy` alone: Arch doesn't support partial upgrades.
 - **AUR**: pushes `packaging/aur/open-task-manager` (source) and `open-task-manager-bin`
   (repackages the `.deb`). Skipped with a notice while the `AUR_SSH_PRIVATE_KEY` secret is unset
   (AUR registration was closed when this was set up).
@@ -343,9 +373,18 @@ don't rename those files.
   Gatekeeper blocks the first launch. `bundle.publisher` ("Sabaoon") only changes the name in
   Settings → Apps, not the warning. Fixing it needs a certificate the owner applies for (SignPath
   Foundation, free for open source, is the first choice; Apple Developer Program for macOS);
-  then `release.yml` gets the signing secrets. Don't change the app identifier
+  then `release.yaml` gets the signing secrets. Don't change the app identifier
   `com.reddragon.task-manager` to match the publisher: it would break Windows upgrades and move
   the app's data.
+
+### Dependencies and action pins
+
+`.github/dependabot.yaml` opens weekly update PRs for GitHub Actions, Cargo (the root workspace
+covers `core`, `tui` and `src-tauri`) and npm, with minor and patch updates grouped. Workflows pin
+actions to a major tag (`@v7`), except `tauri-apps/tauri-action`, which is pinned to
+`@action-v1.0.0` because its releases are tagged `action-v*`. Major bumps arrive as their own PRs;
+read the release notes for breaking input changes before merging. Workflows can't be run locally,
+so check the next release's run after merging an action bump.
 
 ### Releasing
 
@@ -353,9 +392,9 @@ don't rename those files.
    inherited by all three crates) and `src-tauri/tauri.conf.json`, and add a `<release>` entry to
    the AppStream file above and an `<article class="release">` at the top of
    `website/releases.html` (the site's "What's new" page; move the "Latest" tag to it).
-2. Push a `v*` tag. `.github/workflows/release.yml` builds every installer into a **draft** GitHub
+2. Push a `v*` tag. `.github/workflows/release.yaml` builds every installer into a **draft** GitHub
    release, then a second job attaches standalone `otm` archives for each platform.
-3. Publish the draft. That triggers `publish-linux.yml` (apt/pacman repos on Pages, AUR).
+3. Publish the draft. That triggers `publish-linux.yaml` (apt/pacman repos on Pages, AUR).
 
 Every installer and `otm` archive is also uploaded under a **versionless** name
 (`Open-Task-Manager-x64-setup.exe`, `-x64.msi`, `-aarch64.dmg`, `-x64.dmg`, `-amd64.deb`,

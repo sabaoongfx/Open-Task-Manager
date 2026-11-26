@@ -115,12 +115,15 @@ fn push_capped(buf: &mut VecDeque<f64>, value: f64) {
 
 /// The Disk usage tab's scan. Scans run on a background thread (they can take minutes on a
 /// whole drive) and start the first time the tab is opened, not at launch.
+/// A folder scan in progress: its progress counters and the channel its result arrives on.
+type RunningScan = (Arc<ScanProgress>, Receiver<Result<DiskScan, String>>);
+
 pub struct DiskUsage {
     /// Folder being scanned or last scanned.
     pub root: PathBuf,
     pub scan: Option<DiskScan>,
     pub error: Option<String>,
-    running: Option<(Arc<ScanProgress>, Receiver<Result<DiskScan, String>>)>,
+    running: Option<RunningScan>,
 }
 
 impl DiskUsage {

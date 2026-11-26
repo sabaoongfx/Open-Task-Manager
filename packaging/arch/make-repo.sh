@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Signs built packages and turns them into a signed pacman repo named "open-task-manager".
-# Used by .github/workflows/publish-linux.yml; runnable locally too.
+# Used by .github/workflows/publish-linux.yaml; runnable locally too.
 #
 # Usage: make-repo.sh <dir containing *.pkg.tar.zst> <output dir>
 # The signing key is imported from $PACKAGES_GPG_PRIVATE_KEY if set, else the keyring's

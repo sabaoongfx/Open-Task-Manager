@@ -52,26 +52,26 @@ export function mockKill(pid: number) {
 
 let appCpuSeconds: Record<string, number> = {};
 
+const MOCK_LOGICAL_CORES = 16;
+
 export function mockResetAppHistory() {
   appCpuSeconds = {};
 }
 
 export function mockServices(): ServiceInfo[] {
+  // Shaped like the Linux output: failed units first, then system, then user.
   return [
-    { name: "AudioEndpointBuilder", description: "Windows Audio Endpoint Builder", status: "Running" },
-    { name: "BITS", description: "Background Intelligent Transfer Service", status: "Stopped" },
-    { name: "Dnscache", description: "DNS Client", status: "Running" },
-    { name: "EventLog", description: "Windows Event Log", status: "Running" },
-    { name: "LanmanServer", description: "Server", status: "Running" },
-    { name: "LanmanWorkstation", description: "Workstation", status: "Running" },
-    { name: "PlugPlay", description: "Plug and Play", status: "Running" },
-    { name: "Schedule", description: "Task Scheduler", status: "Running" },
-    { name: "Spooler", description: "Print Spooler", status: "Stopped" },
-    { name: "Themes", description: "Themes", status: "Running" },
-    { name: "W32Time", description: "Windows Time", status: "Stopped" },
-    { name: "WcmSvc", description: "Windows Connection Manager", status: "Running" },
-    { name: "WinDefend", description: "Microsoft Defender Antivirus Service", status: "Running" },
-    { name: "wuauserv", description: "Windows Update", status: "Stopped" },
+    { name: "backup-home", description: "Nightly home folder backup", scope: "User", status: "Failed" },
+    { name: "cups-browsed", description: "Make remote CUPS printers available locally", scope: "System", status: "Failed" },
+    { name: "NetworkManager", description: "Network Manager", scope: "System", status: "Running" },
+    { name: "bluetooth", description: "Bluetooth service", scope: "System", status: "Stopped" },
+    { name: "cups", description: "CUPS Scheduler", scope: "System", status: "Running" },
+    { name: "docker", description: "Docker Application Container Engine", scope: "System", status: "Stopped" },
+    { name: "systemd-journald", description: "Journal Service", scope: "System", status: "Running" },
+    { name: "systemd-resolved", description: "Network Name Resolution", scope: "System", status: "Running" },
+    { name: "ssh-agent", description: "OpenSSH key agent", scope: "User", status: "Running" },
+    { name: "pipewire", description: "PipeWire Multimedia Service", scope: "User", status: "Running" },
+    { name: "syncthing", description: "Syncthing file synchronisation", scope: "User", status: "Stopped" },
   ];
 }
 
@@ -113,16 +113,23 @@ export function mockSnapshot(): Snapshot {
     seedState.reduce((sum, p) => sum + p.baseCpu, 0) + Math.random() * 3
   );
 
+  const totalDisk = processes.reduce((sum, p) => sum + p.disk_bytes_per_sec, 0);
+
   return {
     processes,
     app_history,
     stats: {
       cpu_usage: cpu,
+      cpu_cores: Array.from({ length: MOCK_LOGICAL_CORES }, (_, i) =>
+        Math.min(100, Math.max(0, cpu + (Math.sin(i * 1.7) * 18) + (Math.random() - 0.5) * 12))
+      ),
       total_memory: totalMemory,
       used_memory: usedMemory,
       total_swap: mb(4096),
       used_swap: mb(320) + Math.random() * mb(40),
-      disk_bytes_per_sec: processes.reduce((sum, p) => sum + p.disk_bytes_per_sec, 0),
+      disk_bytes_per_sec: totalDisk,
+      disk_read_bytes_per_sec: totalDisk * 0.7,
+      disk_write_bytes_per_sec: totalDisk * 0.3,
       disk_active_percent: Math.min(100, 8 + Math.random() * 10),
       uptime_secs: 5025,
       process_count: processes.length,
@@ -130,7 +137,7 @@ export function mockSnapshot(): Snapshot {
         brand: "AMD Ryzen 7 5800H",
         frequency_mhz: 3200 + Math.round(Math.random() * 600),
         physical_cores: 8,
-        logical_cores: 16,
+        logical_cores: MOCK_LOGICAL_CORES,
       },
       disks: [
         {

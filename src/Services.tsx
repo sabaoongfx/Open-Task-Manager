@@ -4,12 +4,15 @@ import { isTauri, mockServices } from "./mockData";
 import type { ServiceInfo } from "./types";
 import { IconPlay, IconProhibit, IconRunNewTask, IconSearch } from "./icons";
 
+// System and user units can share a name, so a row is identified by scope + name.
+const keyOf = (s: ServiceInfo) => `${s.scope}/${s.name}`;
+
 export default function ServicesPane() {
   const [services, setServices] = useState<ServiceInfo[]>([]);
   const [selected, setSelected] = useState<string | null>(null);
   const [filter, setFilter] = useState("");
   const [showSearch, setShowSearch] = useState(false);
-  const [contextMenu, setContextMenu] = useState<{ x: number; y: number; name: string } | null>(null);
+  const [contextMenu, setContextMenu] = useState<{ x: number; y: number; key: string } | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -32,22 +35,33 @@ export default function ServicesPane() {
     return () => window.removeEventListener("click", close);
   }, [contextMenu]);
 
-  function setRunning(name: string, running: boolean) {
+  // UI-only for now: Start/Stop never reach systemd (see README roadmap).
+  function setRunning(key: string, running: boolean) {
     setServices((prev) =>
-      prev.map((s) => (s.name === name ? { ...s, status: running ? "Running" : "Stopped" } : s))
+      prev.map((s) => (keyOf(s) === key ? { ...s, status: running ? "Running" : "Stopped" } : s))
     );
   }
 
-  const filtered = services.filter(
-    (s) =>
-      s.name.toLowerCase().includes(filter.toLowerCase()) ||
-      s.description.toLowerCase().includes(filter.toLowerCase())
-  );
+  const failedCount = services.filter((s) => s.status === "Failed").length;
+
+  const filtered = services.filter((s) => {
+    const q = filter.toLowerCase();
+    return (
+      s.name.toLowerCase().includes(q) ||
+      s.description.toLowerCase().includes(q) ||
+      s.scope.toLowerCase().includes(q)
+    );
+  });
 
   return (
     <>
       <div className="panel-header">
         <h1>Services</h1>
+        {failedCount > 0 && (
+          <span className="failed-count" title="Units that failed to start or crashed">
+            {failedCount} failed
+          </span>
+        )}
         <div className="spacer" />
         <div className="toolbar">
           <button className="toolbar-btn" disabled>
@@ -73,36 +87,41 @@ export default function ServicesPane() {
       <div className="process-table">
         <div className="table-head">
           <div className="col col-name">Name</div>
+          <div className="col col-scope">Scope</div>
           <div className="col col-desc">Description</div>
           <div className="col col-status">Status</div>
           <div className="col-spacer" />
         </div>
         <div className="table-body">
           {services.length === 0 && <div className="empty-hint">Loading services…</div>}
-          {filtered.map((s) => (
-            <div
-              key={s.name}
-              className={`row ${selected === s.name ? "selected" : ""}`}
-              onClick={() => setSelected(s.name)}
-              onContextMenu={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                setSelected(s.name);
-                setContextMenu({ x: e.clientX, y: e.clientY, name: s.name });
-              }}
-            >
-              <div className="col col-name">{s.name}</div>
-              <div className="col col-desc">{s.description}</div>
-              <div className="col col-status">{s.status}</div>
-              <div className="col-spacer" />
-            </div>
-          ))}
+          {filtered.map((s) => {
+            const key = keyOf(s);
+            return (
+              <div
+                key={key}
+                className={`row ${selected === key ? "selected" : ""}`}
+                onClick={() => setSelected(key)}
+                onContextMenu={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setSelected(key);
+                  setContextMenu({ x: e.clientX, y: e.clientY, key });
+                }}
+              >
+                <div className="col col-name">{s.name}</div>
+                <div className="col col-scope">{s.scope}</div>
+                <div className="col col-desc">{s.description}</div>
+                <div className={`col col-status ${s.status === "Failed" ? "failed" : ""}`}>{s.status}</div>
+                <div className="col-spacer" />
+              </div>
+            );
+          })}
         </div>
       </div>
 
       {contextMenu &&
         (() => {
-          const svc = services.find((s) => s.name === contextMenu.name);
+          const svc = services.find((s) => keyOf(s) === contextMenu.key);
           if (!svc) return null;
           const running = svc.status === "Running";
           return (
@@ -115,7 +134,7 @@ export default function ServicesPane() {
                 <button
                   className="context-menu-item danger"
                   onClick={() => {
-                    setRunning(contextMenu.name, false);
+                    setRunning(contextMenu.key, false);
                     setContextMenu(null);
                   }}
                 >
@@ -126,7 +145,7 @@ export default function ServicesPane() {
                 <button
                   className="context-menu-item"
                   onClick={() => {
-                    setRunning(contextMenu.name, true);
+                    setRunning(contextMenu.key, true);
                     setContextMenu(null);
                   }}
                 >

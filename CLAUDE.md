@@ -396,6 +396,17 @@ so check the next release's run after merging an action bump.
    release, then a second job attaches standalone `otm` archives for each platform.
 3. Publish the draft. That triggers `publish-linux.yaml` (apt/pacman repos on Pages, AUR).
 
+How a release was cut (0.5.0): the version bump and release notes went through a PR into `main`
+(`gh pr create`, then `gh pr merge --merge --delete-branch`). The tag was pushed from the merged
+`main` commit, not from the PR branch, so it points at what's on `main`.
+
+**Status of 0.5.0 (tagged 2026-11-26): in progress.** The `v0.5.0` tag is pushed and PR #9 is merged.
+Still to do, in order: watch the `release.yaml` run for that tag (`gh run list --workflow release.yaml`)
+and check it succeeds, since it's the first run with the bumped `tauri-action` (`action-v1.0.0`) and
+the new `actions/*` majors; review the draft release and its assets; publish the draft, which starts
+`publish-linux.yaml`; then check the apt repo (`KEY.asc` and the `.sources` file) and the pacman repo
+on a clean machine. Until the draft is published, apt and pacman users still get 0.4.2.
+
 Every installer and `otm` archive is also uploaded under a **versionless** name
 (`Open-Task-Manager-x64-setup.exe`, `-x64.msi`, `-aarch64.dmg`, `-x64.dmg`, `-amd64.deb`,
 `-x86_64.rpm`, `-x86_64.AppImage`, `otm-<target>.tar.gz|.zip`). The website's and README's

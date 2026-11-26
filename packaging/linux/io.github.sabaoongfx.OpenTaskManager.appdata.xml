@@ -87,6 +87,16 @@
   <content_rating type="oars-1.1" />
 
   <releases>
+    <release version="0.5.0" date="2026-11-26">
+      <description>
+        <p>Linux: see failed services at a glance, and per-core CPU and disk read/write in Performance.</p>
+        <ul>
+          <li>Services lists failed system and user units first, with a scope column and a failed count</li>
+          <li>Performance shows a bar for each processor, and splits disk throughput into read and write</li>
+          <li>otm shows the same per-core load and service scope</li>
+        </ul>
+      </description>
+    </release>
     <release version="0.4.2" date="2026-09-27">
       <description>
         <p>Clearer process list: full names, CPU like Windows, and many more app icons.</p>

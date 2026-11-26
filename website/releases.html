@@ -49,11 +49,31 @@
 <!-- Newest first. Add an entry here for every release (see CLAUDE.md, Releasing). -->
 <main class="releases">
 
+<article class="release" id="v0.5.0">
+  <div class="release-meta">
+    <h2><a href="#v0.5.0">0.5.0</a></h2>
+    <time datetime="2026-11-26">November 26, 2026</time>
+    <span class="release-tag">Latest</span>
+  </div>
+  <div class="release-body">
+    <p class="release-lede">On Linux: failed services at a glance, and per-core CPU and disk read/write.</p>
+    <h3>New</h3>
+    <ul>
+      <li><strong>Failed services and units.</strong> Services now lists failed units from both the system manager and your user manager (<span class="mono">systemctl --user</span>), including failed timers and mounts. They're listed first and counted in the header, and each row shows whether it belongs to the system or to you.</li>
+      <li><strong>Per-core CPU.</strong> Performance shows a bar for each processor, so you can see one busy core that the total hides. <span class="mono">otm</span> shows the same as blocks in its System panel.</li>
+      <li><strong>Disk read and write.</strong> Performance splits disk throughput into read and write, next to the total.</li>
+    </ul>
+    <h3>Changed</h3>
+    <ul>
+      <li>Install instructions for apt and pacman were updated. Existing apt installs keep working. For pacman, always install with <span class="mono">sudo pacman -Syu</span>.</li>
+    </ul>
+  </div>
+</article>
+
 <article class="release" id="v0.4.2">
   <div class="release-meta">
     <h2><a href="#v0.4.2">0.4.2</a></h2>
     <time datetime="2026-09-27">September 27, 2026</time>
-    <span class="release-tag">Latest</span>
   </div>
   <div class="release-body">
     <p class="release-lede">A clearer process list: full names, CPU numbers that add up, and many more app icons.</p>

@@ -202,10 +202,10 @@ impl Default for Monitor {
 impl Monitor {
     pub fn new() -> Self {
         Monitor {
-            sys: System::new_all(),
-            networks: Networks::new_with_refreshed_list(),
-            disks: Disks::new_with_refreshed_list(),
-            users: Users::new_with_refreshed_list(),
+            sys: System::new_all().expect("sysinfo: system info unsupported"),
+            networks: Networks::new_with_refreshed_list().expect("sysinfo: network list unsupported"),
+            disks: Disks::new_with_refreshed_list().expect("sysinfo: disk list unsupported"),
+            users: Users::new_with_refreshed_list().expect("sysinfo: user list unsupported"),
             disk_io_prev: HashMap::new(),
             last_refresh: Instant::now(),
             users_refreshed: Instant::now(),
@@ -234,10 +234,10 @@ impl Monitor {
         sys.refresh_cpu_usage();
         sys.refresh_memory();
         sys.refresh_processes(sysinfo::ProcessesToUpdate::All, true);
-        networks.refresh();
-        disks.refresh();
+        networks.refresh(false);
+        disks.refresh(false);
         if users_refreshed.elapsed() >= USERS_REFRESH_INTERVAL {
-            users.refresh_list();
+            users.refresh();
             *users_refreshed = now;
         }
 
@@ -302,7 +302,7 @@ impl Monitor {
         let network_interfaces = networks
             .iter()
             .map(|(name, data)| NetworkInterface {
-                name: name.clone(),
+                name: name.to_string_lossy().to_string(),
                 rx_bytes_per_sec: data.received() as f64 / elapsed,
                 tx_bytes_per_sec: data.transmitted() as f64 / elapsed,
             })
@@ -346,7 +346,7 @@ impl Monitor {
                 .map(|c| c.brand().trim().to_string())
                 .unwrap_or_default(),
             frequency_mhz: cpus.first().map(|c| c.frequency()).unwrap_or(0),
-            physical_cores: sys.physical_core_count().unwrap_or(0),
+            physical_cores: System::physical_core_count().unwrap_or(0),
             logical_cores: cpus.len(),
         };
 
@@ -356,7 +356,7 @@ impl Monitor {
             app_history,
             stats: SystemStats {
                 cpu_usage: sys.global_cpu_usage(),
-                cpu_cores: cpus.iter().map(|c| c.cpu_usage()).collect(),
+                cpu_cores: cpus.iter().map(|c| c.usage()).collect(),
                 total_memory: sys.total_memory(),
                 used_memory: sys.used_memory(),
                 total_swap: sys.total_swap(),
@@ -367,7 +367,7 @@ impl Monitor {
                 disk_active_percent,
                 network_rx_bytes_per_sec: rx as f64 / elapsed,
                 network_tx_bytes_per_sec: tx as f64 / elapsed,
-                uptime_secs: System::uptime(),
+                uptime_secs: System::uptime().unwrap_or(0),
                 process_count,
                 cpu_info,
                 disks: disk_list,

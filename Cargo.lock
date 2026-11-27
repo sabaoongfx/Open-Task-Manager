@@ -2785,7 +2785,7 @@ dependencies = [
 
 [[package]]
 name = "open-task-manager"
-version = "0.5.0"
+version = "0.5.1"
 dependencies = [
  "otm-core",
  "tauri",
@@ -2820,7 +2820,7 @@ dependencies = [
 
 [[package]]
 name = "otm"
-version = "0.5.0"
+version = "0.5.1"
 dependencies = [
  "otm-core",
  "ratatui",
@@ -2828,7 +2828,7 @@ dependencies = [
 
 [[package]]
 name = "otm-core"
-version = "0.5.0"
+version = "0.5.1"
 dependencies = [
  "rayon",
  "serde",

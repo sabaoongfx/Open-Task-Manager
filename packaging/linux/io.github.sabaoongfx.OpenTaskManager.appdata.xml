@@ -87,6 +87,15 @@
   <content_rating type="oars-1.1" />
 
   <releases>
+    <release version="0.5.1" date="2026-11-27">
+      <description>
+        <p>Maintenance release. Nothing in the interface changes on purpose.</p>
+        <ul>
+          <li>Updated the system information library to sysinfo 0.40</li>
+          <li>Fixed the AUR publishing step in the Linux release workflow</li>
+        </ul>
+      </description>
+    </release>
     <release version="0.5.0" date="2026-11-26">
       <description>
         <p>Linux: see failed services at a glance, and per-core CPU and disk read/write in Performance.</p>

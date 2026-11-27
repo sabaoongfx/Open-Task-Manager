@@ -133,7 +133,7 @@ jobs:
         if: ${{ env.AUR_SSH_PRIVATE_KEY != '' }}
         run: sed -i "s/^pkgver=.*/pkgver=${TAG#v}/; s/^pkgrel=.*/pkgrel=1/" "packaging/aur/${{ matrix.pkg }}/PKGBUILD"
 
-      - uses: KSXGitHub/github-actions-deploy-aur@v4
+      - uses: KSXGitHub/github-actions-deploy-aur@v4.2.0
         if: ${{ env.AUR_SSH_PRIVATE_KEY != '' }}
         with:
           pkgname: ${{ matrix.pkg }}
